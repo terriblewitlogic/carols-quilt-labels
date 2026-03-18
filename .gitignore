@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Netlify local cache
+.netlify/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+files/.venv/
+netlify/functions/export/__pycache__/
+
+# macOS
+.DS_Store
+
+# Temp / test files
+Longer.be
+
+# Secrets / local env
+.env
+.env.local
