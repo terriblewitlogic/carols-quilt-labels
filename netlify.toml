@@ -8,5 +8,12 @@
   targetPort = 5199
   port = 8888
 
-[functions]
-  node_bundler = "esbuild"
+# Python functions — declare each explicitly so Netlify uses Python 3.11
+[functions."export"]
+  runtime = "python3.11"
+
+[functions."preview"]
+  runtime = "python3.11"
+
+[functions."font-samples"]
+  runtime = "python3.11"

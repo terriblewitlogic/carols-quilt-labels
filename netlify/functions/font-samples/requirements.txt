@@ -1,0 +1,4 @@
+pyembroidery>=1.5
+Hershey-Fonts>=2.0
+shapely>=2.0
+numpy>=1.24
