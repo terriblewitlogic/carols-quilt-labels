@@ -3,8 +3,8 @@
   "outputDirectory": "dist",
   "framework": "vite",
   "functions": {
-    "api/*.py": {
-      "runtime": "@vercel/python@6.24.0"
-    }
+    "api/export.py": { "runtime": "@vercel/python@6.24.0" },
+    "api/preview.py": { "runtime": "@vercel/python@6.24.0" },
+    "api/font_samples.py": { "runtime": "@vercel/python@6.24.0" }
   }
 }
