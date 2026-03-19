@@ -6,10 +6,10 @@ export default defineConfig({
   server: {
     port: 5199,
     proxy: {
-      // In dev, route Netlify function calls to local Python server on 9999
-      '/.netlify/functions': {
+      // In dev, proxy /api/* to local Python server on 9999
+      '/api': {
         target: 'http://localhost:9999',
-        rewrite: path => path.replace('/.netlify/functions', ''),
+        rewrite: path => path.replace('/api', ''),
       },
     },
   },

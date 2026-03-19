@@ -145,7 +145,7 @@ export default function QuiltLabelMaker() {
   // ── Fetch stitch SVG thumbnails for font picker (once when fonts tab opens) ──
   useEffect(() => {
     if (leftTab !== 'fonts' || Object.keys(fontSamples).length > 0) return;
-    fetch('/.netlify/functions/font-samples', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
+    fetch('/api/font_samples', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
       .then(r => r.json())
       .then(d => { if (d.samples) setFontSamples(d.samples); })
       .catch(() => {});  // silently ignore — CSS fallback stays visible
@@ -309,7 +309,7 @@ export default function QuiltLabelMaker() {
       }));
     if (!textElements.length) { alert('Add some text first.'); return; }
     try {
-      const res = await fetch('/.netlify/functions/preview', {
+      const res = await fetch('/api/preview', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ textElements }),
@@ -356,7 +356,7 @@ export default function QuiltLabelMaker() {
     if (!groups.length && !textElements.length) return;
     setExporting(true);
     try {
-      const res = await fetch('/.netlify/functions/export', {
+      const res = await fetch('/api/export', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ groups, textElements, canvasW: cw, canvasH: ch, format: exportFormat }),
