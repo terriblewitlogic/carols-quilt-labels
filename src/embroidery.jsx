@@ -10,6 +10,21 @@ import { BORDER_TYPES, generateBorderStitches } from './borders.js';
 import { openColorChart } from './color-chart.js';
 import { PX_PER_MM } from './constants.js';
 
+// ─── Unit conversion helpers (px ↔ display unit) ─────────────────────────────
+const PX_PER_IN  = PX_PER_MM * 25.4;   // 101.6 px per inch
+const PX_PER_CM  = PX_PER_MM * 10;     // 40 px per cm
+const pxToUnit = (px, unit) => unit === 'in' ? px / PX_PER_IN : px / PX_PER_CM;
+const unitToPx = (val, unit) => Math.round(val * (unit === 'in' ? PX_PER_IN : PX_PER_CM));
+const mmToUnit = (mm, unit) => unit === 'in' ? mm / 25.4 : mm / 10;
+const fmtUnit  = (val, unit) => unit === 'in'
+  ? `${val.toFixed(2)}"`
+  : `${val.toFixed(1)} cm`;
+// Slider bounds in each unit
+const UNIT_SLIDER = {
+  in: { min: 0.10, max: 1.60, step: 0.05 },
+  cm: { min: 0.30, max: 4.00, step: 0.10 },
+};
+
 let uid = 200;
 
 // ─── Undo/Redo reducer ───────────────────────────────────────────────────────
@@ -92,6 +107,7 @@ export default function QuiltLabelMaker() {
   const [exporting, setExporting] = useState(false);
   const [previewSvg, setPreviewSvg] = useState(null);
   const [fontSamples, setFontSamples] = useState({});   // fontValue → svgString
+  const [unit, setUnit] = useState('in');               // 'in' | 'cm'
   const cvs = useRef(null);
 
   const rawDims = getCanvasDims(hoopKey);
@@ -723,19 +739,38 @@ export default function QuiltLabelMaker() {
                 </select>
               </>}
 
-              <div style={{ display:'flex', gap:8, alignItems:'center', marginBottom:3 }}>
-                <span style={{ fontSize:10, color:'#6A5840', flexShrink:0, minWidth:40 }}>Size {selEl.fontSize}px</span>
-                <input type="range" min={12} max={160} value={selEl.fontSize}
-                  onChange={e => upd(selEl.id, { fontSize: +e.target.value })}
-                  style={{ flex:1, accentColor:'#C8A060' }} />
+              {/* ── Size slider with in / cm toggle ── */}
+              <div style={{ display:'flex', gap:6, alignItems:'center', marginBottom:3 }}>
+                <span style={{ fontSize:10, color:'#6A5840', flexShrink:0, minWidth:16 }}>Size</span>
+                {/* numeric readout */}
+                <span style={{ fontSize:11, color:'#C8A060', minWidth:38, flexShrink:0, fontVariantNumeric:'tabular-nums' }}>
+                  {fmtUnit(pxToUnit(selEl.fontSize, unit), unit)}
+                </span>
+                {/* unit toggle */}
+                <div style={{ display:'flex', border:'1px solid #3A3020', borderRadius:4, overflow:'hidden', flexShrink:0, marginLeft:'auto' }}>
+                  {['in','cm'].map(u => (
+                    <button key={u} onClick={() => setUnit(u)}
+                      style={{ padding:'2px 7px', fontSize:9, fontFamily:'inherit', cursor:'pointer', border:'none',
+                        background: unit === u ? '#3A2E1E' : 'transparent',
+                        color: unit === u ? '#C8A060' : '#5A4830' }}>
+                      {u}
+                    </button>
+                  ))}
+                </div>
               </div>
+              <input type="range"
+                min={UNIT_SLIDER[unit].min}
+                max={UNIT_SLIDER[unit].max}
+                step={UNIT_SLIDER[unit].step}
+                value={parseFloat(pxToUnit(selEl.fontSize, unit).toFixed(unit === 'in' ? 2 : 1))}
+                onChange={e => upd(selEl.id, { fontSize: unitToPx(+e.target.value, unit) })}
+                style={{ width:'100%', accentColor:'#C8A060', marginBottom:6 }} />
               {selEl.type === 'text' && (() => {
-                const PX_PER_MM = 4;
                 const sizeMm = selEl.fontSize / PX_PER_MM;
                 const minMm  = getMinHeight(selEl.font);
                 if (sizeMm < minMm) return (
                   <div style={{ fontSize:9, color:'#C05020', background:'rgba(192,80,32,0.12)', borderRadius:4, padding:'4px 7px', marginBottom:6 }}>
-                    ⚠ {sizeMm.toFixed(1)}mm is below the {minMm}mm minimum for this font — stitching may be illegible.
+                    ⚠ {fmtUnit(mmToUnit(sizeMm, unit), unit)} is below the {fmtUnit(mmToUnit(minMm, unit), unit)} minimum for this font — stitching may be illegible.
                   </div>
                 );
                 return null;
