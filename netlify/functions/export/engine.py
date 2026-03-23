@@ -38,9 +38,13 @@ FONT_ALIASES = {
     'italic':       'timesi',    # Times italic
     'times':        'timesr',    # Times Roman
     'times-bold':   'timesrb',   # Times Bold
-    # Display
-    'gothic':       'gothgbt',   # Gothic German block
-    'gothic-italic':'gothitt',   # Gothic Italian triplex
+    # Display / Gothic
+    'gothic':         'gothgbt',    # Gothic German block
+    'gothic-italic':  'gothitt',    # Gothic Italian triplex
+    'gothic-eng':     'gothiceng',  # Gothic English (Old English blackletter)
+    'gothic-ger':     'gothicger',  # Gothic German (angular blackletter)
+    'gothic-ita':     'gothicita',  # Gothic Italian (rounded blackletter)
+    'gothic-round':   'gothgrt',    # Gothic German Round (softer strokes)
 }
 
 def available_fonts():
@@ -661,6 +665,106 @@ def generate_preview_svg(lines_text, font_name='script', height_mm=15.0,
         f'</svg>'
     )
     return svg
+
+
+def generate_layout_svg(text_elements, hoop_w_mm, hoop_h_mm,
+                        border_type='none', border_color='#111111',
+                        canvas_w_px=700):
+    """Generate a full-layout stitch preview SVG.
+
+    Positions each text element at its real canvas coordinates, draws the
+    hoop background, and optionally draws a border rectangle.
+
+    text_elements: list of dicts with keys:
+        text, font, size_mm, x_px, y_px, color, density_mm
+        x_px/y_px are canvas-pixel centres (4 px/mm).
+    """
+    PX_PER_MM = 4.0
+    scale = canvas_w_px / hoop_w_mm
+    canvas_h_px = hoop_h_mm * scale
+
+    svg_parts = []
+
+    # Background
+    svg_parts.append(
+        f'<rect width="{canvas_w_px}" height="{canvas_h_px:.0f}" '
+        f'fill="#f5f0e8" rx="6"/>'
+    )
+
+    # Border
+    if border_type and border_type != 'none':
+        inset = 4 * scale / PX_PER_MM   # 4mm inset in px
+        sw = 1.5
+        dash = ' stroke-dasharray="6,4"' if border_type == 'running' else ''
+        svg_parts.append(
+            f'<rect x="{inset:.1f}" y="{inset:.1f}" '
+            f'width="{canvas_w_px - 2*inset:.1f}" '
+            f'height="{canvas_h_px - 2*inset:.1f}" '
+            f'fill="none" stroke="{border_color}" stroke-width="{sw}" '
+            f'rx="3"{dash}/>'
+        )
+
+    # Text elements at actual positions
+    for el in text_elements:
+        lines = [l for l in el.get('text', '').split('\n') if l.strip()]
+        if not lines:
+            continue
+        font_name  = el.get('font', 'script')
+        height_mm  = float(el.get('size_mm', 12.0))
+        color_hex  = el.get('color', '#4A3820')
+        _d         = el.get('density_mm')
+        density_mm = float(_d) if _d is not None else None
+        x_mm = float(el.get('x_px', hoop_w_mm * PX_PER_MM / 2)) / PX_PER_MM
+        y_mm = float(el.get('y_px', hoop_h_mm * PX_PER_MM / 2)) / PX_PER_MM
+
+        satin_w  = auto_satin_width(height_mm)
+        density  = density_mm if density_mm else auto_density(height_mm)
+        spacing  = height_mm * 1.6
+
+        for line_idx, text in enumerate(lines):
+            strokes = get_text_strokes(text, font_name, height_mm)
+            if not strokes:
+                continue
+            tw = get_text_width(text, font_name, height_mm)
+            # Centre horizontally on x_mm, baseline at y_mm for each line
+            x_off = x_mm - tw / 2.0
+            y_off = y_mm + line_idx * spacing - (len(lines) - 1) * spacing / 2.0
+
+            for stroke_pts in strokes:
+                shifted = stroke_pts.copy()
+                shifted[:, 0] += x_off
+                shifted[:, 1] += y_off
+                pts = resample_line(shifted, density)
+                if len(pts) < 3:
+                    continue
+                half_w = (satin_w / 2.0) + 0.1
+                normals = compute_normals(pts)
+                normals = smooth_array(normals, window=7)
+                normals = clamp_normals(normals)
+                n = len(pts)
+                zigzag = []
+                for i in range(n):
+                    x, y = pts[i]
+                    nx, ny = normals[i]
+                    w = half_w * taper_scale(i, n)
+                    side = 1 if i % 2 == 0 else -1
+                    px = (x + side * nx * w) * scale
+                    py = (y + side * ny * w) * scale
+                    zigzag.append(f'{px:.1f},{py:.1f}')
+                if len(zigzag) >= 2:
+                    svg_parts.append(
+                        f'<polyline points="{" ".join(zigzag)}" '
+                        f'fill="none" stroke="{color_hex}" stroke-width="0.8" '
+                        f'stroke-linecap="round" stroke-linejoin="round"/>'
+                    )
+
+    return (
+        f'<svg xmlns="http://www.w3.org/2000/svg" '
+        f'viewBox="0 0 {canvas_w_px} {canvas_h_px:.0f}" '
+        f'width="100%" preserveAspectRatio="xMidYMid meet">'
+        + ''.join(svg_parts) +
+        '</svg>'
+    )
 
 
 def save_pattern(pattern, output_path):

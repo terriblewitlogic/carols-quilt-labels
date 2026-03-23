@@ -321,7 +321,11 @@ export default function QuiltLabelMaker() {
       const res = await fetch('/api/preview', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ textElements }),
+        body: JSON.stringify({
+          textElements,
+          hoop:   { w_mm: dw / PX_PER_MM, h_mm: dh / PX_PER_MM },
+          border: { type: border.type, color: border.color },
+        }),
       });
       if (res.ok) {
         const data = await res.json();

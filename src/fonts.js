@@ -43,11 +43,15 @@ export const FONT_CATEGORIES = [
   },
   {
     id: 'display',
-    label: 'Display',
+    label: 'Display / Gothic',
     minHeight_mm: 10.0,
     fonts: [
-      { label: 'Gothic',        value: 'gothic',        previewFont: '"Palatino Linotype", Palatino, serif', previewWeight: '400' },
-      { label: 'Gothic Italic', value: 'gothic-italic', previewFont: '"Palatino Linotype", Palatino, serif', previewWeight: '400', previewStyle: 'italic' },
+      { label: 'Gothic',         value: 'gothic',        previewFont: '"Palatino Linotype", Palatino, serif', previewWeight: '400' },
+      { label: 'Gothic Italic',  value: 'gothic-italic', previewFont: '"Palatino Linotype", Palatino, serif', previewWeight: '400', previewStyle: 'italic' },
+      { label: 'Old English',    value: 'gothic-eng',    previewFont: '"Palatino Linotype", Palatino, serif', previewWeight: '700' },
+      { label: 'German Gothic',  value: 'gothic-ger',    previewFont: '"Palatino Linotype", Palatino, serif', previewWeight: '700' },
+      { label: 'Italian Gothic', value: 'gothic-ita',    previewFont: '"Palatino Linotype", Palatino, serif', previewWeight: '400', previewStyle: 'italic' },
+      { label: 'Gothic Round',   value: 'gothic-round',  previewFont: '"Palatino Linotype", Palatino, serif', previewWeight: '400' },
     ],
   },
 ];

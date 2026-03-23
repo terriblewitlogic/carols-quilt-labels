@@ -4,7 +4,7 @@ import tempfile
 import os
 import re
 import pyembroidery
-from engine import text_to_pattern, multiline_to_pattern, generate_preview_svg, FONT_ALIASES
+from engine import text_to_pattern, multiline_to_pattern, generate_preview_svg, generate_layout_svg, FONT_ALIASES
 
 
 # Canvas pixels → pyembroidery units (0.1 mm)
@@ -159,7 +159,7 @@ def _build_pattern(groups, text_elements, canvas_w, canvas_h):
 
 
 def preview_handler(event, context):
-    """Return an SVG stitch-simulation for the text elements in the request."""
+    """Return a full-layout stitch-preview SVG with border."""
     if event.get('httpMethod') == 'OPTIONS':
         return {'statusCode': 204, 'headers': _cors(), 'body': ''}
 
@@ -172,52 +172,19 @@ def preview_handler(event, context):
     if not text_elements:
         return _error(400, 'No textElements provided')
 
-    # Generate a preview SVG per text element, then composite vertically
-    WIDTH_PX = 600
-    GAP_PX   = 12
-    parts = []  # list of (svg_str, vb_w, vb_h)
+    hoop   = body.get('hoop', {})
+    border = body.get('border', {})
+    hoop_w = float(hoop.get('w_mm', 115))
+    hoop_h = float(hoop.get('h_mm', 64))
 
-    for el in text_elements:
-        lines = [l for l in el.get('text', '').split('\n') if l.strip()]
-        if not lines:
-            continue
-        font_name  = el.get('font', 'script')
-        height_mm  = float(el.get('size_mm', 12.0))
-        color_hex  = el.get('color', '#cc0000')
-        align      = el.get('align', 'center')
-        _d         = el.get('density_mm')
-        density_mm = float(_d) if _d is not None else None
-
-        el_svg = generate_preview_svg(
-            lines, font_name, height_mm,
-            align=align,
-            thread_color=color_hex,
-            density_mm=density_mm,
-            width_px=WIDTH_PX,
-        )
-        m = re.search(r'viewBox="0 0 ([\d.]+) ([\d.]+)"', el_svg)
-        vb_w = float(m.group(1)) if m else WIDTH_PX
-        vb_h = float(m.group(2)) if m else 80
-        parts.append((el_svg, vb_w, vb_h))
-
-    if not parts:
-        return _error(400, 'No text provided')
-
-    if len(parts) == 1:
-        svg = parts[0][0]
-    else:
-        # Stack element SVGs vertically inside one wrapper SVG
-        total_h = sum(h for _, _, h in parts) + GAP_PX * (len(parts) - 1)
-        rows = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {WIDTH_PX} {total_h:.0f}" width="100%" preserveAspectRatio="xMidYMid meet">']
-        y = 0.0
-        for el_svg, vb_w, vb_h in parts:
-            inner = re.sub(r'<svg[^>]*>', '', el_svg, count=1).replace('</svg>', '').strip()
-            rows.append(f'<svg x="0" y="{y:.0f}" width="{WIDTH_PX}" height="{vb_h:.0f}" viewBox="0 0 {vb_w:.0f} {vb_h:.0f}">')
-            rows.append(inner)
-            rows.append('</svg>')
-            y += vb_h + GAP_PX
-        rows.append('</svg>')
-        svg = '\n'.join(rows)
+    svg = generate_layout_svg(
+        text_elements,
+        hoop_w_mm=hoop_w,
+        hoop_h_mm=hoop_h,
+        border_type=border.get('type', 'none'),
+        border_color=border.get('color', '#111111'),
+        canvas_w_px=700,
+    )
 
     return {
         'statusCode': 200,
