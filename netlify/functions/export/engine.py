@@ -26,7 +26,7 @@ FONT_ALIASES = {
     # Script / Cursive
     'script':       'scriptc',   # Script complex (connected cursive)
     'script2':      'scripts',   # Script simplex (lighter cursive)
-    'cursive':      'cursive',   # Alternative cursive (more loopy)
+    'cursive':      'timesib',   # Times Italic Bold (elegant, distinct from script)
     # Sans-Serif
     'sans':         'futural',   # Futura light (thin strokes)
     'sans-bold':    'futuram',   # Futura medium (thicker, better small size)
@@ -640,7 +640,7 @@ def generate_preview_svg(lines_text, font_name='script', height_mm=15.0,
     svg = (
         f'<svg xmlns="http://www.w3.org/2000/svg" '
         f'viewBox="0 0 {width_px:.0f} {height_px:.0f}" '
-        f'width="{width_px}" height="{height_px:.0f}">\n'
+        f'width="100%" preserveAspectRatio="xMidYMid meet">\n'
         f'  <rect width="100%" height="100%" fill="#f5f0e8" rx="6"/>\n'
         f'  {"".join(svg_lines)}\n'
         f'</svg>'

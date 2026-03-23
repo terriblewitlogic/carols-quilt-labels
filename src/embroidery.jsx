@@ -9,6 +9,7 @@ import { DECORATIVE_ELEMENTS } from './decorative-elements.js';
 import { BORDER_TYPES, generateBorderStitches } from './borders.js';
 import { openColorChart } from './color-chart.js';
 import { PX_PER_MM } from './constants.js';
+import { FONT_SAMPLE_SVGS } from './font-samples-data.js';
 
 // ─── Unit conversion helpers (px ↔ display unit) ─────────────────────────────
 const PX_PER_IN  = PX_PER_MM * 25.4;   // 101.6 px per inch
@@ -106,7 +107,7 @@ export default function QuiltLabelMaker() {
   const [exportFormat, setExportFormat] = useState('jef');
   const [exporting, setExporting] = useState(false);
   const [previewSvg, setPreviewSvg] = useState(null);
-  const [fontSamples, setFontSamples] = useState({});   // fontValue → svgString
+  const fontSamples = FONT_SAMPLE_SVGS;                  // static stitch preview SVGs
   const [unit, setUnit] = useState('in');               // 'in' | 'cm'
   const cvs = useRef(null);
 
@@ -158,14 +159,6 @@ export default function QuiltLabelMaker() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hoopKey]);
 
-  // ── Fetch stitch SVG thumbnails for font picker (once when fonts tab opens) ──
-  useEffect(() => {
-    if (leftTab !== 'fonts' || Object.keys(fontSamples).length > 0) return;
-    fetch('/api/font_samples', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
-      .then(r => r.json())
-      .then(d => { if (d.samples) setFontSamples(d.samples); })
-      .catch(() => {});  // silently ignore — CSS fallback stays visible
-  }, [leftTab]);
 
   // ── Drawing ──
   useEffect(() => {
@@ -659,7 +652,7 @@ export default function QuiltLabelMaker() {
                           outline: isSelected ? '1px solid #5A3A18' : 'none',
                           opacity: selEl ? 1 : 0.5 }}>
                         {svg
-                          ? <div style={{ height:48, display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden' }}
+                          ? <div style={{ width:'100%' }}
                               dangerouslySetInnerHTML={{ __html: svg }} />
                           : <div style={{ fontFamily: f.previewFont, fontStyle: f.previewStyle||'normal', fontSize:18, color:'#D4B080', height:32, display:'flex', alignItems:'center' }}>Abc</div>
                         }
@@ -669,9 +662,6 @@ export default function QuiltLabelMaker() {
                   })}
                 </div>
               ))}
-              {Object.keys(fontSamples).length === 0 &&
-                <div style={{ fontSize:9, color:'#3A3020', textAlign:'center', marginTop:16 }}>Loading stitch previews…</div>
-              }
             </>}
           </div>
         </div>

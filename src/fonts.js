@@ -14,7 +14,7 @@ export const FONT_CATEGORIES = [
     fonts: [
       { label: 'Script',        value: 'script',   previewFont: '"Brush Script MT", "Segoe Script", cursive' },
       { label: 'Script Light',  value: 'script2',  previewFont: '"Brush Script MT", cursive' },
-      { label: 'Cursive',       value: 'cursive',  previewFont: '"Comic Sans MS", cursive' },
+      { label: 'Times Italic',  value: 'cursive',  previewFont: '"Times New Roman", Georgia, serif', previewStyle: 'italic' },
     ],
   },
   {
