@@ -88,7 +88,7 @@ function applyShapeClip(ctx, shape, x, y, w, h) {
 // ─── Main Component ──────────────────────────────────────────────────────────
 export default function QuiltLabelMaker() {
   const [hoopKey, setHoopKey] = useState(DEFAULT_HOOP);
-  const [labelShape, setLabelShape] = useState('rectangle');
+  const [labelShape, setLabelShape] = useState('rectangle-h');
   const [border, setBorder] = useState({ type: 'none', color: '#111111' });
   const [els, dispatch] = useReducer(elsReducer, []);
   const [history, setHistory] = useState([]);
@@ -614,7 +614,7 @@ export default function QuiltLabelMaker() {
         <div style={s.leftSide}>
           {/* Tab headers */}
           <div style={{ display:'flex', borderBottom:'1px solid #2E2820', flexShrink:0 }}>
-            {[['templates','Templates'],['elements','Elements'],['fonts','Fonts']].map(([id, label]) => (
+            {[['templates','Templates'],['fonts','Fonts']].map(([id, label]) => (
               <button key={id} onClick={() => setLeftTab(id)} style={s.tabBtn(leftTab === id)}>{label}</button>
             ))}
           </div>
@@ -637,29 +637,6 @@ export default function QuiltLabelMaker() {
               ))}
             </>}
 
-            {/* ── Elements tab ── */}
-            {leftTab === 'elements' && <>
-              <div style={{ fontSize:10, color:'#5A4830', marginBottom:10, lineHeight:1.5 }}>
-                Click to add. Tip: simple outlines stitch best.<br/>
-                More SVGs: <span style={{ color:'#8A6840' }}>svgrepo.com</span>
-              </div>
-              {Object.entries(DECORATIVE_ELEMENTS).map(([cat, catData]) => (
-                <div key={cat}>
-                  <span style={{ fontSize:9, fontWeight:700, color:'#4A3820', letterSpacing:2, textTransform:'uppercase', display:'block', marginBottom:6, marginTop:10 }}>{catData.label}</span>
-                  <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginBottom:4 }}>
-                    {catData.items.map(item => (
-                      <div key={item.id} onClick={() => addDecorative(item)}
-                        style={{ width:52, cursor:'pointer', textAlign:'center' }}>
-                        <div style={{ width:52, height:44, background:'#1A1410', border:'1px solid #2E2820', borderRadius:5, display:'flex', alignItems:'center', justifyContent:'center', marginBottom:3 }}>
-                          <ElemThumb item={item} />
-                        </div>
-                        <span style={{ fontSize:9, color:'#6A5840', lineHeight:1.2 }}>{item.label}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </>}
 
             {/* ── Fonts tab ── */}
             {leftTab === 'fonts' && <>
