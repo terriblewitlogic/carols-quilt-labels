@@ -2,9 +2,11 @@
 
 // Embroidery letter spacing multiplier (130% of normal)
 export const LETTER_SPACING = 1.30;
-// value:        Hershey font name sent to the backend engine for export
-// previewFont:  CSS font family used for canvas design-view rendering
-// previewStyle: optional CSS font-style ('italic', etc.)
+// value:         Hershey font name sent to the backend engine for export
+// previewFont:   CSS font family used for canvas design-view rendering
+// previewStyle:  optional CSS font-style ('italic')
+// previewWeight: CSS font-weight to approximate Hershey stroke weight
+//                Hershey fonts are single-stroke — most map to 300-400 (thin/normal)
 
 export const FONT_CATEGORIES = [
   {
@@ -12,9 +14,9 @@ export const FONT_CATEGORIES = [
     label: 'Script / Cursive',
     minHeight_mm: 8.0,
     fonts: [
-      { label: 'Script',        value: 'script',   previewFont: '"Brush Script MT", "Segoe Script", cursive' },
-      { label: 'Script Light',  value: 'script2',  previewFont: '"Brush Script MT", cursive' },
-      { label: 'Times Italic',  value: 'cursive',  previewFont: '"Times New Roman", Georgia, serif', previewStyle: 'italic' },
+      { label: 'Script',        value: 'script',   previewFont: '"Brush Script MT", "Segoe Script", cursive', previewWeight: '500' },
+      { label: 'Script Light',  value: 'script2',  previewFont: '"Brush Script MT", cursive',                 previewWeight: '400' },
+      { label: 'Times Italic',  value: 'cursive',  previewFont: '"Times New Roman", Georgia, serif',          previewWeight: '700', previewStyle: 'italic' },
     ],
   },
   {
@@ -22,8 +24,8 @@ export const FONT_CATEGORIES = [
     label: 'Sans-Serif (Block)',
     minHeight_mm: 6.35,
     fonts: [
-      { label: 'Sans-Serif',    value: 'sans',      previewFont: 'Arial, "Helvetica Neue", sans-serif' },
-      { label: 'Sans Bold',     value: 'sans-bold', previewFont: 'Arial, "Helvetica Neue", sans-serif', previewStyle: 'bold' },
+      { label: 'Sans-Serif',    value: 'sans',      previewFont: 'Arial, "Helvetica Neue", sans-serif', previewWeight: '300' },
+      { label: 'Sans Bold',     value: 'sans-bold', previewFont: 'Arial, "Helvetica Neue", sans-serif', previewWeight: '600' },
     ],
   },
   {
@@ -31,12 +33,12 @@ export const FONT_CATEGORIES = [
     label: 'Serif',
     minHeight_mm: 7.0,
     fonts: [
-      { label: 'Serif',         value: 'serif',        previewFont: 'Georgia, serif' },
-      { label: 'Serif Medium',  value: 'serif-medium', previewFont: 'Georgia, serif' },
-      { label: 'Serif Bold',    value: 'serif-bold',   previewFont: 'Georgia, serif' },
-      { label: 'Italic Serif',  value: 'italic',       previewFont: 'Palatino, "Book Antiqua", serif', previewStyle: 'italic' },
-      { label: 'Times',         value: 'times',        previewFont: '"Times New Roman", Georgia, serif' },
-      { label: 'Times Bold',    value: 'times-bold',   previewFont: '"Times New Roman", Georgia, serif' },
+      { label: 'Serif',         value: 'serif',        previewFont: 'Georgia, serif',                          previewWeight: '400' },
+      { label: 'Serif Medium',  value: 'serif-medium', previewFont: 'Georgia, serif',                          previewWeight: '500' },
+      { label: 'Serif Bold',    value: 'serif-bold',   previewFont: 'Georgia, serif',                          previewWeight: '700' },
+      { label: 'Italic Serif',  value: 'italic',       previewFont: 'Palatino, "Book Antiqua", serif',         previewWeight: '400', previewStyle: 'italic' },
+      { label: 'Times',         value: 'times',        previewFont: '"Times New Roman", Georgia, serif',        previewWeight: '400' },
+      { label: 'Times Bold',    value: 'times-bold',   previewFont: '"Times New Roman", Georgia, serif',        previewWeight: '700' },
     ],
   },
   {
@@ -44,8 +46,8 @@ export const FONT_CATEGORIES = [
     label: 'Display',
     minHeight_mm: 10.0,
     fonts: [
-      { label: 'Gothic',        value: 'gothic',        previewFont: 'Palatino, "Times New Roman", serif' },
-      { label: 'Gothic Italic', value: 'gothic-italic', previewFont: 'Palatino, "Times New Roman", serif', previewStyle: 'italic' },
+      { label: 'Gothic',        value: 'gothic',        previewFont: '"Palatino Linotype", Palatino, serif', previewWeight: '400' },
+      { label: 'Gothic Italic', value: 'gothic-italic', previewFont: '"Palatino Linotype", Palatino, serif', previewWeight: '400', previewStyle: 'italic' },
     ],
   },
 ];
@@ -62,9 +64,11 @@ export function getMinHeight(fontValue) {
 }
 
 // Build CSS font string for canvas preview rendering
+// Weights approximate Hershey single-stroke visual weight (mostly thin/normal)
 export function getPreviewCSS(fontValue, fontSize) {
   const f = ALL_FONTS.find(f => f.value === fontValue);
   const family = f?.previewFont || 'Georgia, serif';
-  const style  = f?.previewStyle ? f.previewStyle + ' ' : '';
-  return `${style}bold ${fontSize}px ${family}`;
+  const style  = f?.previewStyle || 'normal';
+  const weight = f?.previewWeight || '400';
+  return `${style} ${weight} ${fontSize}px ${family}`;
 }

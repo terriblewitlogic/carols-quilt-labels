@@ -93,10 +93,25 @@ def resample_line(points, spacing):
 
 def compute_normals(pts):
     """Compute unit perpendicular normals at each point of a polyline.
-    Uses central differences for interior points."""
-    n = len(pts)
-    tangents = np.zeros_like(pts)
 
+    For closed strokes (end ≈ start, like the letter 'O') uses centroid-based
+    outward normals which are perfectly smooth around circles and prevent the
+    starburst artifacts caused by tangent-flip at the join point.
+    For open strokes uses central-difference tangents as before.
+    """
+    n = len(pts)
+
+    # Detect closed stroke: endpoints within 2 mm of each other
+    closed = np.linalg.norm(pts[-1] - pts[0]) < 2.0
+
+    if closed and n >= 6:
+        centroid = pts.mean(axis=0)
+        diff = pts - centroid
+        lengths = np.linalg.norm(diff, axis=1, keepdims=True)
+        lengths = np.maximum(lengths, 1e-8)
+        return diff / lengths   # outward normals from centroid
+
+    tangents = np.zeros_like(pts)
     tangents[0] = pts[min(1, n-1)] - pts[0]
     tangents[-1] = pts[-1] - pts[max(0, n-2)]
     for i in range(1, n - 1):
