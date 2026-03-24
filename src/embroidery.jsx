@@ -318,13 +318,20 @@ export default function QuiltLabelMaker() {
       }));
     if (!textElements.length) { alert('Add some text first.'); return; }
     try {
+      // Compute real border stitch points in JS, convert px→mm, send to backend
+      const rawBorderPts = border.type !== 'none'
+        ? generateBorderStitches(border.type, dw, dh, PX_PER_MM)
+        : [];
+      const borderPoints = rawBorderPts.map(p => [p.x / PX_PER_MM, p.y / PX_PER_MM]);
+
       const res = await fetch('/api/preview', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           textElements,
-          hoop:   { w_mm: dw / PX_PER_MM, h_mm: dh / PX_PER_MM },
-          border: { type: border.type, color: border.color },
+          hoop:         { w_mm: dw / PX_PER_MM, h_mm: dh / PX_PER_MM },
+          border:       { type: border.type, color: border.color },
+          borderPoints,
         }),
       });
       if (res.ok) {

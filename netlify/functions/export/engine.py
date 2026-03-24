@@ -669,15 +669,17 @@ def generate_preview_svg(lines_text, font_name='script', height_mm=15.0,
 
 def generate_layout_svg(text_elements, hoop_w_mm, hoop_h_mm,
                         border_type='none', border_color='#111111',
+                        border_points=None,
                         canvas_w_px=700):
     """Generate a full-layout stitch preview SVG.
 
     Positions each text element at its real canvas coordinates, draws the
-    hoop background, and optionally draws a border rectangle.
+    hoop background, and renders actual border stitch points as polylines.
 
     text_elements: list of dicts with keys:
         text, font, size_mm, x_px, y_px, color, density_mm
         x_px/y_px are canvas-pixel centres (4 px/mm).
+    border_points: list of [x_mm, y_mm] pairs (pre-computed by JS engine).
     """
     PX_PER_MM = 4.0
     scale = canvas_w_px / hoop_w_mm
@@ -691,18 +693,33 @@ def generate_layout_svg(text_elements, hoop_w_mm, hoop_h_mm,
         f'fill="#f5f0e8" rx="6"/>'
     )
 
-    # Border
-    if border_type and border_type != 'none':
-        inset = 4 * scale / PX_PER_MM   # 4mm inset in px
-        sw = 1.5
-        dash = ' stroke-dasharray="6,4"' if border_type == 'running' else ''
-        svg_parts.append(
-            f'<rect x="{inset:.1f}" y="{inset:.1f}" '
-            f'width="{canvas_w_px - 2*inset:.1f}" '
-            f'height="{canvas_h_px - 2*inset:.1f}" '
-            f'fill="none" stroke="{border_color}" stroke-width="{sw}" '
-            f'rx="3"{dash}/>'
-        )
+    # Border — render real stitch points sent from the JS engine
+    if border_points and border_type and border_type != 'none':
+        is_satin = border_type == 'satin-outline'
+        if is_satin:
+            # Alternating zigzag pairs → render as polyline (already interleaved)
+            svg_pts = ' '.join(
+                f'{x_mm * scale:.1f},{y_mm * scale:.1f}'
+                for x_mm, y_mm in border_points
+            )
+            svg_parts.append(
+                f'<polyline points="{svg_pts}" fill="none" '
+                f'stroke="{border_color}" stroke-width="1.2" '
+                f'stroke-linecap="round" stroke-linejoin="round"/>'
+            )
+        else:
+            # Running stitch / double-line / motif: draw as connected dot path
+            svg_pts = ' '.join(
+                f'{x_mm * scale:.1f},{y_mm * scale:.1f}'
+                for x_mm, y_mm in border_points
+            )
+            sw   = 1.0
+            dash = 'stroke-dasharray="3,3"' if border_type == 'running' else ''
+            svg_parts.append(
+                f'<polyline points="{svg_pts}" fill="none" '
+                f'stroke="{border_color}" stroke-width="{sw}" '
+                f'stroke-linecap="round" stroke-linejoin="round" {dash}/>'
+            )
 
     # Text elements at actual positions
     for el in text_elements:

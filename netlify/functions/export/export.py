@@ -172,8 +172,9 @@ def preview_handler(event, context):
     if not text_elements:
         return _error(400, 'No textElements provided')
 
-    hoop   = body.get('hoop', {})
-    border = body.get('border', {})
+    hoop          = body.get('hoop', {})
+    border        = body.get('border', {})
+    border_points = body.get('borderPoints', [])
     hoop_w = float(hoop.get('w_mm', 115))
     hoop_h = float(hoop.get('h_mm', 64))
 
@@ -183,6 +184,7 @@ def preview_handler(event, context):
         hoop_h_mm=hoop_h,
         border_type=border.get('type', 'none'),
         border_color=border.get('color', '#111111'),
+        border_points=border_points,
         canvas_w_px=700,
     )
 
