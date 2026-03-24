@@ -232,10 +232,15 @@ export default function QuiltLabelMaker() {
         } else {
           ctx.font = getPreviewCSS(el.font, el.fontSize);
           ctx.fillStyle = el.color;
-          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.textBaseline = 'middle';
           ctx.shadowColor = 'rgba(0,0,0,.18)';
           ctx.shadowBlur = 2; ctx.shadowOffsetX = 1; ctx.shadowOffsetY = 1;
-          ctx.fillText(el.content, el.x, el.y);
+          // Always draw centred on el.x — shift text draw point by alignment offset
+          const _align = el.align || 'center';
+          const _tw = ctx.measureText(el.content).width;
+          const _xOff = _align === 'left' ? _tw / 2 : _align === 'right' ? -_tw / 2 : 0;
+          ctx.textAlign = _align;
+          ctx.fillText(el.content, el.x + _xOff, el.y);
           ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
         }
         if (el.id === sel) {
@@ -313,7 +318,7 @@ export default function QuiltLabelMaker() {
         x_px:       el.x,
         y_px:       el.y,
         color:      el.color,
-        align:      'center',
+        align:      el.align || 'center',
         density_mm: el.density_mm ?? null,
       }));
     if (!textElements.length) { alert('Add some text first.'); return; }
@@ -369,7 +374,7 @@ export default function QuiltLabelMaker() {
         x_px:       el.x,
         y_px:       el.y,
         color:      el.color,
-        align:      'center',
+        align:      el.align || 'center',
         density_mm: el.density_mm ?? null,
       }));
 
@@ -443,7 +448,7 @@ export default function QuiltLabelMaker() {
   const addText = (content, font, fontSize, color) => {
     if (!content.trim()) return;
     pushHistory(els);
-    const el = { id: uid++, type:'text', content, x: cw/2, y: ch/2, fontSize: fontSize || 32, font: font || 'script', color: color || '#111111', stitchType:'tatami', stitchAngle: 45, density_mm: null };
+    const el = { id: uid++, type:'text', content, x: cw/2, y: ch/2, fontSize: fontSize || 32, font: font || 'script', color: color || '#111111', align: 'center', stitchType:'tatami', stitchAngle: 45, density_mm: null };
     dispatch({ type:'ADD', el }); setSel(el.id); setMode('design');
   };
 
@@ -470,7 +475,7 @@ export default function QuiltLabelMaker() {
       const text = item.fixedText || tpl.defaults?.[item.field] || '';
       if (!text) return;
       const fontSize = Math.round(32 * (item.fontScale || 1));
-      newEls.push({ id: uid++, type:'text', content: text, x: cx, y: my + spacing * (i + 1), fontSize, font: item.font || 'Georgia', color:'#111111', stitchType: 'tatami', stitchAngle: 45, density_mm: null, fieldKey: item.field });
+      newEls.push({ id: uid++, type:'text', content: text, x: cx, y: my + spacing * (i + 1), fontSize, font: item.font || 'Georgia', color:'#111111', align: item.align || 'center', stitchType: 'tatami', stitchAngle: 45, density_mm: null, fieldKey: item.field });
     });
     dispatch({ type:'SET', els: newEls });
     setSel(newEls[0]?.id || null);
@@ -716,6 +721,28 @@ export default function QuiltLabelMaker() {
                   ))}
                 </select>
               </>}
+
+              {/* ── Alignment toggle ── */}
+              {selEl.type === 'text' && (
+                <div style={{ display:'flex', gap:6, alignItems:'center', marginBottom:6 }}>
+                  <span style={{ fontSize:10, color:'#6A5840', flexShrink:0, minWidth:40 }}>Align</span>
+                  <div style={{ display:'flex', border:'1px solid #3A3020', borderRadius:4, overflow:'hidden' }}>
+                    {[
+                      { val:'left',   icon:'⬅', label:'Left'   },
+                      { val:'center', icon:'↔', label:'Center' },
+                      { val:'right',  icon:'➡', label:'Right'  },
+                    ].map(({ val, icon, label }) => (
+                      <button key={val} title={label}
+                        onClick={() => upd(selEl.id, { align: val })}
+                        style={{ padding:'3px 9px', fontSize:11, fontFamily:'inherit', cursor:'pointer', border:'none',
+                          background: (selEl.align || 'center') === val ? '#3A2E1E' : 'transparent',
+                          color:      (selEl.align || 'center') === val ? '#C8A060' : '#5A4830' }}>
+                        {icon}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* ── Size slider with in / cm toggle ── */}
               <div style={{ display:'flex', gap:6, alignItems:'center', marginBottom:3 }}>
