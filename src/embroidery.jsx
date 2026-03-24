@@ -118,8 +118,15 @@ export default function QuiltLabelMaker() {
     : rawDims;
   const { cw, ch, dw, dh, mx, my } = dims;
   const selEl = els.find(e => e.id === sel);
-  const totalSt = sGroups.reduce((s, g) => s + g.stitches.filter(Boolean).length, 0);
-  const estMin = totalSt ? Math.ceil(totalSt / 800) : 0;
+  // Non-text stitch count from JS engine (decoratives, borders)
+  const shapeSt = sGroups.reduce((s, g) => s + g.stitches.filter(Boolean).length, 0);
+  // Estimated text stitches (~30 sts per mm of height per character)
+  const textStEst = els.filter(e => e.type === 'text').reduce((s, e) => {
+    const mm = e.fontSize / PX_PER_MM;
+    return s + Math.round((e.content || '').length * mm * 30);
+  }, 0);
+  const totalSt = shapeSt + textStEst;
+  const estMin = totalSt ? Math.ceil(totalSt / 400) : 0;
   const paletteColors = PALETTES[palette].colors;
   const filteredColors = colorFilter ? paletteColors.filter(c => c.n.toLowerCase().includes(colorFilter.toLowerCase())) : paletteColors;
   const hoop = HOOPS[hoopKey];
@@ -302,6 +309,12 @@ export default function QuiltLabelMaker() {
     }
     setSG(groups); return groups;
   }, [els, border, dw, dh, mx, my, stitchAngle]);
+
+  // Auto-update stitch groups (for live count) whenever design changes
+  useEffect(() => {
+    const t = setTimeout(() => genStitches(), 400);
+    return () => clearTimeout(t);
+  }, [genStitches]);
 
   const togglePreview = () => {
     if (mode !== 'stitch') { genStitches(); setMode('stitch'); }
@@ -927,11 +940,11 @@ export default function QuiltLabelMaker() {
         <span style={{ fontSize:10, color:'#5A4830' }}>
           Design area: {dims.hoopW - 50}×{dims.hoopH - 50}mm
         </span>
-        {mode === 'stitch' && <>
+        {totalSt > 0 && <>
           <span style={{ fontSize:10, color:'#3A3020' }}>|</span>
-          <span style={{ fontSize:10, color:'#C8A060' }}>{totalSt.toLocaleString()} stitches</span>
-          <span style={{ fontSize:10, color:'#3A3020' }}>|</span>
-          <span style={{ fontSize:10, color:'#5A4830' }}>{sGroups.length} color{sGroups.length !== 1 ? 's' : ''}</span>
+          <span style={{ fontSize:10, color:'#C8A060' }}>
+            ~{totalSt.toLocaleString()} sts{textStEst > 0 ? ' (text est.)' : ''}
+          </span>
           <span style={{ fontSize:10, color:'#3A3020' }}>|</span>
           <span style={{ fontSize:10, color:'#5A4830' }}>~{estMin} min</span>
         </>}
