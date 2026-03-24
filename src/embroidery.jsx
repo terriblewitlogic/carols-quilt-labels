@@ -4,7 +4,7 @@ import { PALETTES, DEFAULT_PALETTE } from './colors.js';
 import { FONT_CATEGORIES, ALL_FONTS, getPreviewCSS, getMinHeight } from './fonts.js';
 import { generateStitches, borderStitches } from './stitch-engine.js';
 // jef-encoder.js kept for reference; export now handled by Netlify function (pyembroidery)
-import { TEMPLATES } from './templates.js';
+import { TEMPLATES, ESSENTIAL_FIELDS, STANDARD_FIELDS, OPTIONAL_FIELDS } from './templates.js';
 import { DECORATIVE_ELEMENTS } from './decorative-elements.js';
 import { BORDER_TYPES, generateBorderStitches } from './borders.js';
 import { openColorChart } from './color-chart.js';
@@ -109,6 +109,7 @@ export default function QuiltLabelMaker() {
   const [previewSvg, setPreviewSvg] = useState(null);
   const fontSamples = FONT_SAMPLE_SVGS;                  // static stitch preview SVGs
   const [unit, setUnit] = useState('in');               // 'in' | 'cm'
+  const [fieldValues, setFieldValues] = useState({});   // fieldKey → string value
   const cvs = useRef(null);
 
   const rawDims = getCanvasDims(hoopKey);
@@ -555,13 +556,16 @@ export default function QuiltLabelMaker() {
   const applyTemplate = (tpl) => {
     setActiveTemplate(tpl.id);
     pushHistory(els);
+    // Seed fieldValues with template defaults (keep any existing user values)
+    setFieldValues(prev => ({ ...tpl.defaults, ...prev }));
+    const fv = { ...tpl.defaults, ...fieldValues };
     // Create elements from layout
     const newEls = [];
     const cx = cw / 2;
     const totalItems = (tpl.layout || []).length;
     const spacing = dh / (totalItems + 1);
     tpl.layout?.forEach((item, i) => {
-      const text = item.fixedText || tpl.defaults?.[item.field] || '';
+      const text = item.fixedText || fv[item.field] || tpl.defaults?.[item.field] || '';
       if (!text) return;
       const fontSize = Math.round(32 * (item.fontScale || 1));
       newEls.push({ id: uid++, type:'text', content: text, x: cx, y: my + spacing * (i + 1), fontSize, font: item.font || 'Georgia', color:'#111111', align: item.align || 'center', stitchType: 'tatami', stitchAngle: 45, density_mm: null, fieldKey: item.field });
@@ -569,6 +573,15 @@ export default function QuiltLabelMaker() {
     dispatch({ type:'SET', els: newEls });
     setSel(newEls[0]?.id || null);
     setMode('design');
+  };
+
+  // ── Template field handler ────────────────────────────────────────────────────
+  const setField = (key, value) => {
+    setFieldValues(prev => ({ ...prev, [key]: value }));
+    // Update all elements whose fieldKey matches
+    els.forEach(el => {
+      if (el.fieldKey === key) upd(el.id, { content: value });
+    });
   };
 
   // ── Mouse ──
@@ -935,6 +948,34 @@ export default function QuiltLabelMaker() {
               </button>
             </div>
           </>}
+
+          {/* ── Template Fields ── */}
+          {activeTemplate && (() => {
+            const tpl = TEMPLATES.find(t => t.id === activeTemplate);
+            if (!tpl) return null;
+            const allFieldDefs = [...ESSENTIAL_FIELDS, ...STANDARD_FIELDS, ...OPTIONAL_FIELDS, ...(tpl.extraFields || [])];
+            const fieldKeys = [...(tpl.activeFields || []), ...(tpl.extraFields || []).map(f => f.key)];
+            const defs = fieldKeys.map(k => allFieldDefs.find(f => f.key === k)).filter(Boolean);
+            // Also show extra fields not in activeFields
+            const extraOnly = (tpl.extraFields || []).filter(f => !tpl.activeFields?.includes(f.key));
+            const shown = [...defs, ...extraOnly.filter(f => !defs.find(d => d.key === f.key))];
+            if (!shown.length) return null;
+            return (<>
+              <span style={s.lbl}>{tpl.icon} {tpl.label} Fields</span>
+              <div style={{ ...s.card, marginBottom:12 }}>
+                {shown.map(f => (
+                  <div key={f.key} style={{ marginBottom:7 }}>
+                    <div style={{ fontSize:9, color:'#6A5840', marginBottom:2 }}>{f.icon ? `${f.icon} ` : ''}{f.label}</div>
+                    <input
+                      value={fieldValues[f.key] ?? ''}
+                      onChange={e => setField(f.key, e.target.value)}
+                      placeholder={f.placeholder || f.label}
+                      style={{ ...s.inp, marginBottom:0, fontSize:11 }} />
+                  </div>
+                ))}
+              </div>
+            </>);
+          })()}
 
           {/* Add Free Text */}
           <span style={s.lbl}>Custom Text</span>
