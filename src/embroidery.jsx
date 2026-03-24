@@ -316,6 +316,82 @@ export default function QuiltLabelMaker() {
     return () => clearTimeout(t);
   }, [genStitches]);
 
+  // ── Save / Load ──────────────────────────────────────────────────────────────
+  const SAVE_KEY = 'carolDesign_v1';
+  const hasMounted = useRef(false);
+
+  // Load autosaved design on first mount
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(SAVE_KEY);
+      if (raw) {
+        const { els: savedEls, hoopKey: hk, labelShape: ls, border: bd,
+                palette: pal, exportFormat: ef, activeTemplate: at } = JSON.parse(raw);
+        if (savedEls?.length) {
+          // Bump uid past any saved IDs to avoid collisions
+          uid = Math.max(...savedEls.map(e => e.id || 0)) + 1;
+          dispatch({ type:'SET', els: savedEls });
+          if (hk)  setHoopKey(hk);
+          if (ls)  setLabelShape(ls);
+          if (bd)  setBorder(bd);
+          if (pal) setPalette(pal);
+          if (ef)  setExportFormat(ef);
+          if (at)  setActiveTemplate(at);
+        }
+      }
+    } catch (e) { /* ignore corrupt saves */ }
+    hasMounted.current = true;
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Autosave whenever design state changes (skip the very first render)
+  useEffect(() => {
+    if (!hasMounted.current) return;
+    const t = setTimeout(() => {
+      try {
+        localStorage.setItem(SAVE_KEY, JSON.stringify(
+          { els, hoopKey, labelShape, border, palette, exportFormat, activeTemplate }
+        ));
+      } catch (e) { /* storage full — ignore */ }
+    }, 1000);
+    return () => clearTimeout(t);
+  }, [els, hoopKey, labelShape, border, palette, exportFormat, activeTemplate]);
+
+  const saveDesign = () => {
+    const json = JSON.stringify(
+      { version: 1, els, hoopKey, labelShape, border, palette, exportFormat, activeTemplate },
+      null, 2
+    );
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([json], { type:'application/json' }));
+    a.download = 'carol-label.json';
+    a.click();
+  };
+
+  const loadFileRef = useRef(null);
+  const loadDesign = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const { els: savedEls, hoopKey: hk, labelShape: ls, border: bd,
+                palette: pal, exportFormat: ef, activeTemplate: at } = JSON.parse(ev.target.result);
+        if (!savedEls) { alert('Not a valid Carol design file.'); return; }
+        uid = Math.max(...savedEls.map(e => e.id || 0)) + 1;
+        pushHistory(els);
+        dispatch({ type:'SET', els: savedEls });
+        if (hk)  setHoopKey(hk);
+        if (ls)  setLabelShape(ls);
+        if (bd)  setBorder(bd);
+        if (pal) setPalette(pal);
+        if (ef)  setExportFormat(ef);
+        if (at !== undefined) setActiveTemplate(at);
+      } catch { alert('Could not read design file.'); }
+    };
+    reader.readAsText(file);
+    e.target.value = '';   // allow re-loading same file
+  };
+
   const togglePreview = () => {
     if (mode !== 'stitch') { genStitches(); setMode('stitch'); }
     else setMode('design');
@@ -610,6 +686,11 @@ export default function QuiltLabelMaker() {
 
         {/* Snap */}
         <button onClick={() => setSnap(s => !s)} style={{ ...s.iconBtn, color: snap ? '#C8A060' : '#6A5840', outline: snap ? '1px solid #C8A060' : 'none' }} title="Snap to grid">⊞</button>
+
+        {/* Save / Load */}
+        <button onClick={saveDesign} style={s.iconBtn} title="Save design as JSON">💾</button>
+        <button onClick={() => loadFileRef.current?.click()} style={s.iconBtn} title="Load design from JSON">📂</button>
+        <input ref={loadFileRef} type="file" accept=".json" style={{ display:'none' }} onChange={loadDesign} />
 
         <div style={{ width:1, height:20, background:'#2E2820', margin:'0 4px' }} />
 
