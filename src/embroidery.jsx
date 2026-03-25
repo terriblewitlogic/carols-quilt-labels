@@ -110,6 +110,8 @@ export default function QuiltLabelMaker() {
   const fontSamples = FONT_SAMPLE_SVGS;                  // static stitch preview SVGs
   const [unit, setUnit] = useState('in');               // 'in' | 'cm'
   const [fieldValues, setFieldValues] = useState({});   // fieldKey → string value
+  const [wygSvg, setWygSvg]   = useState(null);         // live stitch overlay SVG
+  const [wygLoading, setWygLoading] = useState(false);  // overlay is fetching
   const cvs = useRef(null);
 
   const rawDims = getCanvasDims(hoopKey);
@@ -238,19 +240,20 @@ export default function QuiltLabelMaker() {
             if (p.stroke) { ctx.lineWidth = p.strokeWidth || 1.5; ctx.stroke(p2d); }
           }
         } else {
+          // CSS font preview — faint guide when WYSIWYG overlay is loaded, full opacity while loading
           ctx.font = getPreviewCSS(el.font, el.fontSize);
           ctx.fillStyle = el.color;
           ctx.textBaseline = 'middle';
-          // Letter spacing: (spacing_factor - 1) * ~15% of font size
           ctx.letterSpacing = `${((el.spacing_factor ?? 1.0) - 1.0) * el.fontSize * 0.15}px`;
+          ctx.globalAlpha = wygSvg ? 0.08 : 1.0;   // hide when stitch overlay is showing
           ctx.shadowColor = 'rgba(0,0,0,.18)';
-          ctx.shadowBlur = 2; ctx.shadowOffsetX = 1; ctx.shadowOffsetY = 1;
-          // Always draw centred on el.x — shift text draw point by alignment offset
+          ctx.shadowBlur = wygSvg ? 0 : 2; ctx.shadowOffsetX = wygSvg ? 0 : 1; ctx.shadowOffsetY = wygSvg ? 0 : 1;
           const _align = el.align || 'center';
           const _tw = ctx.measureText(el.content).width;
           const _xOff = _align === 'left' ? _tw / 2 : _align === 'right' ? -_tw / 2 : 0;
           ctx.textAlign = _align;
           ctx.fillText(el.content, el.x + _xOff, el.y);
+          ctx.globalAlpha = 1.0;
           ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
           ctx.letterSpacing = '0px';
         }
@@ -291,7 +294,7 @@ export default function QuiltLabelMaker() {
     // Hoop border (thin outer frame)
     ctx.strokeStyle = 'rgba(100,70,30,.3)'; ctx.lineWidth = 2;
     ctx.strokeRect(1, 1, cw - 2, ch - 2);
-  }, [els, sel, mode, sGroups, cw, ch, dw, dh, mx, my, labelShape, snap]);
+  }, [els, sel, mode, sGroups, cw, ch, dw, dh, mx, my, labelShape, snap, wygSvg]);
 
   // ── Stitch Generation ──
   const genStitches = useCallback(() => {
@@ -319,6 +322,44 @@ export default function QuiltLabelMaker() {
     const t = setTimeout(() => genStitches(), 400);
     return () => clearTimeout(t);
   }, [genStitches]);
+
+  // ── WYSIWYG live stitch overlay ───────────────────────────────────────────────
+  useEffect(() => {
+    const textEls = els.filter(el => el.type === 'text');
+    if (!textEls.length) { setWygSvg(null); return; }
+    const t = setTimeout(async () => {
+      try {
+        setWygLoading(true);
+        const res = await fetch('/api/preview', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            textElements: textEls.map(el => ({
+              text:           el.content,
+              font:           el.font || 'script',
+              size_mm:        el.fontSize / PX_PER_MM,
+              x_px:           el.x,
+              y_px:           el.y,
+              color:          el.color,
+              align:          el.align || 'center',
+              density_mm:     el.density_mm ?? null,
+              spacing_factor: el.spacing_factor ?? null,
+            })),
+            hoop:   { w_mm: dw / PX_PER_MM, h_mm: dh / PX_PER_MM },
+            border: { type: border.type, color: border.color },
+          }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          // Strip the background rect — canvas background shows through instead
+          const svg = data.svg.replace(/<rect[^>]*fill="#f5f0e8"[^>]*\/?>/g, '');
+          setWygSvg(svg);
+        }
+      } catch { /* silently fail — canvas CSS text remains as fallback */ }
+      finally { setWygLoading(false); }
+    }, 600);
+    return () => clearTimeout(t);
+  }, [els, border, dw, dh]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Save / Load ──────────────────────────────────────────────────────────────
   const SAVE_KEY = 'carolDesign_v1';
@@ -801,15 +842,44 @@ export default function QuiltLabelMaker() {
             <RulerH width={cw} hoopW={dims.hoopW} style={{ display:'block', height:16, width:`min(${maxCanvasW}, ${cw / canvasAspect * (canvasAspect < 1 ? 1 : canvasAspect)}px)`, marginLeft:16 }} />
             <div style={{ display:'flex' }}>
               <RulerV height={ch} hoopH={dims.hoopH} style={{ width:16, height:`min(${maxCanvasH}, ${ch}px)` }} />
-              <canvas ref={cvs} width={cw} height={ch}
-                onMouseDown={onDown} onMouseMove={onMove} onMouseUp={onUp} onMouseLeave={onUp}
-                tabIndex={0}
-                style={{ display:'block',
-                  width: `min(${maxCanvasW}, ${cw}px)`,
-                  height: `min(${maxCanvasH}, ${ch}px)`,
-                  cursor: drag ? 'grabbing' : 'grab',
-                  outline:'none',
-                  boxShadow:'0 8px 40px rgba(0,0,0,.6)' }} />
+              {/* Canvas + WYSIWYG stitch overlay */}
+              <div style={{ position:'relative', lineHeight:0,
+                width: `min(${maxCanvasW}, ${cw}px)`,
+                height: `min(${maxCanvasH}, ${ch}px)` }}>
+                <canvas ref={cvs} width={cw} height={ch}
+                  onMouseDown={onDown} onMouseMove={onMove} onMouseUp={onUp} onMouseLeave={onUp}
+                  tabIndex={0}
+                  style={{ display:'block', width:'100%', height:'100%',
+                    cursor: drag ? 'grabbing' : 'grab',
+                    outline:'none',
+                    boxShadow:'0 8px 40px rgba(0,0,0,.6)' }} />
+                {/* SVG overlay — positioned over design area only, pointer-events off */}
+                {wygSvg && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      left:   `${mx / cw * 100}%`,
+                      top:    `${my / ch * 100}%`,
+                      width:  `${dw / cw * 100}%`,
+                      height: `${dh / ch * 100}%`,
+                      pointerEvents: 'none',
+                      overflow: 'hidden',
+                    }}
+                    dangerouslySetInnerHTML={{ __html: wygSvg
+                      .replace(/width="100%"/, 'width="100%" height="100%"')
+                      .replace(/preserveAspectRatio="[^"]*"/, 'preserveAspectRatio="none"')
+                    }}
+                  />
+                )}
+                {/* Loading shimmer */}
+                {wygLoading && !wygSvg && (
+                  <div style={{ position:'absolute', left:`${mx/cw*100}%`, top:`${my/ch*100}%`,
+                    width:`${dw/cw*100}%`, height:`${dh/ch*100}%`, pointerEvents:'none',
+                    display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    <span style={{ fontSize:10, color:'rgba(200,160,96,0.5)', letterSpacing:2 }}>rendering…</span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
