@@ -52,28 +52,74 @@ def available_fonts():
     return dict(FONT_ALIASES)
 
 
-def get_text_strokes(text, font_name='script', height_mm=15.0):
-    """Extract stroke polylines for a text string.
-
-    Returns list of numpy arrays, each shape (N, 2) in mm coordinates,
-    with Y flipped for embroidery (positive Y = down).
-    """
+def _make_hf(font_name, height_mm):
+    """Create a normalized HersheyFonts instance (helper)."""
     internal = FONT_ALIASES.get(font_name, font_name)
     hf = HersheyFonts()
     hf.load_default_font(internal)
     hf.normalize_rendering(height_mm)
+    return hf
 
+
+def _char_strokes_and_advance(char, hf):
+    """Return (strokes_mm, advance_mm) for a single character.
+
+    strokes_mm: list of np.array shape (N,2), Y-flipped.
+    advance_mm: the natural x-advance for the glyph.
+    """
+    raw = list(hf.strokes_for_text(char))
+    strokes = []
+    x_max = 0.0
+    x_min = float('inf')
+    for stroke in raw:
+        pts = [(x, -y) for x, y in stroke]
+        if len(pts) >= 2:
+            arr = np.array(pts, dtype=float)
+            strokes.append(arr)
+            x_max = max(x_max, arr[:, 0].max())
+            x_min = min(x_min, arr[:, 0].min())
+    # Natural advance: width of whole-text render minus a space-like offset
+    # Use the space character width as the advance for spaces
+    advance = x_max if strokes else x_max
+    # For strokes, measure from left edge of glyph box
+    x_left = x_min if strokes else 0.0
+    return strokes, x_left, x_max
+
+
+def get_text_strokes(text, font_name='script', height_mm=15.0, spacing_factor=1.0):
+    """Extract stroke polylines for a text string with optional letter spacing.
+
+    Returns list of numpy arrays, each shape (N, 2) in mm coordinates,
+    with Y flipped for embroidery (positive Y = down).
+
+    spacing_factor=1.0 is natural spacing; <1 tighter, >1 wider.
+    Spacing is applied by scaling x-coordinates relative to the left edge.
+    """
+    hf = _make_hf(font_name, height_mm)
+
+    # Render naturally (always use the library's native layout)
     strokes = []
     for stroke in hf.strokes_for_text(text):
         pts = [(x, -y) for x, y in stroke]
         if len(pts) >= 2:
             strokes.append(np.array(pts, dtype=float))
-    return strokes
+
+    if not strokes or spacing_factor == 1.0:
+        return strokes
+
+    # Scale x-coordinates relative to the leftmost point so spacing widens/tightens
+    x_min = min(float(arr[:, 0].min()) for arr in strokes)
+    result = []
+    for arr in strokes:
+        scaled = arr.copy()
+        scaled[:, 0] = x_min + (arr[:, 0] - x_min) * spacing_factor
+        result.append(scaled)
+    return result
 
 
-def get_text_width(text, font_name='script', height_mm=15.0):
+def get_text_width(text, font_name='script', height_mm=15.0, spacing_factor=1.0):
     """Get total width of rendered text in mm."""
-    strokes = get_text_strokes(text, font_name, height_mm)
+    strokes = get_text_strokes(text, font_name, height_mm, spacing_factor)
     if not strokes:
         return 0.0
     all_pts = np.vstack(strokes)
@@ -488,7 +534,7 @@ def _run_strokes(pattern, strokes, satin_width_mm, density_mm, first_ref, height
 
 def text_to_pattern(text, font_name='script', height_mm=15.0,
                     satin_width_mm=None, density_mm=None,
-                    thread_color=0xFF0000):
+                    thread_color=0xFF0000, spacing_factor=1.0):
     """Convert a single line of text to an EmbPattern.
 
     Returns (pattern, width_mm, height_mm).
@@ -499,7 +545,7 @@ def text_to_pattern(text, font_name='script', height_mm=15.0,
     if density_mm is None:
         density_mm = auto_density(height_mm)
 
-    strokes = get_text_strokes(text, font_name, height_mm)
+    strokes = get_text_strokes(text, font_name, height_mm, spacing_factor)
     if not strokes:
         return None, 0, 0
 
@@ -521,7 +567,7 @@ def text_to_pattern(text, font_name='script', height_mm=15.0,
 def multiline_to_pattern(lines, font_name='script', height_mm=15.0,
                          line_spacing_factor=1.6, align='center',
                          satin_width_mm=None, density_mm=None,
-                         thread_color=0xFF0000):
+                         thread_color=0xFF0000, spacing_factor=1.0):
     """Convert multiple lines of text to a single centered EmbPattern."""
     if satin_width_mm is None:
         satin_width_mm = auto_satin_width(height_mm)
@@ -530,7 +576,7 @@ def multiline_to_pattern(lines, font_name='script', height_mm=15.0,
 
     line_spacing = height_mm * line_spacing_factor
 
-    widths = [get_text_width(line, font_name, height_mm) for line in lines]
+    widths = [get_text_width(line, font_name, height_mm, spacing_factor) for line in lines]
     max_width = max(widths) if widths else 0
 
     combined = pyembroidery.EmbPattern()
@@ -542,7 +588,7 @@ def multiline_to_pattern(lines, font_name='script', height_mm=15.0,
         if not text.strip():
             continue
 
-        strokes = get_text_strokes(text, font_name, height_mm)
+        strokes = get_text_strokes(text, font_name, height_mm, spacing_factor)
         if not strokes:
             continue
 
@@ -726,11 +772,13 @@ def generate_layout_svg(text_elements, hoop_w_mm, hoop_h_mm,
         lines = [l for l in el.get('text', '').split('\n') if l.strip()]
         if not lines:
             continue
-        font_name  = el.get('font', 'script')
-        height_mm  = float(el.get('size_mm', 12.0))
-        color_hex  = el.get('color', '#4A3820')
-        _d         = el.get('density_mm')
-        density_mm = float(_d) if _d is not None else None
+        font_name      = el.get('font', 'script')
+        height_mm      = float(el.get('size_mm', 12.0))
+        color_hex      = el.get('color', '#4A3820')
+        _d             = el.get('density_mm')
+        density_mm     = float(_d) if _d is not None else None
+        _sf            = el.get('spacing_factor')
+        spacing_factor = float(_sf) if _sf is not None else 1.0
         x_mm = float(el.get('x_px', hoop_w_mm * PX_PER_MM / 2)) / PX_PER_MM
         y_mm = float(el.get('y_px', hoop_h_mm * PX_PER_MM / 2)) / PX_PER_MM
 
@@ -739,10 +787,10 @@ def generate_layout_svg(text_elements, hoop_w_mm, hoop_h_mm,
         spacing  = height_mm * 1.6
 
         for line_idx, text in enumerate(lines):
-            strokes = get_text_strokes(text, font_name, height_mm)
+            strokes = get_text_strokes(text, font_name, height_mm, spacing_factor)
             if not strokes:
                 continue
-            tw = get_text_width(text, font_name, height_mm)
+            tw = get_text_width(text, font_name, height_mm, spacing_factor)
             # Centre horizontally on x_mm, baseline at y_mm for each line
             x_off = x_mm - tw / 2.0
             y_off = y_mm + line_idx * spacing - (len(lines) - 1) * spacing / 2.0

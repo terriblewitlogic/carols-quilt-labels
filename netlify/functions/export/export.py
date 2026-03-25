@@ -67,14 +67,16 @@ def _build_pattern(groups, text_elements, canvas_w, canvas_h):
         if not lines:
             continue
 
-        font_name    = text_el.get('font', 'sans')
-        height_mm    = float(text_el.get('size_mm', 12.0))
-        satin_width  = text_el.get('satin_width_mm')   # None = auto
-        _d           = text_el.get('density_mm')
-        density      = float(_d) if _d is not None else None  # None → auto_density in engine
-        color_hex    = text_el.get('color', '#000000')
-        color_int    = _hex_to_int(color_hex)
-        align        = text_el.get('align', 'center')
+        font_name      = text_el.get('font', 'sans')
+        height_mm      = float(text_el.get('size_mm', 12.0))
+        satin_width    = text_el.get('satin_width_mm')   # None = auto
+        _d             = text_el.get('density_mm')
+        density        = float(_d) if _d is not None else None
+        color_hex      = text_el.get('color', '#000000')
+        color_int      = _hex_to_int(color_hex)
+        align          = text_el.get('align', 'center')
+        _sf            = text_el.get('spacing_factor')
+        spacing_factor = float(_sf) if _sf is not None else 1.0
 
         if satin_width is not None:
             satin_width = float(satin_width)
@@ -85,6 +87,7 @@ def _build_pattern(groups, text_elements, canvas_w, canvas_h):
                 satin_width_mm=satin_width,
                 density_mm=density,
                 thread_color=color_int,
+                spacing_factor=spacing_factor,
             )
         else:
             text_pat = multiline_to_pattern(
@@ -93,6 +96,7 @@ def _build_pattern(groups, text_elements, canvas_w, canvas_h):
                 satin_width_mm=satin_width,
                 density_mm=density,
                 thread_color=color_int,
+                spacing_factor=spacing_factor,
             )
 
         if not text_pat:

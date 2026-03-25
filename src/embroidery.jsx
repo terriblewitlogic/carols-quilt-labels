@@ -241,6 +241,8 @@ export default function QuiltLabelMaker() {
           ctx.font = getPreviewCSS(el.font, el.fontSize);
           ctx.fillStyle = el.color;
           ctx.textBaseline = 'middle';
+          // Letter spacing: (spacing_factor - 1) * ~15% of font size
+          ctx.letterSpacing = `${((el.spacing_factor ?? 1.0) - 1.0) * el.fontSize * 0.15}px`;
           ctx.shadowColor = 'rgba(0,0,0,.18)';
           ctx.shadowBlur = 2; ctx.shadowOffsetX = 1; ctx.shadowOffsetY = 1;
           // Always draw centred on el.x — shift text draw point by alignment offset
@@ -250,6 +252,7 @@ export default function QuiltLabelMaker() {
           ctx.textAlign = _align;
           ctx.fillText(el.content, el.x + _xOff, el.y);
           ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
+          ctx.letterSpacing = '0px';
         }
         if (el.id === sel) {
           ctx.strokeStyle = 'rgba(60,130,255,.9)'; ctx.lineWidth = 1.5; ctx.setLineDash([5,4]);
@@ -408,8 +411,9 @@ export default function QuiltLabelMaker() {
         x_px:       el.x,
         y_px:       el.y,
         color:      el.color,
-        align:      el.align || 'center',
-        density_mm: el.density_mm ?? null,
+        align:          el.align || 'center',
+        density_mm:     el.density_mm ?? null,
+        spacing_factor: el.spacing_factor ?? null,
       }));
     if (!textElements.length) { alert('Add some text first.'); return; }
     try {
@@ -464,8 +468,9 @@ export default function QuiltLabelMaker() {
         x_px:       el.x,
         y_px:       el.y,
         color:      el.color,
-        align:      el.align || 'center',
-        density_mm: el.density_mm ?? null,
+        align:          el.align || 'center',
+        density_mm:     el.density_mm ?? null,
+        spacing_factor: el.spacing_factor ?? null,
       }));
 
     if (!groups.length && !textElements.length) return;
@@ -912,6 +917,31 @@ export default function QuiltLabelMaker() {
                         ↺ Auto
                       </button>}
                       <span style={{ fontSize:9, color:'#6A5840' }}>Light 0.45</span>
+                    </div>
+                  </>);
+                })()}
+
+                {/* Letter spacing slider */}
+                {(() => {
+                  const sf = selEl.spacing_factor ?? 1.0;
+                  const isDefault = selEl.spacing_factor == null;
+                  return (<>
+                    <div style={{ display:'flex', gap:8, alignItems:'center', marginBottom:3 }}>
+                      <span style={{ fontSize:10, color:'#6A5840', flexShrink:0, minWidth:58 }}>
+                        Spacing {isDefault ? <span style={{ color:'#C8A060' }}>Auto</span> : `${sf.toFixed(2)}×`}
+                      </span>
+                      <input type="range" min={50} max={200} step={5}
+                        value={Math.round((sf) * 100)}
+                        onChange={e => upd(selEl.id, { spacing_factor: +e.target.value / 100 })}
+                        style={{ flex:1, accentColor:'#C8A060' }} />
+                    </div>
+                    <div style={{ display:'flex', justifyContent:'space-between', marginBottom:6 }}>
+                      <span style={{ fontSize:9, color:'#6A5840' }}>Tight 0.5×</span>
+                      {!isDefault && <button onClick={() => upd(selEl.id, { spacing_factor: null })}
+                        style={{ fontSize:9, color:'#C8A060', background:'none', border:'none', cursor:'pointer', padding:0 }}>
+                        ↺ Normal
+                      </button>}
+                      <span style={{ fontSize:9, color:'#6A5840' }}>Wide 2.0×</span>
                     </div>
                   </>);
                 })()}
