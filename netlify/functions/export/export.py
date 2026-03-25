@@ -13,6 +13,12 @@ PX2EMB = 10.0 / 4.0
 
 SUPPORTED_FORMATS = {'jef', 'pes', 'dst', 'vp3', 'exp', 'xxx', 'hus'}
 
+
+def _get_float(d, key, default=None):
+    """Return float(d[key]) if present and non-None, else default."""
+    val = d.get(key)
+    return float(val) if val is not None else default
+
 MIME = 'application/octet-stream'
 
 
@@ -69,17 +75,12 @@ def _build_pattern(groups, text_elements, canvas_w, canvas_h):
 
         font_name      = text_el.get('font', 'sans')
         height_mm      = float(text_el.get('size_mm', 12.0))
-        satin_width    = text_el.get('satin_width_mm')   # None = auto
-        _d             = text_el.get('density_mm')
-        density        = float(_d) if _d is not None else None
+        satin_width    = _get_float(text_el, 'satin_width_mm')
+        density        = _get_float(text_el, 'density_mm')
         color_hex      = text_el.get('color', '#000000')
         color_int      = _hex_to_int(color_hex)
         align          = text_el.get('align', 'center')
-        _sf            = text_el.get('spacing_factor')
-        spacing_factor = float(_sf) if _sf is not None else 1.0
-
-        if satin_width is not None:
-            satin_width = float(satin_width)
+        spacing_factor = _get_float(text_el, 'spacing_factor', default=1.0)
 
         if len(lines) == 1:
             text_pat, _, _ = text_to_pattern(
@@ -138,8 +139,9 @@ def _build_pattern(groups, text_elements, canvas_w, canvas_h):
     # ── Pre-computed stitch groups (borders, decorative elements) ─────
     for i, group in enumerate(groups):
         thread = pyembroidery.EmbThread()
-        thread.color = _hex_to_int(group.get('color', '#000000'))
-        thread.name  = group.get('color', '#000000')
+        color_hex = group.get('color', '#000000')
+        thread.color = _hex_to_int(color_hex)
+        thread.name  = color_hex
         pattern.add_thread(thread)
 
         stitches = group.get('stitches', [])
@@ -221,8 +223,9 @@ def font_samples_handler(event, context):
                 width_px=180,
             )
             samples[font_value] = svg
-        except Exception:
-            samples[font_value] = ''   # font failed silently
+        except Exception as e:
+            print(f'font_samples: failed to render {font_value!r}: {e}')
+            samples[font_value] = ''
 
     return {
         'statusCode': 200,

@@ -3,13 +3,25 @@ import { getCanvasDims, DEFAULT_HOOP, HOOPS, SHAPES, SHAPE_LABELS, MIN_BORDER_MM
 import { PALETTES, DEFAULT_PALETTE } from './colors.js';
 import { FONT_CATEGORIES, ALL_FONTS, getPreviewCSS, getMinHeight } from './fonts.js';
 import { generateStitches, borderStitches } from './stitch-engine.js';
-// jef-encoder.js kept for reference; export now handled by Netlify function (pyembroidery)
 import { TEMPLATES, ESSENTIAL_FIELDS, STANDARD_FIELDS, OPTIONAL_FIELDS } from './templates.js';
 import { DECORATIVE_ELEMENTS } from './decorative-elements.js';
 import { BORDER_TYPES, generateBorderStitches } from './borders.js';
 import { openColorChart } from './color-chart.js';
 import { PX_PER_MM } from './constants.js';
 import { FONT_SAMPLE_SVGS } from './font-samples-data.js';
+
+// ─── Text element mapper (shared by WYSIWYG effect, doPreview, doExport) ─────
+const mapTextEl = (el) => ({
+  text:           el.content,
+  font:           el.font || 'script',
+  size_mm:        el.fontSize / PX_PER_MM,
+  x_px:           el.x,
+  y_px:           el.y,
+  color:          el.color,
+  align:          el.align || 'center',
+  density_mm:     el.density_mm ?? null,
+  spacing_factor: el.spacing_factor ?? null,
+});
 
 // ─── Unit conversion helpers (px ↔ display unit) ─────────────────────────────
 const PX_PER_IN  = PX_PER_MM * 25.4;   // 101.6 px per inch
@@ -324,6 +336,13 @@ export default function QuiltLabelMaker() {
   }, [genStitches]);
 
   // ── WYSIWYG live stitch overlay ───────────────────────────────────────────────
+  // Only re-fetch when properties that actually change the stitch paths change.
+  // Position (x/y) and color don't affect Hershey path shapes, but do affect layout.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const wygKey = els.filter(e => e.type === 'text')
+    .map(e => `${e.id}:${e.content}|${e.font}|${e.fontSize}|${e.spacing_factor ?? 1}|${e.density_mm ?? ''}|${e.x}|${e.y}|${e.color}|${e.align}`)
+    .join('§') + `|${border.type}|${border.color}|${dw}|${dh}`;
+
   useEffect(() => {
     const textEls = els.filter(el => el.type === 'text');
     if (!textEls.length) { setWygSvg(null); return; }
@@ -334,17 +353,7 @@ export default function QuiltLabelMaker() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            textElements: textEls.map(el => ({
-              text:           el.content,
-              font:           el.font || 'script',
-              size_mm:        el.fontSize / PX_PER_MM,
-              x_px:           el.x,
-              y_px:           el.y,
-              color:          el.color,
-              align:          el.align || 'center',
-              density_mm:     el.density_mm ?? null,
-              spacing_factor: el.spacing_factor ?? null,
-            })),
+            textElements: textEls.map(mapTextEl),
             hoop:   { w_mm: dw / PX_PER_MM, h_mm: dh / PX_PER_MM },
             border: { type: border.type, color: border.color },
           }),
@@ -359,7 +368,7 @@ export default function QuiltLabelMaker() {
       finally { setWygLoading(false); }
     }, 600);
     return () => clearTimeout(t);
-  }, [els, border, dw, dh]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [wygKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Save / Load ──────────────────────────────────────────────────────────────
   const SAVE_KEY = 'carolDesign_v1';
@@ -443,19 +452,7 @@ export default function QuiltLabelMaker() {
   };
 
   const doPreview = async () => {
-    const textElements = els
-      .filter(el => el.type === 'text')
-      .map(el => ({
-        text:       el.content,
-        font:       el.font || 'script',
-        size_mm:    el.fontSize / PX_PER_MM,
-        x_px:       el.x,
-        y_px:       el.y,
-        color:      el.color,
-        align:          el.align || 'center',
-        density_mm:     el.density_mm ?? null,
-        spacing_factor: el.spacing_factor ?? null,
-      }));
+    const textElements = els.filter(el => el.type === 'text').map(mapTextEl);
     if (!textElements.length) { alert('Add some text first.'); return; }
     try {
       // Compute real border stitch points in JS, convert px→mm, send to backend
@@ -499,20 +496,7 @@ export default function QuiltLabelMaker() {
       if (translated.length) groups.push({ color: border.color, colorName: 'Border', stitches: translated });
     }
 
-    // Build text element metadata for the backend Hershey engine
-    const textElements = els
-      .filter(el => el.type === 'text')
-      .map(el => ({
-        text:       el.content,
-        font:       el.font || 'script',
-        size_mm:    el.fontSize / PX_PER_MM,
-        x_px:       el.x,
-        y_px:       el.y,
-        color:      el.color,
-        align:          el.align || 'center',
-        density_mm:     el.density_mm ?? null,
-        spacing_factor: el.spacing_factor ?? null,
-      }));
+    const textElements = els.filter(el => el.type === 'text').map(mapTextEl);
 
     if (!groups.length && !textElements.length) return;
     setExporting(true);
@@ -543,9 +527,6 @@ export default function QuiltLabelMaker() {
   const doColorChart = () => {
     const decorativeGroups = genStitches();
 
-    // Collect text element colors — stitch count is estimated (backend processes text)
-    // Estimate: ~30 stitches per mm of font height per non-space character
-    const PX_PER_MM = 4;
     const textColorMap = new Map();
     for (const el of els.filter(e => e.type === 'text')) {
       const chars    = (el.content || '').replace(/\s/g, '').length;
@@ -966,7 +947,6 @@ export default function QuiltLabelMaker() {
               {selEl.type === 'text' ? (<>
                 {/* Text uses the Hershey satin engine — show density slider */}
                 {(() => {
-                  const PX_PER_MM = 4;
                   const autoDensity = Math.round(Math.max(18, Math.min(38, 10 + (selEl.fontSize / PX_PER_MM) * 1.0)));
                   const isAuto = selEl.density_mm == null;
                   const sliderVal = isAuto ? autoDensity : Math.round(selEl.density_mm * 100);

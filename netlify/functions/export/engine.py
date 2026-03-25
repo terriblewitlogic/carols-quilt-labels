@@ -15,6 +15,7 @@ Quality improvements over baseline:
 
 import math
 import numpy as np
+from functools import lru_cache
 from HersheyFonts import HersheyFonts
 from shapely.geometry import LineString
 import pyembroidery
@@ -52,13 +53,19 @@ def available_fonts():
     return dict(FONT_ALIASES)
 
 
+@lru_cache(maxsize=32)
 def _make_hf(font_name, height_mm):
-    """Create a normalized HersheyFonts instance (helper)."""
+    """Return a cached, normalized HersheyFonts instance."""
     internal = FONT_ALIASES.get(font_name, font_name)
     hf = HersheyFonts()
     hf.load_default_font(internal)
     hf.normalize_rendering(height_mm)
     return hf
+
+
+def _flip_y(stroke):
+    """Convert a stroke [(x,y)…] to np.array with Y flipped for embroidery (+Y = down)."""
+    return np.array([(x, -y) for x, y in stroke], dtype=float)
 
 
 def _char_strokes_and_advance(char, hf):
@@ -72,9 +79,8 @@ def _char_strokes_and_advance(char, hf):
     x_max = 0.0
     x_min = float('inf')
     for stroke in raw:
-        pts = [(x, -y) for x, y in stroke]
-        if len(pts) >= 2:
-            arr = np.array(pts, dtype=float)
+        arr = _flip_y(stroke)
+        if len(arr) >= 2:
             strokes.append(arr)
             x_max = max(x_max, arr[:, 0].max())
             x_min = min(x_min, arr[:, 0].min())
@@ -100,9 +106,9 @@ def get_text_strokes(text, font_name='script', height_mm=15.0, spacing_factor=1.
     # Render naturally (always use the library's native layout)
     strokes = []
     for stroke in hf.strokes_for_text(text):
-        pts = [(x, -y) for x, y in stroke]
-        if len(pts) >= 2:
-            strokes.append(np.array(pts, dtype=float))
+        arr = _flip_y(stroke)
+        if len(arr) >= 2:
+            strokes.append(arr)
 
     if not strokes or spacing_factor == 1.0:
         return strokes
