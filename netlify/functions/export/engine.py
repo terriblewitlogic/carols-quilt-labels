@@ -221,6 +221,46 @@ def clamp_normals(normals, max_angle_rad=0.18):
     return clamped
 
 
+def compute_curvature(normals):
+    """Return per-point curvature signal (angle change between consecutive normals).
+
+    Values near 0 = straight, values near π = sharp reversal.
+    """
+    n = len(normals)
+    curvature = np.zeros(n)
+    for i in range(1, n):
+        dot = float(np.clip(np.dot(normals[i - 1], normals[i]), -1.0, 1.0))
+        curvature[i] = np.arccos(dot)
+    curvature[0] = curvature[1] if n > 1 else 0.0
+    return curvature
+
+
+def curvature_adaptive_smooth(normals, curvature, threshold=0.20):
+    """Apply extra smoothing at high-curvature segments to eliminate starbursts.
+
+    For points where the normal change exceeds *threshold* radians (~11°),
+    apply a wider Gaussian-weighted smooth centred on that point. The window
+    size grows with curvature magnitude, up to 13 points.
+    """
+    result = normals.copy()
+    n = len(normals)
+    for i in range(n):
+        if curvature[i] > threshold:
+            extra_w = min(13, 3 + int(curvature[i] / threshold * 3))
+            half = extra_w // 2
+            lo, hi = max(0, i - half), min(n, i + half + 1)
+            seg = normals[lo:hi]
+            # Gaussian weights centred on i
+            dists = np.arange(lo, hi) - i
+            weights = np.exp(-0.5 * (dists / max(half, 1)) ** 2)
+            weights = weights[:, None]
+            blended = (seg * weights).sum(axis=0)
+            norm = np.linalg.norm(blended)
+            if norm > 1e-8:
+                result[i] = blended / norm
+    return result
+
+
 def taper_scale(i, n, taper_frac=0.18, min_scale=0.25,
                 taper_start=True, taper_end=True):
     """Return a width scale factor (0.25–1.0) that tapers satin near stroke ends.
@@ -356,17 +396,26 @@ def generate_satin(points, width_mm=1.2, spacing_mm=0.25, pull_comp_mm=0.1,
 
     half_w = (width_mm / 2.0) + pull_comp_mm
 
-    # Wider smoothing window (7) for rounder letterforms
+    # Normal pipeline: smooth → clamp → curvature-adaptive extra smooth
     normals = compute_normals(pts)
     normals = smooth_array(normals, window=7)
-    normals = clamp_normals(normals)   # prevent starburst at endpoints/curves
+    normals = clamp_normals(normals)
+    # Extra pass: detect remaining high-curvature segments and smooth them further
+    # (fixes starbursts on S, C, 2, 6, 0 which survive the initial clamp)
+    curvature = compute_curvature(normals)
+    normals = curvature_adaptive_smooth(normals, curvature, threshold=0.15)
+    # Re-clamp after adaptive smooth to catch any new edge cases
+    normals = clamp_normals(normals, max_angle_rad=0.25)
 
     n = len(pts)
     stitches = []
     for i in range(n):
         x, y = pts[i]
         nx, ny = normals[i]
-        w = half_w * taper_scale(i, n, taper_start=taper_start, taper_end=taper_end)
+        # Narrow satin width at high-curvature points: tight curves can't hold
+        # full-width satin without buckling on fabric
+        curv_scale = max(0.55, 1.0 - curvature[i] / 1.2)
+        w = half_w * curv_scale * taper_scale(i, n, taper_start=taper_start, taper_end=taper_end)
 
         if i % 2 == 0:
             stitches.append((x + nx * w, y + ny * w))
@@ -806,12 +855,16 @@ def generate_layout_svg(text_elements, hoop_w_mm, hoop_h_mm,
                 normals = compute_normals(pts)
                 normals = smooth_array(normals, window=7)
                 normals = clamp_normals(normals)
+                curvature = compute_curvature(normals)
+                normals = curvature_adaptive_smooth(normals, curvature, threshold=0.15)
+                normals = clamp_normals(normals, max_angle_rad=0.25)
                 n = len(pts)
                 zigzag = []
                 for i in range(n):
                     x, y = pts[i]
                     nx, ny = normals[i]
-                    w = half_w * taper_scale(i, n)
+                    curv_scale = max(0.55, 1.0 - curvature[i] / 1.2)
+                    w = half_w * curv_scale * taper_scale(i, n)
                     side = 1 if i % 2 == 0 else -1
                     px = (x + side * nx * w) * scale
                     py = (y + side * ny * w) * scale
