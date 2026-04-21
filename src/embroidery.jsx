@@ -99,7 +99,7 @@ function applyShapeClip(ctx, shape, x, y, w, h) {
 }
 
 // ─── Main Component ──────────────────────────────────────────────────────────
-export default function QuiltLabelMaker() {
+export default function QuiltLabelMaker({ onBack } = {}) {
   const [hoopKey, setHoopKey] = useState(DEFAULT_HOOP);
   const [labelShape, setLabelShape] = useState('rectangle-h');
   const [border, setBorder] = useState({ type: 'none', color: '#111111' });
@@ -703,6 +703,11 @@ export default function QuiltLabelMaker() {
 
       {/* ─── Top Bar ─── */}
       <div style={s.topBar}>
+        {onBack && (
+          <button onClick={onBack} style={{ background:'none', border:'none', color:'#6B5D50', cursor:'pointer', fontSize:13, padding:'0 6px 0 0', display:'flex', alignItems:'center', gap:4 }}>
+            ← Back
+          </button>
+        )}
         <span style={{ fontSize:15, fontWeight:700, color:'#D4A060', letterSpacing:.3 }}>✂ Carol's Quilt Labels</span>
         <div style={{ width:1, height:20, background:'#2E2820', margin:'0 4px' }} />
 

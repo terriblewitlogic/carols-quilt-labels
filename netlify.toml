@@ -17,3 +17,12 @@
 
 [functions."font-samples"]
   runtime = "python3.11"
+
+[functions."generate"]
+  runtime = "python3.11"
+
+[functions."image_to_jef"]
+  runtime = "python3.11"
+
+[functions."save_to_library"]
+  runtime = "python3.11"

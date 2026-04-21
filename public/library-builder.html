@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Library Builder</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Iowan Old Style", Georgia, serif;
+    background: #1A1410; color: #E8E0D4;
+    min-height: 100vh; overflow-x: hidden;
+  }
+  /* ── Top bar ── */
+  #topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: #110E0B; border-bottom: 1px solid #2E2820;
+    display: flex; align-items: center; gap: 12; padding: 0 20px; height: 50px;
+    flex-wrap: wrap;
+  }
+  #topbar h1 { font-size: 15px; font-weight: 700; color: #D4A060; flex-shrink: 0; }
+  #stats { font-size: 11px; color: #6B5D50; flex-shrink: 0; }
+  #topbar .gap { flex: 1; }
+  .topbtn {
+    padding: 6px 14px; border-radius: 5px; font-size: 12px; font-weight: 600;
+    cursor: pointer; border: none; font-family: inherit; letter-spacing: 0.03em;
+  }
+  #btnAutoAll  { background: #D4A060; color: #110E0B; }
+  #btnStopAll  { background: #5A2020; color: #E8C0A0; display: none; }
+  #btnReload   { background: #1C1712; color: #9A8A78; border: 1px solid #2E2820; }
+  .progress-bar {
+    height: 2px; background: #2E2820; flex-shrink: 0; width: 120px;
+    border-radius: 2px; overflow: hidden;
+  }
+  .progress-fill { height: 100%; background: #D4A060; transition: width 0.3s; }
+
+  /* ── Tabs ── */
+  #tabs {
+    display: flex; gap: 2px; padding: 10px 20px 0;
+    background: #110E0B; border-bottom: 1px solid #2E2820; flex-wrap: wrap;
+  }
+  .tab {
+    padding: 7px 13px; font-size: 12px; cursor: pointer;
+    border: none; border-radius: 4px 4px 0 0; font-family: inherit;
+    background: transparent; color: #6B5D50; transition: color 0.12s;
+  }
+  .tab.active { background: #1A1410; color: #D4A060; font-weight: 600; }
+
+  /* ── Grid ── */
+  #grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px; padding: 20px;
+  }
+
+  /* ── Card ── */
+  .card {
+    background: #110E0B; border: 1px solid #2E2820; border-radius: 8px;
+    display: flex; flex-direction: column; overflow: hidden;
+    transition: border-color 0.15s;
+  }
+  .card:hover { border-color: #4A3E34; }
+  .card.state-saved { border-color: #1A3A1A; }
+  .card.state-error { border-color: #5A2020; }
+
+  .card-header {
+    padding: 10px 12px 6px;
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 6px;
+  }
+  .card-name { font-size: 13px; font-weight: 600; color: #D4C4B0; }
+  .card-desc { font-size: 11px; color: #6B5D50; padding: 0 12px 8px; line-height: 1.45; }
+
+  .badge {
+    font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 2px 7px; border-radius: 3px; font-weight: 600; flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .badge-saved    { background: #1A3A1A; color: #6A9A6A; }
+  .badge-pending  { background: #1E1A16; color: #4A3E34; }
+  .badge-running  { background: #2A200E; color: #C07A30; }
+  .badge-error    { background: #2A1212; color: #C07070; }
+
+  /* Preview area */
+  .card-preview {
+    display: flex; gap: 0; border-top: 1px solid #1E1A16; border-bottom: 1px solid #1E1A16;
+    min-height: 0;
+  }
+  .preview-half {
+    flex: 1; aspect-ratio: 1; overflow: hidden; position: relative;
+    display: flex; align-items: center; justify-content: center;
+    background: #0C0A08;
+  }
+  .preview-half:first-child { border-right: 1px solid #1E1A16; }
+  .preview-half img, .preview-half svg { max-width: 100%; max-height: 100%; display: block; }
+  .preview-half .ph {
+    font-size: 28px; opacity: 0.15; user-select: none;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+  }
+  .preview-half .ph-label { font-size: 9px; color: #3A3028; text-transform: uppercase; letter-spacing: 0.1em; }
+  .preview-half .spinner {
+    width: 20px; height: 20px; border: 2px solid #2E2820;
+    border-top-color: #D4A060; border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .preview-half .step-label {
+    position: absolute; bottom: 4px; left: 0; right: 0; text-align: center;
+    font-size: 9px; color: #6B5D50; letter-spacing: 0.08em;
+  }
+
+  /* Meta row */
+  .card-meta {
+    padding: 6px 12px; display: flex; gap: 8px; flex-wrap: wrap;
+    font-size: 10px; color: #4A3E34; border-bottom: 1px solid #1E1A16;
+  }
+  .card-meta span { display: flex; align-items: center; gap: 3px; }
+
+  /* Actions */
+  .card-actions { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 6px; }
+  .card-msg { font-size: 10px; color: #6A9A6A; line-height: 1.5; }
+  .card-err { font-size: 10px; color: #C07070; line-height: 1.5; }
+
+  .abtn {
+    width: 100%; padding: 7px 0; border-radius: 4px; font-size: 11px; font-weight: 600;
+    cursor: pointer; border: none; font-family: inherit; letter-spacing: 0.05em;
+    text-transform: uppercase; transition: opacity 0.1s;
+  }
+  .abtn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .abtn-primary   { background: #D4A060; color: #110E0B; }
+  .abtn-secondary { background: #1C1712; color: #9A8A78; border: 1px solid #2E2820; }
+  .abtn-success   { background: #1A3A1A; color: #6A9A6A; border: 1px solid #2E4A2E; }
+  .abtn-warn      { background: #2A200E; color: #C07A30; border: 1px solid #4A3010; }
+  .abtn-row       { display: flex; gap: 6px; }
+  .abtn-row .abtn { flex: 1; }
+
+  /* Stitch count chip */
+  .stitch-chip { font-size: 10px; color: #4A3E34; margin-left: auto; align-self: center; }
+</style>
+</head>
+<body>
+
+<!-- ── Top bar ── -->
+<div id="topbar">
+  <h1>📚 Library Builder</h1>
+  <span id="stats">Loading…</span>
+  <div class="gap"></div>
+  <div class="progress-bar" id="progressBar" style="display:none">
+    <div class="progress-fill" id="progressFill" style="width:0%"></div>
+  </div>
+  <button class="topbtn" id="btnAutoAll"  onclick="startAutoQueue()">⚡ Auto-Generate All</button>
+  <button class="topbtn" id="btnStopAll"  onclick="stopQueue()">■ Stop</button>
+  <button class="topbtn" id="btnReload"   onclick="reloadManifest()">↺ Refresh</button>
+</div>
+
+<!-- ── Category tabs ── -->
+<div id="tabs"></div>
+
+<!-- ── Card grid ── -->
+<div id="grid"></div>
+
+<script>
+// ─── Catalog (copy of src/image-embroidery/library-catalog.js) ────────────────
+const CATEGORIES = [
+  { id: 'florals',        label: 'Florals',          icon: '🌸' },
+  { id: 'birds-insects',  label: 'Birds & Insects',   icon: '🦋' },
+  { id: 'animals',        label: 'Animals',           icon: '🦊' },
+  { id: 'botanicals',     label: 'Botanicals',        icon: '🍃' },
+  { id: 'folk-art',       label: 'Folk Art',          icon: '🎨' },
+  { id: 'geometric',      label: 'Geometric',         icon: '✦' },
+];
+const HOOPS = {
+  '4x4':  { w: 100, h: 100 }, '5x7': { w: 130, h: 180 }, '6x10': { w: 150, h: 240 },
+};
+const PROMPT_SUFFIX = ', bold vector sticker art style, flat colors, thick black outlines, no gradients, white background, 4 to 6 distinct colors, clean simple shapes';
+
+const CATALOG = [
+  // Florals
+  { id:'sunflower',        name:'Sunflower',                category:'florals',       description:'Bold single sunflower with golden petals and dark seed centre',    prompt:'a single sunflower with bold golden petals and a dark brown seed centre, centered on white',                                                   settings:{hoopKey:'4x4',numColors:4,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'red-rose',         name:'Red Rose',                 category:'florals',       description:'Classic red rose with dark green leaves',                          prompt:'a classic red rose in full bloom with two dark green leaves, centered on white',                                                               settings:{hoopKey:'4x4',numColors:4,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'daisy',            name:'Daisy',                    category:'florals',       description:'Simple white daisy with yellow centre',                            prompt:'a single white daisy flower with a bright yellow centre and a short green stem',                                                              settings:{hoopKey:'4x4',numColors:3,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'lavender-sprig',   name:'Lavender Sprig',           category:'florals',       description:'Elegant lavender sprig in purple and grey-green',                  prompt:'a sprig of lavender with purple flower heads and grey-green stems, botanical illustration style',                                           settings:{hoopKey:'4x4',numColors:4,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'cherry-blossom',   name:'Cherry Blossom Branch',    category:'florals',       description:'Delicate cherry blossom branch with pink blooms',                  prompt:'a cherry blossom branch with soft pink flowers and dark brown bark, Japanese botanical style',                                             settings:{hoopKey:'4x4',numColors:4,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'poppy',            name:'Poppy',                    category:'florals',       description:'Vivid red poppy with black centre',                                prompt:'a single bright red poppy flower with a black centre and green stem, bold and graphic',                                                   settings:{hoopKey:'4x4',numColors:3,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'tulip',            name:'Tulip',                    category:'florals',       description:'Classic tulip in red with green stem',                             prompt:'a single classic red tulip with two green leaves and a long straight stem, centered',                                                    settings:{hoopKey:'4x4',numColors:3,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'lotus',            name:'Lotus Flower',             category:'florals',       description:'Open lotus in pink and white with yellow stamens',                 prompt:'an open lotus flower with pink and white petals and yellow stamens, symmetrical, centered on white',                                     settings:{hoopKey:'4x4',numColors:4,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'wildflower-bunch', name:'Wildflower Bunch',         category:'florals',       description:'Small hand-tied bunch of mixed wildflowers',                       prompt:'a small hand-tied bunch of mixed wildflowers including daisies, buttercups and cornflowers, tied with a simple ribbon',                  settings:{hoopKey:'5x7',numColors:5,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'peony',            name:'Peony',                    category:'florals',       description:'Full-bloom peony in blush pink',                                   prompt:'a full-bloom peony flower in blush pink with layered petals and dark green leaves',                                                      settings:{hoopKey:'4x4',numColors:4,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  // Birds & Insects
+  { id:'robin',            name:'Robin',                    category:'birds-insects', description:'Cheerful robin redbreast perched on a twig',                       prompt:'a cheerful robin redbreast with bright orange chest perched on a bare twig, facing right',                                             settings:{hoopKey:'4x4',numColors:4,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'monarch-butterfly',name:'Monarch Butterfly',        category:'birds-insects', description:'Monarch butterfly with wings open, bold orange and black',         prompt:'a monarch butterfly with wings open showing bold orange and black pattern with white dots',                                             settings:{hoopKey:'4x4',numColors:3,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'honeybee',         name:'Honeybee',                 category:'birds-insects', description:'Plump honeybee in yellow and black with wings',                    prompt:'a plump honeybee with yellow and black stripes, transparent wings, and fuzzy body, centered',                                          settings:{hoopKey:'4x4',numColors:4,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'hummingbird',      name:'Hummingbird',              category:'birds-insects', description:'Emerald green hummingbird visiting a flower',                      prompt:'an emerald green hummingbird hovering beside a red tubular flower, wings blurred',                                                    settings:{hoopKey:'4x4',numColors:4,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'bluebird',         name:'Bluebird',                 category:'birds-insects', description:'Eastern bluebird in bright blue and orange',                       prompt:'an eastern bluebird perched on a branch, bright blue back and orange breast, facing left',                                            settings:{hoopKey:'4x4',numColors:4,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'owl',              name:'Barn Owl',                 category:'birds-insects', description:'Wide-eyed barn owl face, white and tawny',                         prompt:'a barn owl face front-on with wide dark eyes, white heart-shaped face and tawny feathers',                                            settings:{hoopKey:'4x4',numColors:4,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'ladybug',          name:'Ladybug',                  category:'birds-insects', description:'Classic red ladybug with black spots',                             prompt:'a bright red ladybug with black spots viewed from above on a green leaf',                                                           settings:{hoopKey:'4x4',numColors:3,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'dragonfly',        name:'Dragonfly',                category:'birds-insects', description:'Iridescent dragonfly with delicate wings',                         prompt:'a dragonfly with a teal iridescent body and four transparent wings, viewed from above',                                             settings:{hoopKey:'4x4',numColors:4,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'swallow',          name:'Swallow in Flight',        category:'birds-insects', description:'Barn swallow mid-flight, blue and white',                          prompt:'a barn swallow in mid-flight with dark blue back, white belly and forked tail, side view',                                          settings:{hoopKey:'4x4',numColors:3,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'bumblebee',        name:'Bumblebee on Clover',      category:'birds-insects', description:'Round bumblebee on a pink clover flower',                          prompt:'a round fluffy bumblebee sitting on a pink clover flower, bold cartoon style',                                                     settings:{hoopKey:'4x4',numColors:4,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  // Animals
+  { id:'sitting-cat',      name:'Sitting Cat',              category:'animals',       description:'Simple silhouette of a cat sitting upright',                       prompt:'a simple orange tabby cat sitting upright facing forward, bold outline with stripes',                                               settings:{hoopKey:'4x4',numColors:3,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'fox',              name:'Fox Portrait',             category:'animals',       description:'Alert red fox face looking forward',                               prompt:'a red fox face portrait looking directly forward with white muzzle and dark nose, bold and graphic',                                 settings:{hoopKey:'4x4',numColors:4,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'hedgehog',         name:'Hedgehog',                 category:'animals',       description:'Curled hedgehog with spines and tiny nose',                        prompt:'a small hedgehog walking with spiny brown back and white belly and tiny black eyes, side view',                                    settings:{hoopKey:'4x4',numColors:3,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'rabbit',           name:'Sitting Rabbit',           category:'animals',       description:'White rabbit with long ears sitting upright',                      prompt:'a white rabbit sitting upright with long pink-lined ears and a round fluffy body, front view',                                     settings:{hoopKey:'4x4',numColors:3,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'deer',             name:'Deer Head',                category:'animals',       description:'Elegant deer head with antlers, front view',                       prompt:'an elegant deer head with antlers facing forward, warm brown with a white chin patch, graphic style',                              settings:{hoopKey:'4x4',numColors:4,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'bear-cub',         name:'Bear Cub',                 category:'animals',       description:'Round-faced brown bear cub sitting',                               prompt:'a round-faced brown bear cub sitting with small ears and a simple smiling expression',                                            settings:{hoopKey:'4x4',numColors:3,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'squirrel',         name:'Squirrel with Acorn',      category:'animals',       description:'Russet squirrel holding an acorn',                                 prompt:'a russet squirrel sitting upright holding an acorn with a large bushy tail curled over its back',                                 settings:{hoopKey:'4x4',numColors:4,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'frog',             name:'Frog on Lily Pad',         category:'animals',       description:'Green frog perched on a lily pad',                                 prompt:'a bright green frog sitting on a round lily pad with a small white water lily flower beside it',                                  settings:{hoopKey:'4x4',numColors:4,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  // Botanicals
+  { id:'autumn-leaf',      name:'Autumn Maple Leaf',        category:'botanicals',    description:'Maple leaf in autumn reds and oranges',                            prompt:'a single maple leaf in autumn colours of deep red, orange and gold with visible veins',                                          settings:{hoopKey:'4x4',numColors:4,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'mushroom',         name:'Toadstool',                category:'botanicals',    description:'Classic red toadstool with white spots',                           prompt:'a classic red and white toadstool mushroom with white spots and a small stem on grass',                                          settings:{hoopKey:'4x4',numColors:4,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'fern-frond',       name:'Fern Frond',               category:'botanicals',    description:'Single unfurling fern frond in deep green',                        prompt:'a single fern frond with symmetric leaflets on a curved stem, deep forest green, botanical print style',                        settings:{hoopKey:'4x4',numColors:3,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'acorn',            name:'Acorn',                    category:'botanicals',    description:'Acorn with oak leaf, autumn browns',                               prompt:'an acorn with its cap next to a lobed oak leaf, warm brown and tan tones, botanical style',                                     settings:{hoopKey:'4x4',numColors:3,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'strawberry',       name:'Strawberry',               category:'botanicals',    description:'Plump red strawberry with green leaves',                           prompt:'a plump bright red strawberry with small yellow seeds and a green leafy crown, centered',                                       settings:{hoopKey:'4x4',numColors:3,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'pinecone',         name:'Pinecone',                 category:'botanicals',    description:'Detailed pinecone with overlapping scales',                        prompt:'a brown pinecone with clearly defined overlapping scales and a short stem, botanical illustration',                             settings:{hoopKey:'4x4',numColors:3,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'berries-branch',   name:'Berry Branch',             category:'botanicals',    description:'Branch with clusters of deep red berries and leaves',              prompt:'a branch with clusters of small dark red berries and glossy green leaves, winter botanical',                                    settings:{hoopKey:'4x4',numColors:4,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'succulent',        name:'Succulent Rosette',        category:'botanicals',    description:'Top-down view of a rosette succulent',                             prompt:'a succulent plant viewed from directly above showing a perfect rosette of thick leaves in grey-green and blue-green',         settings:{hoopKey:'4x4',numColors:3,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  // Folk Art
+  { id:'scandinavian-flower',name:'Scandinavian Rosette',   category:'folk-art',      description:'Classic Scandinavian folk art flower in red and blue',             prompt:'a classic Scandinavian folk art rosette flower in red, blue and white with decorative leaves, Dala style',                    settings:{hoopKey:'4x4',numColors:4,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'folk-bird',        name:'Folk Art Bird',            category:'folk-art',      description:'Stylised folk art bird with decorative tail feathers',             prompt:'a stylised folk art bird with decorative curved tail feathers and floral details, Eastern European style in red and gold', settings:{hoopKey:'4x4',numColors:4,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'hex-sign',         name:'Pennsylvania Hex',         category:'folk-art',      description:'Pennsylvania Dutch hex sign with tulips and stars',                prompt:'a Pennsylvania Dutch hex sign with tulips, a six-pointed star and decorative border, circular, bold primary colours',       settings:{hoopKey:'4x4',numColors:5,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'mexican-marigold', name:'Día de Muertos Marigold',  category:'folk-art',      description:'Vibrant orange marigold in Mexican folk style',                    prompt:'a vibrant orange and yellow marigold flower in Mexican Día de los Muertos folk art style with decorative leaves',           settings:{hoopKey:'4x4',numColors:4,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'matryoshka',       name:'Matryoshka Doll',          category:'folk-art',      description:'Classic Russian nesting doll in red and gold',                     prompt:'a classic Russian matryoshka nesting doll in red with gold and floral folk art decoration on a white background',          settings:{hoopKey:'4x4',numColors:5,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'folk-horse',       name:'Dala Horse',               category:'folk-art',      description:'Swedish Dala horse in traditional red with floral decoration',     prompt:'a Swedish Dala horse in traditional bright red with colourful flower and saddle decoration, simple outline',              settings:{hoopKey:'4x4',numColors:4,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'otomi-deer',       name:'Otomí Deer',               category:'folk-art',      description:'Mexican Otomí embroidery style deer with flowers',                 prompt:'a deer in Mexican Otomí embroidery style surrounded by stylised flowers and birds, bold outline, limited colour',        settings:{hoopKey:'4x4',numColors:5,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  // Geometric
+  { id:'mandala',          name:'Mandala',                  category:'geometric',     description:'Eight-fold mandala in indigo and gold',                            prompt:'a symmetrical eight-fold mandala with geometric petal shapes, in deep indigo and gold on white, bold clean lines',        settings:{hoopKey:'4x4',numColors:3,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'hex-grid',         name:'Honeycomb',                category:'geometric',     description:'Interlocking hexagons in amber and honey tones',                   prompt:'a honeycomb pattern of interlocking hexagons in amber, gold and honey tones, simple and bold',                           settings:{hoopKey:'4x4',numColors:3,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'star-burst',       name:'Eight-Pointed Star',       category:'geometric',     description:'Classic eight-pointed star with radiating points',                 prompt:'a bold eight-pointed star with alternating long and short points in deep teal and cream, geometric quilt pattern',        settings:{hoopKey:'4x4',numColors:3,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'celtic-knot',      name:'Celtic Knot',              category:'geometric',     description:'Interlaced Celtic trinity knot in forest green',                   prompt:'a Celtic trinity knot with clean interlaced bands in forest green with a thin gold outline, circular composition',       settings:{hoopKey:'4x4',numColors:3,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'diamond-grid',     name:'Diamond Lattice',          category:'geometric',     description:'Repeating diamond lattice in navy and white',                      prompt:'a repeating diamond lattice pattern in navy blue and white with small dot accents at intersections',                     settings:{hoopKey:'4x4',numColors:2,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'pinwheel',         name:'Pinwheel',                 category:'geometric',     description:'Four-blade pinwheel in bright primary colours',                    prompt:'a four-blade pinwheel with alternating red and blue blades and a yellow centre, simple bold shapes',                    settings:{hoopKey:'4x4',numColors:3,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+  { id:'compass-rose',     name:'Compass Rose',             category:'geometric',     description:'Nautical compass rose in navy and gold',                           prompt:'a nautical compass rose with sixteen points in navy blue and gold, clean sharp lines on white',                         settings:{hoopKey:'4x4',numColors:3,densityMm:0.4,outline:'running',minFeatureMm:1.5}},
+];
+
+const CATEGORY_ICON = Object.fromEntries(CATEGORIES.map(c => [c.id, c.icon]));
+
+// ─── App state ────────────────────────────────────────────────────────────────
+let manifest = {};   // id → meta
+let cardState = {};  // id → { stage, imageB64, result, error }
+let activeTab = 'all';
+let queue = [];
+let queueRunning = false;
+
+// stage: 'idle' | 'generating' | 'converting' | 'ready' | 'saving' | 'saved' | 'error'
+
+async function init() {
+  buildTabs();
+  for (const e of CATALOG) cardState[e.id] = { stage: 'idle', imageB64: null, result: null, error: null };
+  await reloadManifest();
+  renderGrid();
+}
+
+async function reloadManifest() {
+  try {
+    const r = await fetch('/library/manifest.json?_=' + Date.now());
+    const arr = await r.json();
+    manifest = {};
+    for (const m of arr) manifest[m.id] = m;
+  } catch { manifest = {}; }
+  // Mark already-saved items
+  for (const e of CATALOG) {
+    if (manifest[e.id] && cardState[e.id].stage !== 'generating' && cardState[e.id].stage !== 'converting') {
+      cardState[e.id].stage = 'saved';
+    }
+  }
+  updateStats();
+}
+
+function updateStats() {
+  const total = CATALOG.length;
+  const saved = CATALOG.filter(e => cardState[e.id]?.stage === 'saved').length;
+  document.getElementById('stats').textContent = `${saved} / ${total} generated`;
+}
+
+// ─── Tabs ─────────────────────────────────────────────────────────────────────
+function buildTabs() {
+  const el = document.getElementById('tabs');
+  const tabs = [{ id: 'all', label: 'All', icon: '✦' }, ...CATEGORIES];
+  el.innerHTML = tabs.map(t =>
+    `<button class="tab${t.id === activeTab ? ' active' : ''}" onclick="setTab('${t.id}')">${t.icon} ${t.label}</button>`
+  ).join('');
+}
+
+function setTab(id) {
+  activeTab = id;
+  buildTabs();
+  renderGrid();
+}
+
+// ─── Grid render ──────────────────────────────────────────────────────────────
+function renderGrid() {
+  const filtered = activeTab === 'all' ? CATALOG : CATALOG.filter(e => e.category === activeTab);
+  // Saved last so unsaved/in-progress come first
+  const sorted = [...filtered].sort((a, b) => {
+    const aS = cardState[a.id]?.stage === 'saved';
+    const bS = cardState[b.id]?.stage === 'saved';
+    return aS === bS ? 0 : bS ? -1 : 1;
+  });
+  document.getElementById('grid').innerHTML = sorted.map(e => cardHTML(e)).join('');
+}
+
+function cardHTML(entry) {
+  const st = cardState[entry.id];
+  const hoop = HOOPS[entry.settings.hoopKey] || HOOPS['4x4'];
+  const icon = CATEGORY_ICON[entry.category] || '🪡';
+
+  let badgeClass = 'badge-pending', badgeText = 'Not generated';
+  if (st.stage === 'saved')      { badgeClass = 'badge-saved';   badgeText = 'Saved ✓'; }
+  if (st.stage === 'generating') { badgeClass = 'badge-running'; badgeText = 'Generating…'; }
+  if (st.stage === 'converting') { badgeClass = 'badge-running'; badgeText = 'Converting…'; }
+  if (st.stage === 'saving')     { badgeClass = 'badge-running'; badgeText = 'Saving…'; }
+  if (st.stage === 'ready')      { badgeClass = 'badge-running'; badgeText = 'Ready to save'; }
+  if (st.stage === 'error')      { badgeClass = 'badge-error';   badgeText = 'Error'; }
+
+  const cardClass = st.stage === 'saved' ? 'card state-saved' : st.stage === 'error' ? 'card state-error' : 'card';
+
+  // Preview area
+  let leftContent = `<div class="ph"><span>${icon}</span><span class="ph-label">Image</span></div>`;
+  let rightContent = `<div class="ph"><span>🪡</span><span class="ph-label">Stitches</span></div>`;
+
+  if (st.stage === 'generating') {
+    leftContent = `<div class="spinner"></div><div class="step-label">Generating image…</div>`;
+  } else if (st.imageB64) {
+    leftContent = `<img src="data:image/png;base64,${st.imageB64}" alt="generated" />`;
+  }
+
+  if (st.stage === 'converting') {
+    rightContent = `<div class="spinner"></div><div class="step-label">Converting stitches…</div>`;
+  } else if (st.result?.previewSvg) {
+    rightContent = st.result.previewSvg;
+  } else if (st.stage === 'saved') {
+    rightContent = `<img src="/library/${entry.id}/preview.svg" alt="preview" onerror="this.style.display='none'" />`;
+  }
+
+  // Actions
+  let actionsHTML = '';
+  const stitchInfo = st.result ? `<span class="stitch-chip">${(st.result.stitchCount/1000).toFixed(1)}k stitches</span>` : '';
+
+  if (st.stage === 'idle' || st.stage === 'error') {
+    actionsHTML = `
+      ${st.error ? `<div class="card-err">${escHtml(st.error)}</div>` : ''}
+      <button class="abtn abtn-primary" onclick="runPipeline('${entry.id}')">▶ Generate &amp; Convert</button>
+    `;
+  } else if (st.stage === 'generating' || st.stage === 'converting' || st.stage === 'saving') {
+    actionsHTML = `<button class="abtn abtn-secondary" disabled>Working…</button>`;
+  } else if (st.stage === 'ready') {
+    actionsHTML = `
+      <div class="abtn-row">
+        <button class="abtn abtn-warn" onclick="regenerate('${entry.id}')">↺ Retry</button>
+        <button class="abtn abtn-success" onclick="doSave('${entry.id}')">✓ Save</button>
+      </div>
+      ${stitchInfo}
+    `;
+  } else if (st.stage === 'saved') {
+    actionsHTML = `
+      <div class="card-msg">Saved to <code>public/library/${entry.id}/</code></div>
+      <div class="abtn-row">
+        <button class="abtn abtn-secondary" onclick="regenerate('${entry.id}')">↺ Regenerate</button>
+        <a class="abtn abtn-secondary" style="text-align:center;text-decoration:none"
+           href="/library/${entry.id}/embroidery.${manifest[entry.id]?.format || 'jef'}" download>
+          ↓ Download
+        </a>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="${cardClass}" id="card-${entry.id}">
+      <div class="card-header">
+        <div class="card-name">${icon} ${escHtml(entry.name)}</div>
+        <span class="badge ${badgeClass}">${badgeText}</span>
+      </div>
+      <div class="card-desc">${escHtml(entry.description)}</div>
+      <div class="card-preview">
+        <div class="preview-half">${leftContent}</div>
+        <div class="preview-half">${rightContent}</div>
+      </div>
+      <div class="card-meta">
+        <span>📐 ${hoop.w}×${hoop.h} mm</span>
+        <span>🎨 ${entry.settings.numColors} colors</span>
+        <span>📏 ${entry.settings.densityMm} mm</span>
+        <span>✏️ ${entry.settings.outline}</span>
+      </div>
+      <div class="card-actions">${actionsHTML}</div>
+    </div>
+  `;
+}
+
+function refreshCard(id) {
+  const el = document.getElementById(`card-${id}`);
+  const entry = CATALOG.find(e => e.id === id);
+  if (el && entry) el.outerHTML = cardHTML(entry);
+  updateStats();
+}
+
+// ─── Pipeline steps ───────────────────────────────────────────────────────────
+async function runPipeline(id) {
+  const entry = CATALOG.find(e => e.id === id);
+  if (!entry) return;
+  cardState[id] = { stage: 'generating', imageB64: null, result: null, error: null };
+  refreshCard(id);
+
+  // Step 1: Generate image
+  let imageB64;
+  try {
+    const r = await fetch('/api/generate', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: entry.prompt + PROMPT_SUFFIX }),
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || `HTTP ${r.status}`);
+    imageB64 = data.imageBase64;
+  } catch (e) {
+    cardState[id] = { stage: 'error', imageB64: null, result: null, error: `Generate: ${e.message}` };
+    refreshCard(id);
+    return;
+  }
+
+  cardState[id] = { stage: 'converting', imageB64, result: null, error: null };
+  refreshCard(id);
+
+  // Step 2: Convert to stitches
+  const hoop = HOOPS[entry.settings.hoopKey] || HOOPS['4x4'];
+  let result;
+  try {
+    const r = await fetch('/api/image_to_jef', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        imageBase64: imageB64,
+        hoop_w_mm: hoop.w, hoop_h_mm: hoop.h,
+        num_colors: entry.settings.numColors,
+        density_mm: entry.settings.densityMm,
+        fill_angle_deg: null,
+        min_feature_mm: entry.settings.minFeatureMm,
+        outline: entry.settings.outline,
+        outline_width_mm: 1.0,
+        format: 'jef',
+        thread_brand: 'madeira',
+      }),
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || `HTTP ${r.status}`);
+    result = data;
+  } catch (e) {
+    cardState[id] = { stage: 'error', imageB64, result: null, error: `Convert: ${e.message}` };
+    refreshCard(id);
+    return;
+  }
+
+  cardState[id] = { stage: 'ready', imageB64, result, error: null };
+  refreshCard(id);
+}
+
+async function doSave(id) {
+  const entry = CATALOG.find(e => e.id === id);
+  const st = cardState[id];
+  if (!entry || !st?.result) return;
+
+  cardState[id] = { ...st, stage: 'saving' };
+  refreshCard(id);
+
+  try {
+    const r = await fetch('/api/save_to_library', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: entry.id,
+        name: entry.name,
+        category: entry.category,
+        description: entry.description,
+        imageBase64: st.imageB64,
+        previewSvg: st.result.previewSvg,
+        jefBase64: st.result.jefBase64,
+        format: 'jef',
+        stitchCount: st.result.stitchCount,
+        colors: st.result.colors,
+        threads: st.result.threads,
+      }),
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || `HTTP ${r.status}`);
+    manifest[id] = { id: entry.id, name: entry.name, category: entry.category,
+                     description: entry.description, format: 'jef',
+                     stitchCount: st.result.stitchCount };
+    cardState[id] = { ...st, stage: 'saved' };
+  } catch (e) {
+    cardState[id] = { ...st, stage: 'error', error: `Save: ${e.message}` };
+  }
+  refreshCard(id);
+}
+
+function regenerate(id) {
+  cardState[id] = { stage: 'idle', imageB64: null, result: null, error: null };
+  refreshCard(id);
+  runPipeline(id);
+}
+
+// ─── Batch queue ──────────────────────────────────────────────────────────────
+function startAutoQueue() {
+  const unsaved = CATALOG.filter(e =>
+    cardState[e.id]?.stage !== 'saved' &&
+    cardState[e.id]?.stage !== 'generating' &&
+    cardState[e.id]?.stage !== 'converting'
+  );
+  if (!unsaved.length) { alert('All designs are already saved!'); return; }
+  queue = unsaved.map(e => e.id);
+  queueRunning = true;
+  document.getElementById('btnAutoAll').style.display = 'none';
+  document.getElementById('btnStopAll').style.display = '';
+  document.getElementById('progressBar').style.display = '';
+  updateQueueProgress();
+  processQueue();
+}
+
+function stopQueue() {
+  queueRunning = false;
+  queue = [];
+  document.getElementById('btnAutoAll').style.display = '';
+  document.getElementById('btnStopAll').style.display = 'none';
+  document.getElementById('progressBar').style.display = 'none';
+}
+
+function updateQueueProgress() {
+  const total = CATALOG.length;
+  const done  = CATALOG.filter(e => cardState[e.id]?.stage === 'saved').length;
+  document.getElementById('progressFill').style.width = `${(done / total) * 100}%`;
+}
+
+async function processQueue() {
+  while (queue.length > 0 && queueRunning) {
+    const id = queue.shift();
+    if (cardState[id]?.stage === 'saved') { updateQueueProgress(); continue; }
+    await runPipeline(id);
+    if (cardState[id]?.stage === 'ready') {
+      await doSave(id);
+    }
+    updateQueueProgress();
+  }
+  if (!queue.length) stopQueue();
+}
+
+// ─── Util ─────────────────────────────────────────────────────────────────────
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── Boot ─────────────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
