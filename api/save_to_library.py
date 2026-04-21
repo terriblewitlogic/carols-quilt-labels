@@ -1,7 +1,9 @@
-import sys, os, base64
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'functions', 'export'))
-from export import font_samples_handler as _handler
+"""Vercel shim for the save_to_library function."""
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'functions', 'save_to_library'))
+from save_to_library import handler as _handler
 from http.server import BaseHTTPRequestHandler
+import base64
 
 
 class handler(BaseHTTPRequestHandler):
@@ -25,5 +27,7 @@ class handler(BaseHTTPRequestHandler):
         for k, v in result.get('headers', {}).items():
             self.send_header(k, v)
         self.end_headers()
-        self.wfile.write(base64.b64decode(body) if is_b64
-                         else (body.encode() if isinstance(body, str) else body))
+        self.wfile.write(
+            base64.b64decode(body) if is_b64
+            else (body.encode() if isinstance(body, str) else body)
+        )

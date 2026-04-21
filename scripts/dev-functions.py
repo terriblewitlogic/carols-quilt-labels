@@ -21,10 +21,10 @@ if os.path.exists(_env_path):
                 os.environ.setdefault(_k.strip(), _v.strip())
     print(f'[functions] Loaded .env from {_env_path}')
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'netlify', 'functions', 'export'))
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'netlify', 'functions', 'generate'))
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'netlify', 'functions', 'image_to_jef'))
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'netlify', 'functions', 'save_to_library'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'functions', 'export'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'functions', 'generate'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'functions', 'image_to_jef'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'functions', 'save_to_library'))
 
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import json

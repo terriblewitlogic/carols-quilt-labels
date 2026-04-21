@@ -1,13 +1,13 @@
 """
-Netlify function: POST /api/save_to_library
+Vercel function: POST /api/save_to_library
 
 Dev-only endpoint that saves a generated embroidery design to the local
 public/library/ directory and updates the manifest.json index.
 
-This runs fine under scripts/dev-functions.py.  On Netlify/Vercel the
-filesystem is read-only after deploy, so this endpoint is intentionally
-blocked unless the LIBRARY_WRITE_KEY env var is set — set it in .env for
-local dev and leave it unset in production.
+This runs fine under scripts/dev-functions.py.  On Vercel the filesystem
+is read-only after deploy, so this endpoint is intentionally blocked unless
+the LIBRARY_WRITE_KEY env var is set — set it in .env for local dev and
+leave it unset in production.
 
 Request body:
   {
@@ -38,7 +38,7 @@ from datetime import datetime, timezone
 
 # ─── Locate public/library relative to this file ──────────────────────────────
 _HERE      = os.path.dirname(os.path.abspath(__file__))
-_PROJ_ROOT = os.path.normpath(os.path.join(_HERE, '..', '..', '..'))
+_PROJ_ROOT = os.path.normpath(os.path.join(_HERE, '..', '..'))
 _LIB_DIR   = os.path.join(_PROJ_ROOT, 'public', 'library')
 _MANIFEST  = os.path.join(_LIB_DIR, 'manifest.json')
 

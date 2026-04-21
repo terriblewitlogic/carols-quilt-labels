@@ -1,6 +1,6 @@
 """Vercel shim for the image_to_jef function."""
 import sys, os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'netlify', 'functions', 'image_to_jef'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'functions', 'image_to_jef'))
 from image_to_jef import handler as _handler
 from http.server import BaseHTTPRequestHandler
 import base64

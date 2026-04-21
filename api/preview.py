@@ -1,6 +1,6 @@
 import sys, os, base64
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'netlify', 'functions', 'export'))
-from export import preview_handler as _netlify_handler
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'functions', 'export'))
+from export import preview_handler as _handler
 from http.server import BaseHTTPRequestHandler
 
 
@@ -10,12 +10,12 @@ class handler(BaseHTTPRequestHandler):
         pass
 
     def do_OPTIONS(self):
-        self._send(_netlify_handler({'httpMethod': 'OPTIONS', 'body': ''}, {}))
+        self._send(_handler({'httpMethod': 'OPTIONS', 'body': ''}, {}))
 
     def do_POST(self):
         n = int(self.headers.get('Content-Length', 0))
         body = self.rfile.read(n).decode('utf-8') if n else ''
-        self._send(_netlify_handler({'httpMethod': 'POST', 'body': body}, {}))
+        self._send(_handler({'httpMethod': 'POST', 'body': body}, {}))
 
     def _send(self, result):
         status = result.get('statusCode', 200)
