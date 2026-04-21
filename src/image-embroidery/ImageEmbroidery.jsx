@@ -108,8 +108,8 @@ function injectFabricColor(svg, color) {
   return svg.replace(/background:[^"']+/, `background:${color}`);
 }
 
-const EMBROIDERY_PROMPT_SUFFIX =
-  ', bold vector sticker art style, flat colors, thick black outlines, no gradients, white background, 4 to 6 distinct colors, clean simple shapes';
+const embroideryPromptSuffix = (numColors) =>
+  `, bold vector sticker art style, flat colors, thick black outlines, no gradients, white background, exactly ${numColors} distinct fill colors, clean simple shapes`;
 
 const STITCH_SPEED_SPM = 400; // stitches per minute (typical home machine)
 
@@ -159,7 +159,7 @@ export default function ImageEmbroidery({ onBack }) {
     setGenError(null);
     setResult(null);
     try {
-      const fullPrompt = prompt.trim() + EMBROIDERY_PROMPT_SUFFIX;
+      const fullPrompt = prompt.trim() + embroideryPromptSuffix(numColors);
       const data = await generateImage(fullPrompt);
       setGeneratedImage(data.imageBase64);
     } catch (e) {

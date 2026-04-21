@@ -75,7 +75,24 @@ def raster_to_stitch_groups(
 
     groups: List[dict] = []
 
+    # ── Background filter ─────────────────────────────────────────────────────
+    # Skip near-white colours ONLY when they are also the dominant colour by
+    # pixel area — that combination reliably identifies the image background.
+    # White that isn't dominant is intentional (daisy petals, owl faces, etc.)
+    pixel_counts = [int(np.sum(posterized == i)) for i in range(len(palette))]
+    total_px     = max(sum(pixel_counts), 1)
+    dominant_idx = int(np.argmax(pixel_counts))
+
+    def _is_background(label_idx, rgb):
+        r, g, b = rgb
+        lum = 0.299 * r + 0.587 * g + 0.114 * b
+        is_near_white = lum > 230
+        is_dominant   = (pixel_counts[label_idx] / total_px) > 0.20
+        return is_near_white and is_dominant
+
     for label_idx, rgb in enumerate(palette):
+        if _is_background(label_idx, rgb):
+            continue
         color_hex = _rgb_to_hex(rgb)
         mask = (posterized == label_idx)
 
@@ -160,7 +177,8 @@ def raster_to_stitch_groups(
         ]
         groups.append({'color': color_hex, 'segments': emb_segments})
 
-    palette_hex = [_rgb_to_hex(rgb) for rgb in palette]
+    palette_hex = [_rgb_to_hex(rgb) for i, rgb in enumerate(palette)
+                   if not _is_background(i, rgb)]
     preview_svg = _build_preview_svg(groups, w, h)
     return groups, preview_svg, palette_hex
 
@@ -326,8 +344,13 @@ def _medial_fill_segments(
             continue
 
         # Pick the segment closest to the skeleton point
-        raw = ([list(inter.coords)]      if isinstance(inter, LineString)
-               else [list(s.coords) for s in inter.geoms])
+        # inter can be LineString, MultiLineString, Point, GeometryCollection, etc.
+        if isinstance(inter, LineString):
+            raw = [list(inter.coords)]
+        elif hasattr(inter, 'geoms'):
+            raw = [list(s.coords) for s in inter.geoms if isinstance(s, LineString)]
+        else:
+            continue  # Point or other non-linear geometry — skip
 
         best, best_d = None, float('inf')
         for seg in raw:
@@ -651,11 +674,10 @@ def _greedy_sort(segs: List[List[Tuple]]) -> List[List[Tuple]]:
 def _build_preview_svg(groups: List[dict], img_w: int, img_h: int) -> str:
     ew  = img_w * PX_TO_EMB
     eh  = img_h * PX_TO_EMB
-    svh = int(480 * img_h / img_w)
     lines = [
         f'<svg xmlns="http://www.w3.org/2000/svg" '
         f'viewBox="{-ew/2:.1f} {-eh/2:.1f} {ew:.1f} {eh:.1f}" '
-        f'width="480" height="{svh}" style="background:#f5f0eb">',
+        f'style="background:#f5f0eb">',
     ]
     for group in groups:
         c = group['color']
@@ -665,7 +687,7 @@ def _build_preview_svg(groups: List[dict], img_w: int, img_h: int) -> str:
             pts = ' '.join(f"{s['x']:.1f},{s['y']:.1f}" for s in seg)
             lines.append(
                 f'<polyline points="{pts}" fill="none" stroke="{c}" '
-                f'stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>'
+                f'stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>'
             )
     lines.append('</svg>')
     return '\n'.join(lines)
