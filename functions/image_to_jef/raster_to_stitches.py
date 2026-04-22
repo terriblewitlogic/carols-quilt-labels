@@ -25,6 +25,7 @@ All coordinates in pyembroidery units (0.1 mm), origin at image centre.
 """
 
 import math
+import random
 import base64
 import io
 from typing import List, Tuple, Optional
@@ -46,8 +47,15 @@ MAX_STITCH_MM      = 12.0   # break long stitches
 TATAMI_CYCLE       = 3      # rows per tatami phase cycle
 COMPACTNESS_THRESH  = 0.60   # above → contour fill; below → directional/medial
 UNDERLAY_DENSITY    = 3      # underlay row spacing = density × this factor
-MEDIAL_EIGEN_THRESH = 6.0    # eigenvalue ratio above this → use medial fill
-                             # (≈ aspect ratio² so 6 ≈ 2.5× longer than wide)
+MEDIAL_EIGEN_THRESH = 3.0    # eigenvalue ratio above this → use medial fill
+                             # (≈ aspect ratio² — 3.0 ≈ 1.7× longer than wide;
+                             # catches petals, leaves, feathers naturally)
+SATIN_WIDTH_MM     = 6.0    # shapes narrower than this use medial/satin fill
+                             # regardless of aspect ratio (petal tips, thin stems)
+PULL_COMP_MM       = 0.3    # outward expansion on fill polygon to compensate
+                             # for fabric pull; keeps filled shapes full-size on cloth
+STITCH_JITTER      = 0.08   # ±fraction random variation on stitch length
+                             # breaks the mechanical uniform look; ~8% feels hand-stitched
 
 
 # ─── Public entry point ───────────────────────────────────────────────────────
@@ -121,52 +129,68 @@ def raster_to_stitch_groups(
 
                 # ── Thin-stripe guard ─────────────────────────────────────
                 # If the shape is too narrow to fit even one fill row (e.g.
-                # outline-stroke pixels that KMeans merged with a fill colour),
-                # skip underlay + fill entirely — just run the outline stitch.
-                # We test by eroding by one fill-row; if nothing remains the
-                # shape is essentially an outline stripe, not a filled region.
+                # outline-stroke pixels merged with a fill colour), skip fill
+                # entirely — just run the outline stitch.
                 eroded_test = fill_poly.buffer(-density_px * 0.6)
                 is_thin_stripe = eroded_test.is_empty or eroded_test.area < (density_px ** 2)
 
                 if not is_thin_stripe:
+                    # ── Pull compensation ─────────────────────────────────
+                    # Expand fill polygon slightly so stitches reach past the
+                    # outline edge. Compensates for fabric pull that would
+                    # otherwise leave bare gaps at shape borders on cloth.
+                    pull_px   = PULL_COMP_MM * PX_PER_MM
+                    fill_comp = fill_poly.buffer(pull_px)
+                    if not fill_comp.is_valid or fill_comp.is_empty:
+                        fill_comp = fill_poly
+
+                    # ── Satin zone detection ──────────────────────────────
+                    # Shapes narrower than SATIN_WIDTH_MM use medial/satin fill
+                    # regardless of aspect ratio — catches petal tips, thin
+                    # leaves, stems that would otherwise get flat scan lines.
+                    half_satin_px = (SATIN_WIDTH_MM * PX_PER_MM) / 2
+                    satin_test    = fill_comp.buffer(-half_satin_px)
+                    is_satin_zone = satin_test.is_empty
+
                     # ── Underlay (sparse, perpendicular) ─────────────────
                     raw_segments.extend(
-                        _underlay_segments(fill_poly, density_px)
+                        _underlay_segments(fill_comp, density_px)
                     )
 
-                    # ── Top fill: contour / medial / directional ──────────
-                    compactness   = _compactness(fill_poly)
-                    eigen_ratio   = _eigenvalue_ratio(fill_poly)
-                    user_angle    = fill_angle_deg is not None
+                    # ── Top fill ──────────────────────────────────────────
+                    compactness = _compactness(fill_comp)
+                    eigen_ratio = _eigenvalue_ratio(fill_comp)
+                    user_angle  = fill_angle_deg is not None
 
-                    if compactness >= COMPACTNESS_THRESH:
-                        # Round/compact → concentric inward rings
-                        raw_segments.extend(
-                            _contour_fill_segments(fill_poly, density_px)
-                        )
-                    elif not user_angle and eigen_ratio >= MEDIAL_EIGEN_THRESH:
-                        # Clearly elongated → follow the spine with perpendicular cross-sections
-                        segs = _medial_fill_segments(fill_poly, density_px)
+                    if is_satin_zone or (not user_angle and eigen_ratio >= MEDIAL_EIGEN_THRESH):
+                        # Narrow/satin zone OR clearly elongated → medial fill
+                        # that follows the shape's spine (petals radiate from
+                        # tip, leaves follow mid-vein, stems run lengthwise).
+                        segs = _medial_fill_segments(fill_comp, density_px)
                         if segs:
                             raw_segments.extend(segs)
                         else:
-                            # Fallback if skeleton fails
                             raw_segments.extend(
-                                _fill_polygon_segments(fill_poly, density_px,
-                                                       _pca_angle(fill_poly))
+                                _fill_polygon_segments(fill_comp, density_px,
+                                                       _pca_angle(fill_comp))
                             )
+                    elif compactness >= COMPACTNESS_THRESH:
+                        # Round/compact → concentric inward rings
+                        raw_segments.extend(
+                            _contour_fill_segments(fill_comp, density_px)
+                        )
                     else:
                         # General shape → directional scan lines along PCA axis
-                        angle = fill_angle_deg if user_angle else _pca_angle(fill_poly)
+                        angle = fill_angle_deg if user_angle else _pca_angle(fill_comp)
                         raw_segments.extend(
-                            _fill_polygon_segments(fill_poly, density_px, angle)
+                            _fill_polygon_segments(fill_comp, density_px, angle)
                         )
 
                     # ── Edge walk (boundary density gradient) ─────────────
-                    # Two tight inset passes give crisp edges and compensate for
-                    # fabric pull — stitched last so they sit on top of the fill.
+                    # Tight inset rings reinforce the boundary — stitched last
+                    # so they sit on top and lock the fill edge cleanly.
                     raw_segments.extend(
-                        _edge_walk_segments(fill_poly, density_px)
+                        _edge_walk_segments(fill_comp, density_px)
                     )
 
                 # ── Outline ───────────────────────────────────────────────
@@ -464,6 +488,8 @@ def _interpolate_tatami(
     """
     Walk from (x0,y0) to (x1,y1) in steps of max_px, with the first step
     starting at phase * max_px so consecutive rows don't align.
+    STITCH_JITTER adds ±fraction random variation per stitch to break the
+    mechanical uniform appearance and give a hand-stitched feel.
     """
     dx, dy = x1 - x0, y1 - y0
     dist   = math.hypot(dx, dy)
@@ -475,7 +501,8 @@ def _interpolate_tatami(
     while d < dist:
         t = d / dist
         pts.append((x0 + dx*t, y0 + dy*t))
-        d += max_px
+        # Jitter: vary each stitch length slightly for a natural hand-stitched look
+        d += max_px * (1.0 + random.uniform(-STITCH_JITTER, STITCH_JITTER))
     if math.hypot(pts[-1][0]-x1, pts[-1][1]-y1) > 0.5:
         pts.append((x1, y1))
     return pts

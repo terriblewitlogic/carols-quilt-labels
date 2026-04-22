@@ -25,6 +25,7 @@ Returns:
 """
 import json
 import base64
+import math
 import tempfile
 import os
 import traceback
@@ -109,7 +110,20 @@ def handler(event, context):
     }
 
 
+# Travel-run thresholds (in pyembroidery units = 0.1 mm)
+_TRAVEL_MAX_EMB  = 120   # gaps < 12 mm get a travel run instead of a jump
+_TRAVEL_STEP_EMB =  30   # travel stitches every 3 mm
+
+
 def _build_pattern(groups):
+    """
+    Convert stitch groups to a pyembroidery pattern.
+
+    Travel runs: within a single colour block, if two consecutive segments are
+    < _TRAVEL_MAX_EMB apart, connect them with short running stitches instead
+    of a JUMP.  This reduces trim count (the video calls these "connector
+    stitches") and mirrors what Hatch's auto-digitizer does automatically.
+    """
     pattern = pyembroidery.EmbPattern()
     stitch_count = 0
     any_added = False
@@ -129,16 +143,45 @@ def _build_pattern(groups):
             pattern.add_command(pyembroidery.COLOR_BREAK)
         any_added = True
 
+        prev_end = None   # (x, y) of last stitched point in this colour block
+
         for seg in segments:
             if not seg:
                 continue
-            # JUMP to the first point of each segment, then STITCH through it
+
             x0, y0 = seg[0]['x'], seg[0]['y']
-            pattern.add_stitch_absolute(pyembroidery.JUMP, x0, y0)
-            pattern.add_stitch_absolute(pyembroidery.STITCH, x0, y0)
+
+            if prev_end is not None:
+                px, py = prev_end
+                gap = math.hypot(x0 - px, y0 - py)
+
+                if gap < _TRAVEL_MAX_EMB:
+                    # ── Travel run ──────────────────────────────────────
+                    # Stitch straight across the gap at _TRAVEL_STEP_EMB
+                    # intervals.  Thread stays on top but the same colour
+                    # makes it invisible from the front; no trim needed.
+                    steps = max(1, int(gap / _TRAVEL_STEP_EMB))
+                    for i in range(1, steps + 1):
+                        t  = i / steps
+                        tx = px + (x0 - px) * t
+                        ty = py + (y0 - py) * t
+                        pattern.add_stitch_absolute(pyembroidery.STITCH, tx, ty)
+                    # Arrive at segment start — no JUMP needed
+                    pattern.add_stitch_absolute(pyembroidery.STITCH, x0, y0)
+                else:
+                    # ── Jump to next segment ─────────────────────────────
+                    pattern.add_stitch_absolute(pyembroidery.JUMP,   x0, y0)
+                    pattern.add_stitch_absolute(pyembroidery.STITCH, x0, y0)
+            else:
+                # First segment of this colour block
+                pattern.add_stitch_absolute(pyembroidery.JUMP,   x0, y0)
+                pattern.add_stitch_absolute(pyembroidery.STITCH, x0, y0)
+
             for s in seg[1:]:
                 pattern.add_stitch_absolute(pyembroidery.STITCH, s['x'], s['y'])
                 stitch_count += 1
+
+            prev_end = (seg[-1]['x'], seg[-1]['y'])
 
     pattern.add_command(pyembroidery.END)
     return pattern, stitch_count
