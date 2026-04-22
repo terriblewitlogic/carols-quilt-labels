@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { IMAGE_HOOPS, DEFAULT_IMAGE_HOOP } from './hoops.js';
-import { generateImage, convertToStitches, downloadBase64, saveToLibrary } from './api-client.js';
+import { generateImage, convertToStitches, downloadBase64, saveToLibrary, posterizeImage } from './api-client.js';
 import { CATEGORIES, CATALOG } from './library-catalog.js';
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -139,6 +139,11 @@ export default function ImageEmbroidery({ onBack }) {
   const [convError, setConvError] = useState(null);
   const [result, setResult] = useState(null); // { jefBase64, previewSvg, stitchCount, colors, threads }
 
+  // ── Layer ordering state
+  const [layers, setLayers]           = useState(null);   // [{label_idx,hex,pixel_fraction,is_background}]
+  const [colorOrder, setColorOrder]   = useState(null);   // null = default; or [label_idx,...]
+  const [posterizing, setPosterizing] = useState(false);
+
   // ── Save to Library state
   const [saveOpen, setSaveOpen]   = useState(false);
   const [saveId, setSaveId]       = useState('');
@@ -158,16 +163,29 @@ export default function ImageEmbroidery({ onBack }) {
     setGenerating(true);
     setGenError(null);
     setResult(null);
+    setLayers(null);
+    setColorOrder(null);
     try {
       const fullPrompt = prompt.trim() + embroideryPromptSuffix(numColors);
       const data = await generateImage(fullPrompt);
       setGeneratedImage(data.imageBase64);
+      // Auto-posterize so the layer panel appears immediately after generation
+      setPosterizing(true);
+      try {
+        const pData = await posterizeImage(data.imageBase64, {
+          hoop_w_mm: hoop.w, hoop_h_mm: hoop.h, num_colors: numColors,
+        });
+        const visible = pData.layers.filter(l => !l.is_background);
+        setLayers(visible);
+        setColorOrder(visible.map(l => l.label_idx));
+      } catch { /* non-fatal — layer panel just won't show */ }
+      finally { setPosterizing(false); }
     } catch (e) {
       setGenError(e.message);
     } finally {
       setGenerating(false);
     }
-  }, [prompt]);
+  }, [prompt, numColors, hoop]);
 
   const handleConvert = useCallback(async () => {
     if (!generatedImage) return;
@@ -185,6 +203,7 @@ export default function ImageEmbroidery({ onBack }) {
         outline_width_mm: outlineWidthMm,
         format,
         thread_brand: threadBrand,
+        color_order: colorOrder,    // null = default brightness sort
       });
       setResult(data);
     } catch (e) {
@@ -499,18 +518,84 @@ export default function ImageEmbroidery({ onBack }) {
           {generatedImage && !generating && (
             <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start', flexWrap: 'wrap', justifyContent: 'center' }}>
 
-              {/* Generated image */}
-              <div>
-                <div style={{ fontSize: 11, color: '#6B5D50', marginBottom: 6, textAlign: 'center' }}>
-                  Generated image
+              {/* Generated image + layer panel */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <div>
+                  <div style={{ fontSize: 11, color: '#6B5D50', marginBottom: 6, textAlign: 'center' }}>
+                    Generated image
+                  </div>
+                  <div style={s.imageBox}>
+                    <img
+                      src={`data:image/png;base64,${generatedImage}`}
+                      alt="Generated"
+                      style={{ maxWidth: 380, maxHeight: 420, display: 'block' }}
+                    />
+                  </div>
                 </div>
-                <div style={s.imageBox}>
-                  <img
-                    src={`data:image/png;base64,${generatedImage}`}
-                    alt="Generated"
-                    style={{ maxWidth: 380, maxHeight: 420, display: 'block' }}
-                  />
-                </div>
+
+                {/* ── Layer ordering panel ── */}
+                {posterizing && (
+                  <div style={{ fontSize: 11, color: '#6B5D50', textAlign: 'center', padding: '6px 0' }}>
+                    Analysing layers…
+                  </div>
+                )}
+                {layers && layers.length > 0 && !posterizing && (
+                  <div style={{ background: '#110E0B', border: '1px solid #2E2820', borderRadius: 6, padding: '10px 12px' }}>
+                    <div style={{ fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#6B5D50', marginBottom: 8 }}>
+                      Stitch Order — drag to reorder · outlines always last
+                    </div>
+                    {colorOrder.map((labelIdx, pos) => {
+                      const layer = layers.find(l => l.label_idx === labelIdx);
+                      if (!layer) return null;
+                      const pct = Math.round(layer.pixel_fraction * 100);
+                      return (
+                        <div key={labelIdx} style={{
+                          display: 'flex', alignItems: 'center', gap: 8,
+                          padding: '4px 0', borderBottom: '1px solid #1E1A16',
+                        }}>
+                          {/* Position badge */}
+                          <span style={{ fontSize: 10, color: '#4A3E34', width: 16, textAlign: 'right', flexShrink: 0 }}>
+                            {pos + 1}
+                          </span>
+                          {/* Colour swatch */}
+                          <div style={{
+                            width: 20, height: 20, borderRadius: 3, flexShrink: 0,
+                            background: layer.hex, border: '1px solid #3A3028',
+                          }} />
+                          {/* Hex + coverage */}
+                          <span style={{ fontSize: 11, color: '#C8B89A', flex: 1, fontFamily: 'monospace' }}>
+                            {layer.hex}
+                          </span>
+                          <span style={{ fontSize: 10, color: '#4A3E34' }}>{pct}%</span>
+                          {/* Move up / down */}
+                          <button
+                            title="Move up (stitch earlier)"
+                            disabled={pos === 0}
+                            onClick={() => setColorOrder(prev => {
+                              const next = [...prev];
+                              [next[pos - 1], next[pos]] = [next[pos], next[pos - 1]];
+                              return next;
+                            })}
+                            style={{ background: 'none', border: 'none', color: pos === 0 ? '#2E2820' : '#8B7355', cursor: pos === 0 ? 'default' : 'pointer', fontSize: 14, padding: '0 2px' }}
+                          >↑</button>
+                          <button
+                            title="Move down (stitch later)"
+                            disabled={pos === colorOrder.length - 1}
+                            onClick={() => setColorOrder(prev => {
+                              const next = [...prev];
+                              [next[pos], next[pos + 1]] = [next[pos + 1], next[pos]];
+                              return next;
+                            })}
+                            style={{ background: 'none', border: 'none', color: pos === colorOrder.length - 1 ? '#2E2820' : '#8B7355', cursor: pos === colorOrder.length - 1 ? 'default' : 'pointer', fontSize: 14, padding: '0 2px' }}
+                          >↓</button>
+                        </div>
+                      );
+                    })}
+                    <div style={{ fontSize: 10, color: '#3A3028', marginTop: 6, fontStyle: 'italic' }}>
+                      Outlines stitch last automatically
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Stitch preview or converting spinner */}

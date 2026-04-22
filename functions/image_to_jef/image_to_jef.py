@@ -50,17 +50,18 @@ def handler(event, context):
     if not image_b64:
         return _error(400, 'imageBase64 is required')
 
-    hoop_w  = float(body.get('hoop_w_mm', 100))
-    hoop_h  = float(body.get('hoop_h_mm', 100))
-    n_colors = int(body.get('num_colors', 4))
-    density  = float(body.get('density_mm', 0.4))
-    _angle_raw = body.get('fill_angle_deg', None)
-    angle    = float(_angle_raw) if _angle_raw is not None else None
-    min_feat = float(body.get('min_feature_mm', 1.5))
-    outline  = body.get('outline', 'running')
-    out_w    = float(body.get('outline_width_mm', 1.0))
-    fmt      = body.get('format', 'jef').lower().lstrip('.')
-    brand    = body.get('thread_brand', 'madeira')
+    hoop_w       = float(body.get('hoop_w_mm', 100))
+    hoop_h       = float(body.get('hoop_h_mm', 100))
+    n_colors     = int(body.get('num_colors', 4))
+    density      = float(body.get('density_mm', 0.4))
+    _angle_raw   = body.get('fill_angle_deg', None)
+    angle        = float(_angle_raw) if _angle_raw is not None else None
+    min_feat     = float(body.get('min_feature_mm', 1.5))
+    outline      = body.get('outline', 'running')
+    out_w        = float(body.get('outline_width_mm', 1.0))
+    fmt          = body.get('format', 'jef').lower().lstrip('.')
+    brand        = body.get('thread_brand', 'madeira')
+    color_order  = body.get('color_order', None)   # optional list[int] from UI layer panel
 
     if fmt not in SUPPORTED_FORMATS:
         return _error(400, f'Unsupported format "{fmt}"')
@@ -76,6 +77,7 @@ def handler(event, context):
             min_feature_mm=min_feat,
             outline=outline,
             outline_width_mm=out_w,
+            color_order=color_order,
         )
     except Exception as e:
         return _error(500, f'Conversion failed: {e}\n{traceback.format_exc()}')

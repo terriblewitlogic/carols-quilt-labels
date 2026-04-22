@@ -58,6 +58,40 @@ STITCH_JITTER      = 0.08   # ±fraction random variation on stitch length
                              # breaks the mechanical uniform look; ~8% feels hand-stitched
 
 
+# ─── Layer info (fast, no stitch generation) ─────────────────────────────────
+def posterize_image(
+    image_base64: str,
+    hoop_w_mm: float,
+    hoop_h_mm: float,
+    num_colors: int = 4,
+) -> List[dict]:
+    """
+    Posterize the image and return layer metadata without generating stitches.
+    Used by the UI layer-ordering step before full conversion.
+
+    Returns a list (already in default stitch order — dark first) of:
+      { label_idx, hex, pixel_fraction, is_background }
+    """
+    img = _decode_image(image_base64, hoop_w_mm, hoop_h_mm)
+    posterized, palette = _posterize(img, num_colors)
+
+    pixel_counts = [int(np.sum(posterized == i)) for i in range(len(palette))]
+    total_px = max(sum(pixel_counts), 1)
+
+    layers = []
+    for i, rgb in enumerate(palette):
+        r, g, b = rgb
+        lum = 0.299 * r + 0.587 * g + 0.114 * b
+        is_bg = (lum > 230) and ((pixel_counts[i] / total_px) > 0.20)
+        layers.append({
+            'label_idx':      i,
+            'hex':            _rgb_to_hex(rgb),
+            'pixel_fraction': round(pixel_counts[i] / total_px, 3),
+            'is_background':  is_bg,
+        })
+    return layers
+
+
 # ─── Public entry point ───────────────────────────────────────────────────────
 def raster_to_stitch_groups(
     image_base64: str,
@@ -69,8 +103,19 @@ def raster_to_stitch_groups(
     min_feature_mm: float = 1.5,
     outline: str = 'running',
     outline_width_mm: float = 1.0,
+    color_order: Optional[List[int]] = None,  # explicit label_idx ordering from UI
 ) -> Tuple[List[dict], str, List[str]]:
-    """Returns (groups, preview_svg, palette_hex_list)."""
+    """
+    Returns (groups, preview_svg, palette_hex_list).
+
+    Stitch order follows the video lesson:
+      1. All fill groups in colour order (background→foreground, large→small)
+      2. All outline groups last — so outlines always sit on top of every fill
+         regardless of colour, exactly as a professional digitizer would arrange it.
+
+    If color_order is supplied (from the UI layer panel), fills are stitched in
+    that sequence instead of the default brightness sort.
+    """
     img = _decode_image(image_base64, hoop_w_mm, hoop_h_mm)
     w, h = img.size
 
@@ -81,39 +126,54 @@ def raster_to_stitch_groups(
     outline_w_px = outline_width_mm * PX_PER_MM
     cx_px, cy_px = w / 2.0, h / 2.0
 
-    groups: List[dict] = []
-
     # ── Background filter ─────────────────────────────────────────────────────
-    # Skip near-white colours ONLY when they are also the dominant colour by
-    # pixel area — that combination reliably identifies the image background.
-    # White that isn't dominant is intentional (daisy petals, owl faces, etc.)
     pixel_counts = [int(np.sum(posterized == i)) for i in range(len(palette))]
     total_px     = max(sum(pixel_counts), 1)
-    dominant_idx = int(np.argmax(pixel_counts))
 
     def _is_background(label_idx, rgb):
         r, g, b = rgb
         lum = 0.299 * r + 0.587 * g + 0.114 * b
-        is_near_white = lum > 230
-        is_dominant   = (pixel_counts[label_idx] / total_px) > 0.20
-        return is_near_white and is_dominant
+        return (lum > 230) and ((pixel_counts[label_idx] / total_px) > 0.20)
 
-    for label_idx, rgb in enumerate(palette):
-        if _is_background(label_idx, rgb):
-            continue
+    # ── Determine iteration order ─────────────────────────────────────────────
+    # Default: palette is already brightness-sorted (dark first) by _posterize.
+    # If the UI supplied an explicit order, honour it (skip background indices).
+    if color_order is not None:
+        indices = [i for i in color_order if 0 <= i < len(palette)
+                   and not _is_background(i, palette[i])]
+    else:
+        indices = [i for i in range(len(palette))
+                   if not _is_background(i, palette[i])]
+
+    # ── Per-colour processing ─────────────────────────────────────────────────
+    # Fill groups and outline groups are accumulated separately so that ALL
+    # outlines can be stitched after ALL fills — the most important lesson
+    # from professional digitizing: outlines must always be the final layer.
+    fill_groups:    List[dict] = []
+    outline_groups: List[dict] = []
+
+    def _to_emb(raw_segs):
+        ordered = _greedy_sort(raw_segs)
+        return [
+            [{'x': (x - cx_px) * PX_TO_EMB, 'y': (y - cy_px) * PX_TO_EMB}
+             for x, y in seg]
+            for seg in ordered
+        ]
+
+    for label_idx in indices:
+        rgb       = palette[label_idx]
         color_hex = _rgb_to_hex(rgb)
-        mask = (posterized == label_idx)
+        mask      = (posterized == label_idx)
 
-        # Light cleanup at full mask level
+        # Light cleanup
         mask = morphology.binary_opening(mask, footprint=morphology.disk(1))
         mask = morphology.remove_small_objects(mask, min_size=int(min_area_px2))
         if not mask.any():
             continue
 
-        # ── Split into connected components ───────────────────────────────
-        # Each isolated blob gets its own fill angle instead of sharing one.
         labeled_mask = measure.label(mask)
-        raw_segments: List[List[Tuple[float, float]]] = []
+        fill_raw:    List[List[Tuple[float, float]]] = []
+        outline_raw: List[List[Tuple[float, float]]] = []
 
         for comp_id in range(1, labeled_mask.max() + 1):
             comp_mask = (labeled_mask == comp_id)
@@ -122,40 +182,27 @@ def raster_to_stitch_groups(
 
             polys = _mask_to_polygons(comp_mask, min_area_px2)
             for poly in polys:
-                # ── Simplify for fill (keeps outline at full res) ─────────
                 fill_poly = poly.simplify(1.5, preserve_topology=True)
                 if not fill_poly.is_valid or fill_poly.is_empty:
                     fill_poly = poly
 
                 # ── Thin-stripe guard ─────────────────────────────────────
-                # If the shape is too narrow to fit even one fill row (e.g.
-                # outline-stroke pixels merged with a fill colour), skip fill
-                # entirely — just run the outline stitch.
                 eroded_test = fill_poly.buffer(-density_px * 0.6)
                 is_thin_stripe = eroded_test.is_empty or eroded_test.area < (density_px ** 2)
 
                 if not is_thin_stripe:
                     # ── Pull compensation ─────────────────────────────────
-                    # Expand fill polygon slightly so stitches reach past the
-                    # outline edge. Compensates for fabric pull that would
-                    # otherwise leave bare gaps at shape borders on cloth.
                     pull_px   = PULL_COMP_MM * PX_PER_MM
                     fill_comp = fill_poly.buffer(pull_px)
                     if not fill_comp.is_valid or fill_comp.is_empty:
                         fill_comp = fill_poly
 
                     # ── Satin zone detection ──────────────────────────────
-                    # Shapes narrower than SATIN_WIDTH_MM use medial/satin fill
-                    # regardless of aspect ratio — catches petal tips, thin
-                    # leaves, stems that would otherwise get flat scan lines.
                     half_satin_px = (SATIN_WIDTH_MM * PX_PER_MM) / 2
-                    satin_test    = fill_comp.buffer(-half_satin_px)
-                    is_satin_zone = satin_test.is_empty
+                    is_satin_zone = fill_comp.buffer(-half_satin_px).is_empty
 
-                    # ── Underlay (sparse, perpendicular) ─────────────────
-                    raw_segments.extend(
-                        _underlay_segments(fill_comp, density_px)
-                    )
+                    # ── Underlay ──────────────────────────────────────────
+                    fill_raw.extend(_underlay_segments(fill_comp, density_px))
 
                     # ── Top fill ──────────────────────────────────────────
                     compactness = _compactness(fill_comp)
@@ -163,56 +210,42 @@ def raster_to_stitch_groups(
                     user_angle  = fill_angle_deg is not None
 
                     if is_satin_zone or (not user_angle and eigen_ratio >= MEDIAL_EIGEN_THRESH):
-                        # Narrow/satin zone OR clearly elongated → medial fill
-                        # that follows the shape's spine (petals radiate from
-                        # tip, leaves follow mid-vein, stems run lengthwise).
                         segs = _medial_fill_segments(fill_comp, density_px)
                         if segs:
-                            raw_segments.extend(segs)
+                            fill_raw.extend(segs)
                         else:
-                            raw_segments.extend(
-                                _fill_polygon_segments(fill_comp, density_px,
-                                                       _pca_angle(fill_comp))
-                            )
+                            fill_raw.extend(_fill_polygon_segments(
+                                fill_comp, density_px, _pca_angle(fill_comp)))
                     elif compactness >= COMPACTNESS_THRESH:
-                        # Round/compact → concentric inward rings
-                        raw_segments.extend(
-                            _contour_fill_segments(fill_comp, density_px)
-                        )
+                        fill_raw.extend(_contour_fill_segments(fill_comp, density_px))
                     else:
-                        # General shape → directional scan lines along PCA axis
                         angle = fill_angle_deg if user_angle else _pca_angle(fill_comp)
-                        raw_segments.extend(
-                            _fill_polygon_segments(fill_comp, density_px, angle)
-                        )
+                        fill_raw.extend(_fill_polygon_segments(fill_comp, density_px, angle))
 
-                    # ── Edge walk (boundary density gradient) ─────────────
-                    # Tight inset rings reinforce the boundary — stitched last
-                    # so they sit on top and lock the fill edge cleanly.
-                    raw_segments.extend(
-                        _edge_walk_segments(fill_comp, density_px)
-                    )
+                    # ── Edge walk ─────────────────────────────────────────
+                    fill_raw.extend(_edge_walk_segments(fill_comp, density_px))
 
-                # ── Outline ───────────────────────────────────────────────
+                # ── Outline — collected separately, stitched last ─────────
                 if outline != 'none':
-                    raw_segments.extend(
-                        _outline_segments(poly, outline, outline_w_px)
-                    )
+                    outline_raw.extend(_outline_segments(poly, outline, outline_w_px))
 
-        if not raw_segments:
-            continue
+        if fill_raw:
+            fill_groups.append({
+                'color':    color_hex,
+                'segments': _to_emb(fill_raw),
+                'type':     'fill',
+            })
+        if outline_raw:
+            outline_groups.append({
+                'color':    color_hex,
+                'segments': _to_emb(outline_raw),
+                'type':     'outline',
+            })
 
-        ordered = _greedy_sort(raw_segments)
+    # All fills first, then ALL outlines — outlines always sit on top
+    groups = fill_groups + outline_groups
 
-        emb_segments = [
-            [{'x': (x - cx_px) * PX_TO_EMB, 'y': (y - cy_px) * PX_TO_EMB}
-             for x, y in seg]
-            for seg in ordered
-        ]
-        groups.append({'color': color_hex, 'segments': emb_segments})
-
-    palette_hex = [_rgb_to_hex(rgb) for i, rgb in enumerate(palette)
-                   if not _is_background(i, rgb)]
+    palette_hex = [_rgb_to_hex(palette[i]) for i in indices]
     preview_svg = _build_preview_svg(groups, w, h)
     return groups, preview_svg, palette_hex
 

@@ -8,6 +8,7 @@
     "api/font_samples.py": { "runtime": "@vercel/python@6.24.0" },
     "api/generate.py":          { "runtime": "@vercel/python@6.24.0" },
     "api/image_to_jef.py":      { "runtime": "@vercel/python@6.24.0" },
-    "api/save_to_library.py":   { "runtime": "@vercel/python@6.24.0" }
+    "api/save_to_library.py":   { "runtime": "@vercel/python@6.24.0" },
+    "api/posterize.py":         { "runtime": "@vercel/python@6.24.0" }
   }
 }

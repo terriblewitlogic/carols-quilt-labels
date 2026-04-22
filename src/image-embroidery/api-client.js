@@ -48,6 +48,22 @@ export async function convertToStitches(imageBase64, opts = {}) {
 }
 
 /**
+ * Posterize an image and return layer metadata (no stitch generation).
+ * Used to populate the layer ordering panel before full conversion.
+ * Returns { layers: [{ label_idx, hex, pixel_fraction, is_background }] }
+ */
+export async function posterizeImage(imageBase64, opts = {}) {
+  const res = await fetch(`${BASE}/api/posterize`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ imageBase64, ...opts }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data;
+}
+
+/**
  * Save a generated design to the local library (dev only).
  * payload: { id, name, category, description, imageBase64, previewSvg,
  *            jefBase64, format, stitchCount, colors, threads, writeKey? }

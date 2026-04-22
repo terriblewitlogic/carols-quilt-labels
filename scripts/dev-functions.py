@@ -25,6 +25,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'functions', 'e
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'functions', 'generate'))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'functions', 'image_to_jef'))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'functions', 'save_to_library'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'functions', 'posterize'))
 
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import json
@@ -35,6 +36,7 @@ import export as export_fn
 import generate as generate_fn
 import image_to_jef as image_to_jef_fn
 import save_to_library as save_to_library_fn
+import posterize as posterize_fn
 
 
 class FunctionHandler(BaseHTTPRequestHandler):
@@ -58,6 +60,7 @@ class FunctionHandler(BaseHTTPRequestHandler):
             'generate':         generate_fn.handler,
             'image_to_jef':     image_to_jef_fn.handler,
             'save_to_library':  save_to_library_fn.handler,
+            'posterize':        posterize_fn.handler,
         }
         fn = handlers.get(path)
         if not fn:
@@ -98,5 +101,5 @@ class FunctionHandler(BaseHTTPRequestHandler):
 if __name__ == '__main__':
     port = 9999
     print(f'Local functions server running on http://localhost:{port}')
-    print('Available: /export  /preview  /font_samples  /generate  /image_to_jef  /save_to_library')
+    print('Available: /export  /preview  /font_samples  /generate  /image_to_jef  /save_to_library  /posterize')
     HTTPServer(('localhost', port), FunctionHandler).serve_forever()
