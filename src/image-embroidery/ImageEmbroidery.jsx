@@ -109,7 +109,7 @@ function injectFabricColor(svg, color) {
 }
 
 const embroideryPromptSuffix = (numColors) =>
-  `, bold vector sticker art style, flat colors, thick black outlines, no gradients, white background, exactly ${numColors} distinct fill colors, clean simple shapes`;
+  `, bold vector sticker art style, flat colors, thick black outlines, no gradients, white background, exactly ${numColors} distinct fill colors, clean simple shapes, embroidery patch design`;
 
 const STITCH_SPEED_SPM = 400; // stitches per minute (typical home machine)
 

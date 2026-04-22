@@ -53,7 +53,8 @@ def handler(event, context):
     hoop_h  = float(body.get('hoop_h_mm', 100))
     n_colors = int(body.get('num_colors', 4))
     density  = float(body.get('density_mm', 0.4))
-    angle    = float(body.get('fill_angle_deg', 45))
+    _angle_raw = body.get('fill_angle_deg', None)
+    angle    = float(_angle_raw) if _angle_raw is not None else None
     min_feat = float(body.get('min_feature_mm', 1.5))
     outline  = body.get('outline', 'running')
     out_w    = float(body.get('outline_width_mm', 1.0))

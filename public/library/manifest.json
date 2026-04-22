@@ -1,1 +1,47 @@
-[]
+[
+  {
+    "id": "sunflower",
+    "name": "Sunflower",
+    "category": "florals",
+    "description": "Bold single sunflower with golden petals and dark seed centre",
+    "stitchCount": 15819,
+    "colors": [
+      "#050502",
+      "#389155",
+      "#c38734",
+      "#f6c311"
+    ],
+    "threads": [
+      {
+        "original_hex": "#050502",
+        "code": "1005",
+        "name": "Black",
+        "thread_hex": "#000000",
+        "brand": "Madeira Polyneon"
+      },
+      {
+        "original_hex": "#389155",
+        "code": "1198",
+        "name": "Medium Green",
+        "thread_hex": "#3ca03c",
+        "brand": "Madeira Polyneon"
+      },
+      {
+        "original_hex": "#c38734",
+        "code": "1322",
+        "name": "Antique Gold",
+        "thread_hex": "#c8a028",
+        "brand": "Madeira Polyneon"
+      },
+      {
+        "original_hex": "#f6c311",
+        "code": "1181",
+        "name": "Dark Yellow",
+        "thread_hex": "#e6be14",
+        "brand": "Madeira Polyneon"
+      }
+    ],
+    "format": "jef",
+    "savedAt": "2026-04-21T22:40:12.500825+00:00"
+  }
+]

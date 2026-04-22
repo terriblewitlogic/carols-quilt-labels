@@ -119,45 +119,55 @@ def raster_to_stitch_groups(
                 if not fill_poly.is_valid or fill_poly.is_empty:
                     fill_poly = poly
 
-                # ── Underlay (sparse, perpendicular) ─────────────────────
-                raw_segments.extend(
-                    _underlay_segments(fill_poly, density_px)
-                )
+                # ── Thin-stripe guard ─────────────────────────────────────
+                # If the shape is too narrow to fit even one fill row (e.g.
+                # outline-stroke pixels that KMeans merged with a fill colour),
+                # skip underlay + fill entirely — just run the outline stitch.
+                # We test by eroding by one fill-row; if nothing remains the
+                # shape is essentially an outline stripe, not a filled region.
+                eroded_test = fill_poly.buffer(-density_px * 0.6)
+                is_thin_stripe = eroded_test.is_empty or eroded_test.area < (density_px ** 2)
 
-                # ── Top fill: contour / medial / directional ─────────────
-                compactness   = _compactness(fill_poly)
-                eigen_ratio   = _eigenvalue_ratio(fill_poly)
-                user_angle    = fill_angle_deg is not None
-
-                if compactness >= COMPACTNESS_THRESH:
-                    # Round/compact → concentric inward rings
+                if not is_thin_stripe:
+                    # ── Underlay (sparse, perpendicular) ─────────────────
                     raw_segments.extend(
-                        _contour_fill_segments(fill_poly, density_px)
+                        _underlay_segments(fill_poly, density_px)
                     )
-                elif not user_angle and eigen_ratio >= MEDIAL_EIGEN_THRESH:
-                    # Clearly elongated → follow the spine with perpendicular cross-sections
-                    segs = _medial_fill_segments(fill_poly, density_px)
-                    if segs:
-                        raw_segments.extend(segs)
-                    else:
-                        # Fallback if skeleton fails
+
+                    # ── Top fill: contour / medial / directional ──────────
+                    compactness   = _compactness(fill_poly)
+                    eigen_ratio   = _eigenvalue_ratio(fill_poly)
+                    user_angle    = fill_angle_deg is not None
+
+                    if compactness >= COMPACTNESS_THRESH:
+                        # Round/compact → concentric inward rings
                         raw_segments.extend(
-                            _fill_polygon_segments(fill_poly, density_px,
-                                                   _pca_angle(fill_poly))
+                            _contour_fill_segments(fill_poly, density_px)
                         )
-                else:
-                    # General shape → directional scan lines along PCA axis
-                    angle = fill_angle_deg if user_angle else _pca_angle(fill_poly)
-                    raw_segments.extend(
-                        _fill_polygon_segments(fill_poly, density_px, angle)
-                    )
+                    elif not user_angle and eigen_ratio >= MEDIAL_EIGEN_THRESH:
+                        # Clearly elongated → follow the spine with perpendicular cross-sections
+                        segs = _medial_fill_segments(fill_poly, density_px)
+                        if segs:
+                            raw_segments.extend(segs)
+                        else:
+                            # Fallback if skeleton fails
+                            raw_segments.extend(
+                                _fill_polygon_segments(fill_poly, density_px,
+                                                       _pca_angle(fill_poly))
+                            )
+                    else:
+                        # General shape → directional scan lines along PCA axis
+                        angle = fill_angle_deg if user_angle else _pca_angle(fill_poly)
+                        raw_segments.extend(
+                            _fill_polygon_segments(fill_poly, density_px, angle)
+                        )
 
-                # ── Edge walk (boundary density gradient) ────────────────
-                # Two tight inset passes give crisp edges and compensate for
-                # fabric pull — stitched last so they sit on top of the fill.
-                raw_segments.extend(
-                    _edge_walk_segments(fill_poly, density_px)
-                )
+                    # ── Edge walk (boundary density gradient) ─────────────
+                    # Two tight inset passes give crisp edges and compensate for
+                    # fabric pull — stitched last so they sit on top of the fill.
+                    raw_segments.extend(
+                        _edge_walk_segments(fill_poly, density_px)
+                    )
 
                 # ── Outline ───────────────────────────────────────────────
                 if outline != 'none':
