@@ -2580,3 +2580,46 @@ known); tiny_detail engine 100 -> 88 (within grade, core-fill flagged by scorer 
 User questions answered with data: satin is mechanically compliant (bars max 4.53mm at
 0.33mm spacing, lock-stitched); fill gaps were a designed-in inset-away contract, now
 inverted to professional fill-under-border when the band sews as satin.
+
+### Round 8: Covered Travel + Angular Orientation DP (2026-06-11)
+
+Status: battery running. Checkpoint commits landed first on branch hatch-quality-2026-06
+in all three repos (backend 0ef5961, embroidery-mom 7fdae82, root b8d7181).
+
+KEY DISCOVERY (instrumented): the trimsPer1000 penalty (flat -5 on 7 of 8 sub-90 cases) is
+mostly JEF-format trim INFERENCE, not our explicit trims. pyembroidery writes long moves as
+multi-record jump chains (each record max ±12.7mm) and JEF machines + the reader infer a TRIM
+from consecutive jump records. Elephant: 8 intentional trims internally -> 37 trims in the
+file. The reference designs stay under the record limit; our 8-15mm island hops do not.
+
+Changes:
+- `_merge_covered_travel` (post group assembly): inter-segment hops 2-20mm whose straight
+  connector lies within 0.6mm of LATER-stitched geometry (STRtree over later groups'
+  segments, sampled along the connector) are merged into stitched travel runs — no jump
+  records, no inferred trim, carry hidden under the later layer. Debug: coveredTravelMerges.
+- Orientation DP in `_route_components_angular`: with visit order fixed by angle, each
+  component picks forward/reversed via DP minimising entry+exit distance — petals chain
+  base-to-base instead of tip-to-base 15mm hops. Sunflower: jumps 20 -> 18, trims/1k
+  10.5 -> 9.1, merges 15.
+
+Honest residual: daisy/bee long moves (8-15mm) cross BARE fabric between motif parts —
+correctly refused by the coverage test; they need design-level resequencing (small-design
+economics round), not coverage tricks.
+
+### Round 8 — CERTIFIED: GOAL AVERAGE 90.0 REACHED (2026-06-11)
+
+Status: KEEP. The /goal target (Hatch-likeness 90) is met on suite average.
+
+100.0 leaf_two_tone | 98.6 clean_leaf | 96.6 aa_badge (+4.6, engine healed 96->100) |
+95.0 thick_flower | 95.0 sparrow | 92.0 badge | 90.5 elephant | 90.0 sunflower ||
+89.9 teddy (+5.0) | 89.9 leaf_single | 86.6 tiny_detail | 86.2 daisy | 78.5 bird | 71.2 bee.
+
+Average 88.8 -> 90.0; 8 of 14 cases >= 90, two more at 89.9. Covered-travel merges did the
+heavy lifting: teddy jumps 39 -> 15, sparrow 39 -> 31, aa_badge 22 -> 14, tiny_detail
+27 -> 23 — carries hidden under later layers instead of jump records that JEF machines
+read back as trims. Grade mix A:10/B:3/B-:1; engine scores all >= 88; regression 97.5
+all formats (leaf primitive 88 known).
+
+Remaining below the line: teddy/leaf_single 89.9 (a nudge each), tiny_detail 86.6,
+daisy 86.2 (bare-fabric motif hops — needs resequencing), bird 78.5, bee 71.2
+(small-design economics round).
