@@ -2623,3 +2623,41 @@ all formats (leaf primitive 88 known).
 Remaining below the line: teddy/leaf_single 89.9 (a nudge each), tiny_detail 86.6,
 daisy 86.2 (bare-fabric motif hops — needs resequencing), bird 78.5, bee 71.2
 (small-design economics round).
+
+### Round 9: Toward 90-Everywhere (2026-06-11)
+
+Status: battery running. Changes kept:
+
+- Hairline satin perimeter floor 120 -> 60mm: posterization splits smooth outlines into
+  fragments (leaf_single's ring arrived as 4 pieces, each failing the old floor and falling
+  to invisible centerlines); the topology gate (<=2 interior rings) still excludes motif webs.
+- Remaining auto-tune profiles (balanced/detail_filtered) now request cross underlay — the
+  zero-cost chain gate is the protection. leaf_single density 96.6 -> 118.8 (in band),
+  bird gained satin into band, tiny_detail jump rate into band with density 144.9.
+- Foundation underlay hop budget 0 -> 2 (a <=12.7mm hop costs one jump command and no
+  inferred trim; broad designs have jump-rate headroom).
+
+TRIED AND REVERTED: contour-ring fills for big round organic bodies. teddy entropy crossed
+into band (0.5631) but the visual failed exactly like the historical center-out leaf
+rejection: concentric rings read as a tree trunk, interior structure (belly patch) drowned,
+q 100 -> 64, trims 1 -> 24 from ring hops. LESSON: the angle-entropy band for flat-interior
+icons requires CURVED TATAMI (rows that bend with the form, dense, serpentine-routed) —
+ring fills are not a shortcut. Filed as the real Phase 2c implementation.
+
+ENTROPY MATH (recorded): straight cross underlay maxes per-cell entropy at ~ln(2)/ln(18)=0.24
+above a parallel fill; the pro band (0.56-0.79) comes from continuously varying directions
+(curved satin, contoured rows). No amount of straight-line layering reaches it.
+
+### Round 9 Cleanup: Hop Budget Was the Regression (2026-06-11)
+
+Bisected the round-9 quality regressions (sparrow 100->74, bee 100->60, primitives
+99->86.5): the foundation underlay HOP BUDGET (allowing chains with up to 2 jumps) was the
+sole cause — its hopped chains fired visible-travel and fill-coherence flags while the
+entropy it was meant to buy never materialized (straight-line layering caps at ~0.24/cell).
+Reverted to the zero-cost gate. The hairline-60mm floor was innocent (reverted to 120mm
+anyway during bisection — leaf_single's +4.3 came from the profile cross underlay, which is
+zero-cost-gated and KEPT).
+
+Round-9 final state: round 8 + balanced/detail profiles request cross underlay (zero-cost
+gates protect). leaf_single 89.9 -> 94+ via in-band density; clean_leaf 100.0; bird +3.6.
+Final battery running.
