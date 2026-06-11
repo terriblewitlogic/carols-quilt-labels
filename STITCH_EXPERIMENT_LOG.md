@@ -2661,3 +2661,76 @@ zero-cost-gated and KEPT).
 Round-9 final state: round 8 + balanced/detail profiles request cross underlay (zero-cost
 gates protect). leaf_single 89.9 -> 94+ via in-band density; clean_leaf 100.0; bird +3.6.
 Final battery running.
+
+### Curved Tatami: Closed as Wrong Tree (2026-06-11)
+
+Six geometry iterations (rail blend -> pole pinch; guide offsets -> spaghetti at far
+offsets; midline guide -> straight on symmetric shapes; envelope guide -> lobe spikes;
+progressive straightening -> curvature lost; zone recursion -> onion rings, the rejected
+center-out aesthetic). All code removed from the engine; standalone test renders in
+tmp/curved_fill_test*.png document each failure.
+
+THE DECISIVE INSIGHT came from re-deriving the metric, not the geometry: the reference
+angle-entropy band (0.56-0.79 per 5mm cell, ~6 effective direction bins) is a property of
+DESIGN GRANULARITY — the reference designs have no large uniform fields, so nearly every
+cell mixes fill + border + neighbor elements. Even a perfect Wilcom-style curved fill adds
+~5 degrees of variation per cell (1-2 bins). A professional digitizing the teddy's big
+plain ellipses would ALSO score below the band. Chasing it via fill geometry was chasing a
+design-mismatch artifact.
+
+ARITHMETIC THAT REDIRECTS THE CAMPAIGN: with jumps and trims in band, every remaining
+sub-90 fixture clears 90 WITHOUT entropy: teddy 94.3, daisy 98.8, tiny_detail 91.6,
+bird 93.1, bee 92.4. The whole 90-everywhere game is LONG-MOVE ELIMINATION (file trims =
+inferred from >12.7mm multi-record moves; jump rate = the same moves). Next: per-fixture
+long-move census, then covered-corridor detours (carries routed ALONG upcoming line-art
+polylines instead of straight across bare fabric) and color-block start placement.
+
+### Round 10: Corridor Detours + The True JEF Trim Rule (2026-06-11)
+
+THE TRUE TRIM RULE (read from pyembroidery interpolate_trims + verified against all 18
+reference files): JEF has no explicit trims; the reader infers ONE trim per MID-BLOCK jump
+sequence whose cumulative displacement exceeds 3mm in x or y. Post-color-change moves never
+trim (the change already cut the thread). Reference mid-block long-jump sequences match
+their trim counts exactly. So the trims band measures: professional designs keep mid-block
+carries under 3mm or stitch them — color starts are free.
+
+Corridor detours implemented in _merge_covered_travel: when a 2-20mm straight carry crosses
+bare fabric, the carry walks ALONG one covered corridor polyline (later-pass geometry, or
+same-color line work — on top of own thread is invisible) via shapely substring, entering
+and leaving within 1.2mm. Coverage tolerance settled at 0.35mm STRICT after a sweep:
+carries beside a 0.4mm runline peek out in thread (bee showed visible strays at 0.6mm and
+0.45mm tolerance; physically only satin-width cover hides a carry). At 0.35mm everything
+returns engine q100.
+
+Probe wins (round-9 -> detours): teddy jumps 15 -> 8 / trims-1k 3.7 -> 1.52 (BOTH IN BAND);
+daisy jumps 20 -> 14; bird 21 -> 14 / 6.0 -> 3.43; tiny 25 -> 21 / 5.11 -> 3.91 + engine
+q88 -> 100 (the watch item healed); elephant 39 -> 36; bee jump 19 -> 14 / 13.8 -> 8.7.
+
+Remaining (next round, well-defined): petal/part SEQUENCING — end each motif part's fill at
+the end nearest the next part (daisy petals touch at the center; base-to-base hops are
+under 3mm = free) instead of detouring after the fact. Daisy/bee/tiny/bird still carry
+out-of-band trims from tip-exit hops.
+
+### Round 10 — CERTIFIED: Average 93.6, Twelve of Fourteen >= 90 (2026-06-11)
+
+Status: KEEP (backend commit 34d1299). All engine scores >= 96, regression 97.5 all
+formats, grade mix A:10/B:3/B-:1.
+
+100.0 leaf_two_tone | 98.6 clean_leaf | 97.7 sparrow | 97.7 aa_badge | 97.0 sunflower |
+95.0 thick_flower | 94.7 teddy | 94.7 leaf_single | 94.2 daisy | 93.6 badge |
+91.1 elephant | 90.1 bird || 87.8 tiny_detail | 78.0 bee.
+
+Newly over the line: teddy (+4.8), daisy (+8.0), bird (+11.6). Also sunflower +7.0,
+sparrow +2.7, badge +1.6 — corridor detours helped almost every fixture.
+
+THE LAST TWO, decomposed:
+- bee 78.0: jumpRate -13.4 (14 jumps, band needs <=10), trims -5 (10 mid-block sequences,
+  budget 2), mean -3.6. Needs part sequencing: stripe/chunk exits toward the next part.
+- tiny_detail 87.8: trims -4.9 (14 sequences, budget 7) + entropy -7.2 (design-granularity
+  artifact, unreachable honestly — but trims alone take it to 92.6). Its ring marks are
+  radially arranged: angular ordering + base exits should kill most sequences.
+
+NEXT MECHANISM (final round to 90-everywhere): exit-aware part sequencing — end each motif
+part's fill/satin at the end nearest the NEXT part (petals/stripes/marks touch their
+neighbors or shared rings; base-to-base hops are <3mm = free), instead of repairing
+tip-exits with detours after the fact.
