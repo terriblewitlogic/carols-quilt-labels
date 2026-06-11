@@ -2811,3 +2811,69 @@ design-size ceiling; transitions/1000 match professional practice exactly).
 Campaign total: 71 -> 95.8 average. The 90-everywhere goal is met for every fixture whose
 score reflects technique; tiny_detail's residual is the documented small-design
 amortization artifact (entropy granularity + trims-per-1000 scaling), not stitch quality.
+
+### Text/Font Experiment — Session 1 (2026-06-11)
+
+Fixtures: "Sophie" in Arial Rounded Bold (block) and Bradley Hand Bold (script), rendered
+from TTF at 15mm and 6mm cap heights, anti-aliased AND hard-thresholded binary variants
+(tmp/text_experiment/). AI-generation arm deferred (GEMINI_API_KEY available; next session).
+
+VERDICT SO FAR: text through the pipeline was COMPLETELY BROKEN (sparse hatch fragments,
+missing letters) — three root causes found, all general engine defects:
+
+1. ACCENT CLASSIFICATION: _detect_accent_color capped accent at <8% of pixels; text-only
+   designs are 15-25% dark. Lettering routed into foundation scan fills instead of the
+   stroke-satin path. FIX: a dark colour whose geometry is stroke-like line work (mean
+   width 2A/P <= 3.5mm, largest part compactness < 0.35) is accent regardless of pixel
+   share — true for lettering AND any line-art-dominated design.
+2. AUTO-TUNE COLOUR RAISE: profiles forced num_colors up to max(3..4, requested) — a 2-tone
+   text image quantized at 4 grows anti-aliasing halo labels that shred letter cores. FIX:
+   auto-tune never raises num_colors above the request (the product syncs the request with
+   its source). All four profile sites patched.
+3. _medial_fill_segments crashed on MultiPolygon input (latent; small text triggered it).
+   FIX: recurse per part.
+
+RESULTS after fixes: block_15mm q100, 2078 stitches, satin 0.62, 5 jumps — fully legible
+satin-bordered lettering (consumer-viable today; pro look would want solid satin strokes
+instead of border+fill region treatment). block_6mm q90-100, readable. script_15mm/6mm
+STILL BROKEN (fragments/missing letters) even with binary source — failure is in the
+stroke-network gates on thin connected cursive (~1.2-2mm strokes), not quantization.
+PRODUCT INSIGHT: TTF rendering is controlled by us — binary rendering kills the AA problem
+at the source; AI-generated text cannot do that (plus spelling risk). TTF + engine is the
+right lettering architecture; this experiment likely re-opens the labels pivot.
+
+Round-14 battery running (the three fixes are general — suite must hold).
+
+REMAINING for text: script/cursive path (keep-whole gates on connected thin networks),
+solid-satin stroke treatment for region-class letters (vs border+fill), AI-text comparison
+arm, text fixtures in the acceptance suite.
+
+### Text Session 2: Script/Cursive Lettering Fixed (2026-06-11)
+
+Two engine fixes, both general (benefit all line art, not just text):
+
+1. SKELETON SPUR-PRUNING (_prune_and_join_medial_trails): curvy glyph medial graphs shatter
+   at every boundary-wiggle junction into sub-minimum trails — most letters emitted ZERO
+   satin bars (everything fell to runlines; only the smooth 'S' survived). The new pass
+   drops short spur branches (free end hanging off a junction) and joins the two through-
+   trails wherever a junction drops to degree 2. Bradley Hand letters went from 0-40% bar
+   coverage to full coverage (o: 17 -> 60 bars; small letters complete).
+2. BLOB-REGION FALLBACK: accent polys that fail the stroke-satin gate (a fat script 'o',
+   mean width 4.9mm, compactness 0.52) degraded to an invisible bare centerline. Now blobs
+   >= 40mm2 and >= 2.5mm mean width get the REGION treatment (satin border + serpentine
+   interior fill — what block letterforms already receive). Strategy: stroke_blob_region.
+
+Script "Sophie" 15mm: q100, 1690 stitches, all six letters legible (satin strokes, bordered
+'o', solid bowls). Block "Sophie": q100 both sizes. Round-15 battery running (spur pruning
+touches every satin network — full suite must hold).
+
+### Phase 5: Thread-Realistic Preview (2026-06-11)
+
+`preview_style='thread'` (default 'classic', stitch geometry untouched): satin/outline
+stitches render as capsule strokes with light-angle-dependent sheen — one path per
+(colour, direction-bucket, layer), 12 buckets x 3 layers (shadow / body / perpendicular-
+offset highlight), light from upper-left, shine = |cross(light, stitch_dir)|. Per-segment
+routing handles merged groups; travel segments skipped; fills stay polylines. Elephant
+payload 746KB -> 332KB (batching). Renders: tmp/text_experiment/{elephant,sunflower,
+script}_thread.png. Classic output verified byte-identical (badge + sunflower).
+Frontend wiring (embroidery-mom passing preview_style) left as a product decision.
