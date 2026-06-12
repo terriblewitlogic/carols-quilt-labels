@@ -216,6 +216,56 @@ For users with ad blockers: the current UI already shows the credit/subscribe op
 
 ---
 
+## Phase 2H — Operational hardening (before payments go live)
+
+**Goal:** The public API surface cannot generate surprise bills, melt the container, or get
+quietly abused. This is a launch gate for Phase 2D (payments): never charge money on top of
+an unprotected cost surface.
+
+**Infrastructure reality:** `embroidery.mom` is a Cloudflare Worker (`embroidery-mom`)
+serving the SPA + proxying `/api/generate` (Imagen/Gemini — the expensive call) and
+`/api/stitch` (service binding → `embroidery-stitch-backend` Worker + Container,
+max_instances 10). Deploys are manual `wrangler deploy`; backend CI runs checks only.
+
+### Cost controls (highest priority — Gemini/Imagen is metered)
+- [ ] Per-IP daily cap on `/api/generate` (KV counter; e.g. 10/day anon) returning a
+      friendly "come back tomorrow / sign in" payload the UI can render
+- [ ] Global daily generation budget kill-switch (KV counter + `DISABLE_GENERATE` var
+      checked by the worker; flipping it degrades to upload-only mode, site stays up)
+- [ ] Provider-side billing alerts (Google Cloud budget alert on the Gemini key;
+      hard cap if the console supports it)
+- [ ] Verify `GEMINI_API_KEY` lives in `wrangler secret` (not `[vars]`, not the repo)
+
+### Rate limiting & abuse
+- [ ] Cloudflare WAF rate rules: `/api/generate` strict (e.g. 6/min/IP),
+      `/api/stitch` moderate (e.g. 20/min/IP), everything else default
+- [ ] Origin/Referer check in the worker for `/api/*` (cheap pre-auth abuse filter;
+      returns 403 for cross-site callers)
+- [ ] Worker-level 429 with `Retry-After` when the container queue is saturated
+      (the conversion can take 10-60s; backpressure beats pile-up)
+
+### Payload & runtime guards
+- [ ] Reject `imageBase64` over ~4MB and hoop dims outside 30-300mm before touching
+      the container (fast 400s in the worker)
+- [ ] Tighten `STITCH_BACKEND_TIMEOUT_MS` (currently 420s) to ~120s once the new
+      engine's p95 is measured in production; the converter already emits per-phase
+      timings in `metrics.phaseTimings` — log them
+- [ ] Container request concurrency cap + memory ceiling review (max_instances=10 is
+      the only guard today)
+
+### Observability & rollback
+- [ ] Workers Logs / Logpush on both workers; alert on error-rate spike and on
+      conversion p95 regression
+- [ ] Track daily: generations, conversions, failures by phase (the converter's
+      `current_phase` error tagging makes this cheap)
+- [ ] Practice `wrangler rollback` once; document the two-command rollback in this file
+- [ ] Synthetic check: tiny conversion hitting prod every 15min (UptimeRobot/cron Worker)
+
+### Checklist gate
+Phase 2D (Stripe) does not start until every box above is checked.
+
+---
+
 ## Phase 3 — Live data
 
 **Goal:** The design library is real, the File of the Day rotates automatically, and SEO is generating organic traffic.
