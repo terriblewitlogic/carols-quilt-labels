@@ -3019,3 +3019,31 @@ face area becomes black line-art network. Defect class: detail-mush via over-gre
 reservation. NEXT: (1) dark-line mask density/coverage cap per local area (a region that is
 >50% "line" is a dark FILL, not line art), (2) reserved-vs-cluster thread dedup,
 (3) iteration 1 fresh subject.
+
+### Fresh-Image Loop, Iteration 1: Strawberry (2026-06-11)
+
+PIPELINE PROVED END-TO-END: generate (v3 prompt) -> source gate -> convert -> scorecard.
+
+- SOURCE GATE: PASS, completely clean (flat 0%, micro-debt 0%, 10 regions, 5 colours) —
+  the v3 prompt produced a compliant source ON THE FIRST TRY. The prompt rewrite works;
+  no pre-stitched mockup, no texture, no micro-detail.
+- FIDELITY: 92.1 PASS (colour 0.846, parts 0.86, detail 0.895, solidity 0.97) — the
+  conversion is visually faithful. Recognizably a charming strawberry stitched.
+- ENGINE: 82 FAIL (tiny_region_risk, complex_region_count) — the polka-dot problem.
+
+TRIAGE (worst-crops): ~25 black seed dots; most stitch as clean black dots, but seeds near
+the tip/border sew as BARE HOLES in the red fill or empty rings — the fill avoids them
+correctly but their black dots are dropped (detail-pruning cap rations small details; a
+seed field exceeds it). Also colour drift: warm orange half -> salmon (thread snap).
+
+DEFECT QUEUE FROM ITERATION 1:
+1. Seed/dot reliability: uniform repeated small details (a seed field, polka dots) are
+   design identity, not noise — the detail cap must not ration them. Every dot >= 1.2mm
+   stitches, as compact satin dots.
+2. Engine scorer calibration: 25-dot designs are legitimate (52 jumps = 0.76% IN pro band;
+   25 seed trims ~ 3.7/1000 = pro mid-block practice). tiny_region/complex_region penalties
+   need the polka-dot exemption, same as compact_satin_column got.
+3. Colour drift (salmon vs orange): reserved-vs-cluster thread dedup still queued.
+
+The loop is working exactly as designed: fresh subject, source attribution clean, one
+precise engine defect class identified for root-cause fixing before iteration 2.
