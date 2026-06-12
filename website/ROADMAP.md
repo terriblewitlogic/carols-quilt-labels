@@ -1,0 +1,420 @@
+# Embroidery.mom — Product Roadmap
+
+## Overview
+
+The build is structured in four phases, each shipping a meaningful slice of the product.
+
+| Phase | Name | Status | Goal |
+|---|---|---|---|
+| 1 | Shell | ✅ Complete | Full React + Vite site with all pages, design system, and mock data |
+| 2 | Plumbing | 🔜 Next | Wire tools to real APIs, add auth and payments |
+| 3 | Live data | — | Real design library, email, file-of-day scheduling |
+| 4 | Growth | — | SEO, seller workflows, batch tools, API access |
+
+---
+
+## Phase 1 — Shell ✅
+
+**Goal:** A structurally complete website that can be previewed, shared, and iterated on before any backend work.
+
+### What was built
+
+- **Design system** — CSS custom properties from logo colors, Playfair Display / Inter / Dancing Script fonts, full spacing/radius/shadow token set
+- **Auth + Credits context** — `AuthContext` (user, tier, login/logout) and `CreditsContext` (balance, spend, earn) — stubs, ready to swap for real backends
+- **API client stubs** — `src/api/label.js`, `library.js`, `generator.js`, `account.js` — each method has the right signature and returns mock data shaped to match the eventual real response
+- **Mock data** — 12 library designs, 8 learn articles, 6 generator templates
+- **8 shared components** — Nav, Footer, Button, DesignCard, DownloadGate, CategoryNav, PricingCard, CreditMeter
+- **11 pages** — Home, Label Maker, Library, Library Detail, File of the Day, Generator, Pricing, Learn, Login, Signup, Account
+
+### Dev server
+```
+cd website/embroidery-mom
+npm run dev   # runs on port 5200
+```
+
+---
+
+## Phase 2 — Plumbing 🔜
+
+**Goal:** Every button in the UI does something real. A user can sign in, generate a label, download a file, buy credits, and subscribe.
+
+### 2A — Label Maker wiring — ⚠️ SUPERSEDED
+
+> **See `website/ttf-lettering-plan.md`.** The June 2026 stitch-engine campaign made
+> arbitrary TTF letterforms satin-stitch professionally (the original pivot blocker —
+> limited fonts — is gone). The Label Maker now ships as client-rendered TTF text fed
+> through the same `/convert` endpoint as the Generator. The section below describes the
+> pre-pivot approach and is kept for history only.
+
+**What to do (historical):** Connect `LabelMakerPage.jsx` to the existing Python API functions.
+
+The existing tool lives in `src/embroidery.jsx` and `src/image-embroidery/`. The Phase 2 job is to either:
+- (a) Embed the existing `QuiltLabelMaker` component directly into `LabelMakerPage.jsx` by importing it, or
+- (b) Route `/label-maker` to the existing React component and wrap it in the new Nav/Footer shell
+
+The API already exists:
+- `api/generate.py` — Gemini image generation (Vercel serverless)
+- `api/export.py` — exports stitch file in requested format
+- `api/preview.py` — returns stitch preview image
+
+**Files to update:**
+```
+src/api/label.js          ← replace stubs with real fetch() calls
+src/pages/LabelMakerPage.jsx  ← wire Generate Preview and Download buttons
+```
+
+**API call shapes (match existing Python handlers):**
+```js
+// Generate preview
+POST /api/generate
+{ text, font, size, border, hoopSize }
+→ { previewUrl, stitchCount, colors }
+
+// Export file
+POST /api/export
+{ text, font, size, border, hoopSize, format }
+→ base64 file blob
+```
+
+---
+
+### 2B — Image Generator wiring
+
+**What to do:** Connect `GeneratorPage.jsx` to the existing AI generation pipeline.
+
+Existing endpoints:
+- `api/generate.py` — calls Gemini to produce an image from a prompt
+- `api/posterize.py` — simplifies image into flat color zones
+- `api/image_to_jef.py` — converts posterized image to stitch file
+- `api/preview.py` — generates stitch preview PNG
+
+**Files to update:**
+```
+src/api/generator.js          ← replace stubs
+src/pages/GeneratorPage.jsx   ← wire each step of the flow
+```
+
+**Generation flow to implement:**
+```
+1. User enters prompt or selects template + fills fields
+2. POST /api/generate → returns imageUrl
+3. Display image in preview area
+4. POST /api/posterize { imageUrl, numColors } → returns posterizedUrl
+5. POST /api/image_to_jef { imageUrl, hoopSize } → returns stitchPreviewUrl + JEF blob
+6. Display stitch preview
+7. Download button exports the file (deduct credits)
+```
+
+**Credit deduction:** Call `useCredits().spend(creditsNeeded)` before triggering the export. If `spend()` returns false (insufficient balance), show the credit purchase prompt instead.
+
+---
+
+### 2C — Authentication
+
+**Provider recommendation:** Supabase Auth (free tier covers MVP scale, integrates with Supabase DB for Phase 3).
+
+**What to implement:**
+
+1. Install: `npm install @supabase/supabase-js`
+2. Create `src/lib/supabase.js`:
+   ```js
+   import { createClient } from '@supabase/supabase-js'
+   export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+   ```
+3. Replace `AuthContext.jsx` login/signup/logout with real Supabase calls:
+   ```js
+   const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+   ```
+4. Add Google OAuth (Supabase supports it with two config lines)
+5. Persist session across page reloads using `supabase.auth.onAuthStateChange()`
+
+**Files to update:**
+```
+src/context/AuthContext.jsx   ← replace mock login/signup with Supabase
+src/api/account.js            ← replace stubs
+src/pages/LoginPage.jsx       ← enable Google button
+src/pages/SignupPage.jsx      ← enable Google button
+```
+
+---
+
+### 2D — Credit purchase (Stripe)
+
+**What to implement:**
+
+Stripe Checkout is the fastest path — no custom payment UI needed.
+
+1. Create a Vercel serverless function `api/create-checkout.py` (or `.js`):
+   ```
+   POST /api/create-checkout
+   { packId, userId }
+   → { checkoutUrl }
+   ```
+2. Redirect user to Stripe-hosted checkout page
+3. On success, Stripe webhook → `api/webhook.py` → update credit balance in DB
+4. Credit balance stored in Supabase `credit_balances` table, read on login
+
+**Credit pack IDs** (already defined in `src/data/generator-templates.js`):
+```
+pack-5   → $3   → 5 credits
+pack-20  → $9   → 20 credits
+pack-60  → $19  → 60 credits
+pack-150 → $39  → 150 credits
+```
+
+**Subscription plans** (map to Stripe Price IDs):
+```
+hobby  → $9/mo  → 30 credits on renewal
+maker  → $19/mo → 100 credits on renewal
+seller → $39/mo → 300 credits on renewal
+```
+
+**Files to create/update:**
+```
+api/create-checkout.py        ← new Vercel function
+api/webhook.py                ← Stripe webhook handler
+src/context/CreditsContext.jsx ← read balance from DB, not local state
+src/pages/AccountPage.jsx     ← wire "Buy credits" buttons to checkout
+src/pages/PricingPage.jsx     ← wire "Start plan" buttons to Stripe
+```
+
+---
+
+### 2E — Download gate (real ad integration)
+
+The `DownloadGate` modal already has the full UI shell including an ad progress bar animation. Phase 2 replaces the `setTimeout` simulation with a real rewarded ad network.
+
+**Recommended provider:** Google AdSense rewarded ads or a specialist like Playwire (better CPM for niche craft content).
+
+**Integration points in** `src/components/DownloadGate.jsx`:
+```js
+// Replace the setTimeout in handleAd() with:
+window.adProvider.showRewardedAd({
+  onComplete: () => setAdState('done'),
+  onSkip: () => setAdState('idle'),
+})
+```
+
+For users with ad blockers: the current UI already shows the credit/subscribe options as fallback — no extra work needed.
+
+---
+
+### Phase 2 checklist
+
+```
+[ ] 2A  Label Maker wiring → real generate + export API calls
+[x] 2B  Generator wiring → generate → posterize → stitch → export  (DONE — GeneratorPage
+        calls generateImage + convertImageBase64ToStitches against the Vercel stitch API;
+        previews default to thread-realistic style)
+[ ] 2C  Auth → Supabase email + Google OAuth
+[ ] 2D  Payments → Stripe Checkout for credits + subscriptions
+[ ] 2E  Stripe webhook → credit balance in DB
+[ ] 2E  Download gate → real rewarded ad SDK
+[ ] 2F  Email capture → save to Supabase, trigger welcome email (Resend or Postmark)
+[ ] 2G  Account page → pull real credit balance + download history from DB
+```
+
+---
+
+## Phase 3 — Live data
+
+**Goal:** The design library is real, the File of the Day rotates automatically, and SEO is generating organic traffic.
+
+### 3A — Design library database
+
+Store actual embroidery files and metadata in Supabase.
+
+**`designs` table schema:**
+```sql
+id            uuid primary key
+slug          text unique not null
+category      text not null
+title         text not null
+description   text
+stitch_count  int
+hoop_size     text
+colors        int
+difficulty    text   -- beginner | intermediate | advanced
+formats       text[] -- ['PES', 'DST', 'JEF']
+thread_colors text[]
+suggested_fabric text
+preview_url   text   -- hosted on Supabase Storage or Cloudflare R2
+file_urls     jsonb  -- { PES: 'url', DST: 'url', ... }
+is_free       bool default true
+credit_cost   int default 0
+created_at    timestamptz default now()
+```
+
+Replace `src/api/library.js` stubs with Supabase queries:
+```js
+export async function getDesigns(category) {
+  const q = supabase.from('designs').select('*')
+  if (category && category !== 'all') q.eq('category', category)
+  const { data } = await q
+  return data
+}
+```
+
+**File hosting:** Store the actual `.pes`, `.dst`, `.jef` files in Supabase Storage (or Cloudflare R2 for cheaper egress). Generate signed URLs at download time so files aren't publicly indexable.
+
+---
+
+### 3B — File of the Day scheduling
+
+**`daily_files` table:**
+```sql
+id              uuid primary key
+design_id       uuid references designs(id)
+date            date unique not null
+download_count  int default 0
+subscriber_claims int default 0
+ad_unlock_count int default 0
+```
+
+**Rotation:** A Vercel Cron job runs at midnight and inserts the next day's entry. Alternatively, pre-schedule a month at a time from the admin.
+
+**`/file-of-the-day` API call:**
+```
+GET /api/file-of-day
+→ { design, expiresAt }
+```
+
+---
+
+### 3C — Email
+
+Use **Resend** (simple API, generous free tier) or **Postmark**.
+
+Triggered emails to build:
+- Welcome email on signup
+- Daily file notification (opt-in, from the email capture form)
+- Credit purchase receipt
+- Subscription confirmation and renewal
+
+**Email capture** is already wired in `FileOfDayPage.jsx` and `HomePage.jsx` — Phase 3 just sends the form data to `POST /api/subscribe` instead of logging it.
+
+---
+
+### 3D — SEO foundations
+
+Each design detail page, library category page, and learn article already has the right URL structure from Phase 1. Phase 3 adds:
+
+1. **Dynamic `<title>` and `<meta description>`** per page — use `react-helmet-async` or move to a framework with native SSR (see below)
+2. **`sitemap.xml`** — generated at build time from the Supabase design catalog
+3. **`robots.txt`** — allow all, point to sitemap
+4. **OpenGraph images** — one per design (Vercel OG or Cloudinary auto-generate from the stitch preview)
+5. **Structured data** — `Product` schema on design detail pages for Google Shopping
+6. **Framework consideration:** React SPA is bad for SEO. Phase 3 should evaluate migrating to **Next.js** or **Astro** for SSR/SSG on public pages. The component and design system are already portable — it would be a routing + rendering change, not a rewrite.
+
+---
+
+### Phase 3 checklist
+
+```
+[ ] 3A  Supabase designs table + file storage
+[ ] 3A  Replace library API stubs with real Supabase queries
+[ ] 3A  Signed download URLs (files not publicly accessible)
+[ ] 3B  daily_files table + Vercel Cron rotation
+[ ] 3C  Email: Resend integration for welcome + daily file notifications
+[ ] 3D  react-helmet-async for dynamic page titles and meta
+[ ] 3D  sitemap.xml generation at build
+[ ] 3D  OG images per design
+[ ] 3D  Evaluate Next.js or Astro migration for SSR/SEO
+```
+
+---
+
+## Phase 4 — Growth
+
+**Goal:** Seller-grade workflows, commercial licensing, API access, and the content/SEO engine running at scale.
+
+### 4A — Seller workflows
+
+- **Batch label generation** — upload a CSV of names, receive a ZIP of matching stitch files
+- **Project folders** — organise saved designs into collections
+- **Design variation sets** — generate a family of related designs from one template (e.g. 12 holiday ornament variations)
+- **Etsy seller landing pages** — curated pages targeting search terms like "PES files for Etsy sellers"
+
+### 4B — Commercial licensing
+
+- Introduce a `license_type` field on designs: `personal` | `commercial-single` | `commercial-unlimited`
+- Maker and Seller plan users get commercial-friendly access
+- Generate a PDF license certificate on commercial download
+
+### 4C — API access
+
+Power users (Etsy sellers, small studios) who want to automate file generation:
+```
+POST /v1/label      → generate a label file
+POST /v1/generate   → AI generate from prompt
+POST /v1/convert    → upload-to-stitch
+GET  /v1/library    → search the design catalog
+```
+
+Rate-limited by API key, billed per credit. Seller plan includes a monthly API credit allowance.
+
+### 4D — Content engine
+
+The `learn/` section needs enough articles to generate meaningful long-tail organic traffic. Target is 50+ articles covering:
+- Every major file format (PES, DST, JEF, EXP, VP3, HUS, XXX, VIP...)
+- Every common machine brand (Brother, Janome, Singer, Husqvarna, Baby Lock, Bernina, Pfaff...)
+- Technique guides (stabilizer types, thread tension, hooping, lettering, patches)
+- Comparison pages (Brother vs Janome, PES vs DST, digitizing software comparisons)
+
+Each article links back into the product (Label Maker, Library, Generator).
+
+### 4E — Analytics and metrics
+
+Instrument from day one, report weekly:
+
+| Metric | Target (90 days post-launch) |
+|---|---|
+| Visitor → label started | > 25% |
+| Label started → preview generated | > 60% |
+| Preview → download clicked | > 40% |
+| Download clicked → ad completed | > 50% |
+| Download clicked → credit used | > 15% |
+| Download clicked → subscription started | > 3% |
+| Free library page → download clicked | > 20% |
+| File of day page → email signup | > 10% |
+| Credit purchase conversion (of visitors) | > 1% |
+| Subscriber churn (monthly) | < 8% |
+
+Recommended stack: **PostHog** (open source, self-hostable, free tier) for product analytics. **Plausible** or **Fathom** for privacy-friendly page views.
+
+---
+
+## Technical debt to address before Phase 3
+
+| Item | Notes |
+|---|---|
+| SSR / framework migration | React SPA with client-side routing is not indexable by Google. Evaluate Next.js or Astro before the content/SEO push. |
+| Error boundaries | Add React error boundaries around each page so one broken component doesn't crash the whole app. |
+| Loading states | All API calls need skeleton loading UI, not just spinner-on-button. |
+| Accessibility audit | Nav keyboard trap, modal focus management, ARIA labels — do a full a11y pass before public launch. |
+| Rate limiting | All API endpoints need rate limiting before the free tier is public (prompt injection, abuse). |
+| File size validation | Upload-to-stitch endpoint needs server-side file type and size validation. |
+| Environment variables | `GEMINI_API_KEY` and Supabase/Stripe keys need to be in Vercel environment settings, not committed. |
+
+---
+
+## Dependencies map
+
+```
+Phase 1 (done)
+    ↓
+Phase 2A (Label Maker wiring) ← no new dependencies, uses existing Python API
+Phase 2B (Generator wiring)   ← no new dependencies, uses existing Python API
+Phase 2C (Auth)               ← Supabase
+Phase 2D (Payments)           ← Stripe
+Phase 2E (Ads)                ← ad network SDK
+    ↓
+Phase 3A (Library DB)         ← requires Supabase (2C)
+Phase 3B (Daily file cron)    ← requires Supabase (2C)
+Phase 3C (Email)              ← requires auth (2C) + Resend/Postmark
+Phase 3D (SEO)                ← independent, but more valuable after 3A
+    ↓
+Phase 4 (Growth)              ← requires all of Phase 3
+```
+
+The cleanest Phase 2 order: **2C (auth) → 2D (payments) → 2A (label wiring) → 2B (generator wiring) → 2E (ads)**. Auth and payments first because they're the dependency for everything else.
