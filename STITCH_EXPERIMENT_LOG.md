@@ -3425,3 +3425,27 @@ tulip (partCount 0.192 = network fragmented into chunks) and ladybug (detailInte
 ARE LARGELY ONE ROOT CAUSE on line-art designs: stitched accent networks render thinner
 and more broken than source lines. Filed as task #27 (accent network quality session):
 width-matched stroke satin, curved-thin-stroke trail integrity, junction ownership (#24).
+
+### Accent Network Session, Part 1: Tip Extension KEPT, Eyespot Keep REVERTED (2026-06-12)
+
+TRAIL TIP EXTENSION (in _satin_column_segments): the medial trail inherently stops one
+inscribed-radius short of the boundary, so EVERY free stroke end (antenna clubs, leg tips,
+stroke caps) was left bare — visible as detached/dying line ends across all line-art
+designs. Free ends (endpoint_count == 1) now extend along the local end tangent by 0.9x
+the tip's boundary distance; bars clip rail-to-rail so cap bars shrink naturally.
+Ladybug: colorFidelity 0.783 -> 0.823, silhouette 0.927 -> 0.958, chaos 0.0849 -> 0.066
+(CLEANER — caps are coherent single-run bars), fidelity 78.0 -> 78.8. Battery round 28.
+
+EYESPOT ISLAND KEEP — implemented, measured, REVERTED (patch saved at
+tmp/p3a/network_session_wip.patch): keeping compact wide-cored enclosed islands (erosion
+discriminator vs the elephant's thin pink wedges) restored the ladybug's cream eyespots
+and detailIntegrity 0.0 -> 0.5, fidelity 78.8 -> 83.2. BUT the holes they punch in the
+black head fragment its medial walk: accent-block chaotic cells 7 -> 14, chaos 0.131 FAIL,
+engine 90 (tiny_region_risk). The keep is RIGHT long-term; it lands after the satin-column
+walk handles holes/junctions cleanly. Gates rule; evidence and re-apply path logged.
+
+DIAGNOSIS STATE for the remaining ladybug gap (78.8 vs 90): all 4 failing detail parts are
+cream-in-black (2 eyespots ~11mm2, 2 pockets ~4mm2 — the island merge); antenna STALKS
+(~1mm curved strokes) drop entirely so clubs float detached; head-top renders as crossing
+bars (wide-band-with-holes geometry defeats both the stroke walk and the 2.25mm wide-core
+rule). These are one cluster: the network walk on wide/holed/thin-mixed geometry.
