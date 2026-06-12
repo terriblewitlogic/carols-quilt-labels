@@ -3399,3 +3399,29 @@ small-denominator noise), all in the sketchy hand-drawn outline strokes of the s
 (wobbly double lines — borderline for the prompt's bold-uniform-outline rule). The design
 itself converts cleanly (crisp seeds, solid pink). Two follow-ups filed: chaosFrac needs a
 minimum-cell-count confidence floor; source gate could flag sketchy/double-line styles.
+
+### Class B Closed: Two Kill-Chains Traced and Fixed (2026-06-12)
+
+LADYBUG CREAM HEAD (backend 0eff63f): cream (230,205,160 — 0.9% of canvas, lum 207,
+chroma 70 beside dark red) matched _prune_alias_stroke_colors' light_edge AA-halo profile
+and was deleted whole. Discriminator fix: WIDTH, not canvas fraction — ribbons stay 1-2px
+wide at any length; a >=10mm2 component surviving 0.8mm erosion is a region. Engine
+86->100, fidelity 71.6->76.8. Round 26 battery: suite identical, AA fixtures still clean.
+
+LADYBUG UPPER SPOTS (backend b1dad7d): 53mm2 disks inside the accent network comp failed
+the satin-column stroke gate (correctly) and fell into structural-outline suppression,
+which ate them rim-inward to 2mm2 crumbs (the red body's hole boundary "owns" their
+rings) — rendered as bare rings with hexagon centers. Compact blobs (>=12mm2,
+compactness >=0.35, 2mm-wide core) now bypass suppression PER POLY (the documented
+"compact filled black details stay intact" contract was only per comp). They take the
+blob-region path: satin border + serpentine fill. Fidelity 78.0. Round 27: suite identical.
+
+CLASS C/D CONVERGENCE MEASURED: the ladybug palette after posterize+thread-snap is nearly
+exact (red 240/30/30 vs source 224-240/32/32, cream preserved) — colorFidelity 0.78 is NOT
+palette drift. The per-pixel loss concentrates where source has thick black corridors but
+the stitch renders thinner/broken line art with underpaint visible. Same signature on the
+tulip (partCount 0.192 = network fragmented into chunks) and ladybug (detailIntegrity 0.0
+= antennae shattered into detached stubs — see ladybug_v4 worst_crop_0). CLASSES C AND D
+ARE LARGELY ONE ROOT CAUSE on line-art designs: stitched accent networks render thinner
+and more broken than source lines. Filed as task #27 (accent network quality session):
+width-matched stroke satin, curved-thin-stroke trail integrity, junction ownership (#24).
