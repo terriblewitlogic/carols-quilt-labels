@@ -33,9 +33,11 @@ New visual components (in `scripts/visual_fidelity.py`, v1 built and calibrated)
 **Verdict shape:** a scorecard, not one number. `shippable = engine ≥ 96 AND hatch ≥ 90
 AND fidelity ≥ 90 AND no critical defect flags`. Composite used only for ranking candidates.
 
-**Crucially: thresholds are calibrated to the user, not to me.** First calibration session:
-user rates ~15 results (shippable / close / no). Gate weights and thresholds are fit until
-the gate predicts those ratings. Recalibrate whenever the user overrules the gate.
+**The verdict is owned, not outsourced.** Gates are assistants, not arbiters: they rank,
+flag, and catch regressions, but the shippable call is made by eyes at full zoom against
+the professional reference designs in `example files/` — the same bar a customer applies.
+No rating sessions, no asking the user to grade slop: if a result needs a committee to
+decide whether it's good, it isn't.
 
 ## 2. Testing process — never overstate quality again
 
@@ -105,18 +107,12 @@ When machine time exists: sew gate-passing designs, photograph, compare against 
 Validates that the gate chain actually predicts fabric. Until then, every report carries
 the caveat that fabric is unverified.
 
-**4f. Human calibration cadence.**
-Beyond the first session (see §1): every ~25 fresh generations, a 10-minute user rating
-pass to re-anchor thresholds. The gate exists to predict the user's judgment — it must
-keep learning it.
-
 ---
 
 ## Sequence
 
 1. Fidelity gate v2 (detailIntegrity, partCount, fillSolidity, paletteAgreement) + scorecard runner
 2. Source-side gate + defect taxonomy tagging
-3. First human calibration session (user rates current A/B set + next sweep)
-4. Fresh-image loop begins (v3 prompt, new subject each round, museum accumulates)
-5. Engine fixes in defect-frequency order (small-region color, holes, fragmentation first candidates)
-6. Multi-candidate selection lands in product once the gate chain is trusted
+3. Fresh-image loop begins (v3 prompt, new subject each round, museum accumulates)
+4. Engine fixes in defect-frequency order (small-region color, holes, fragmentation first candidates)
+5. Multi-candidate selection lands in product once the gate chain is trusted
