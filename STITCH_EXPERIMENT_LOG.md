@@ -3273,3 +3273,41 @@ points mildly lumpy): queued defect = satin corner MITRE treatment for sharp poi
 instead of continuous fans. The neatness instrument is now trusted; the engine work that
 remains visible at zoom: badge star mitres, strawberry crown bare-patch refinement (owner
 bars extending into junctions), and a fresh-subject iteration to prove generalization.
+
+### Corner Mitres + Rotation Thinning (2026-06-12)
+
+Two corner treatments landed:
+1. SATIN BORDER MITRE (_satin_cover_entries, mitre_px=0.45*half): sharp-corner fans pulled
+   their pivot progressively inward along the rotating normal — penetrations spread, points
+   taper like professional tips. (The badge's star turned out to be STROKE satin, so this
+   fix benefits border corners elsewhere.)
+2. ROTATION THINNING (trail bars): a bar is skipped when the tangent spun > 32 degrees
+   since the last emitted bar with < 1.6x density arc advance — angularly-stacked apex bars
+   removed. elephant chaos 0.083 -> 0.048, sparrow 0.166 -> 0.136.
+
+BADGE: untouched by both (stitch-identical) — its mild star-point lump lives elsewhere in
+the stroke-satin path; at 0.214 vs ceiling 0.185 it remains correctly flagged by the gate
+as a true mild defect rather than chased at diminishing returns. Ceiling recalibrated to
+0.185 (two-sided-calibrated reference band max 0.172 + pad). Round-24 battery running.
+
+### Iteration 4: Lighthouse — the Dense-Lineart Class Resurfaces (2026-06-12)
+
+Gate-passing source (attempt 1 of retry loop: flat 0.1%, micro 0.057, 24 regions) converted
+NOT SHIPPABLE: engine 92, fidelity 70.1 (fillSolidity 0.709, silhouette 0.771, partCount
+0.259), neatness PASS 0.172. Eyes: tower body decent (stripes, windows); the LANTERN TOP
+is a black spaghetti mass — gallery/railings/roof swallowed by the black network.
+
+TWO FINDINGS:
+1. SOURCE GATE CALIBRATION: micro-debt 0.057 squeaked under the 0.06 line because the top
+   CONCENTRATED all micro-density while the global average passed. Same lesson as chaos
+   clusters: gates need LOCAL concentration bounds, not just global fractions. (Queued:
+   micro-debt in any 15%-of-canvas window.)
+2. ENGINE (the deepest remaining defect class, now twice-confirmed): DENSE FINE LINE ART
+   AT SMALL SCALE (fox face, lighthouse lantern) — the dark-line reservation/cleanup
+   absorbs the fine structure and everything between it into black mush. Needs its own
+   dedicated session: posterize/reservation/min-feature interplay below ~2mm structure
+   scale. The honest alternative pending that fix: the source gate keeps such designs out
+   (with the concentration bound, this lighthouse would have been REGEN'd).
+
+Iteration 4 verdict chain working as designed: fresh subject -> new manifestation of a
+known class -> instrument refinement + engine defect precisely filed.
