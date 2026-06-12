@@ -2918,3 +2918,104 @@ engine gate (q >= 96 + battery metrics) -> visual review -> human cherry-pick. T
 quality score becomes the slop filter; prompt v2 raises the ceiling worth filtering for.
 NOT yet shipped to production worker — needs one validation sweep across ~8 subjects when
 the Imagen rate limit resets (4 images burned the quota this round).
+
+### Prompt v3: Never Name the Medium (2026-06-11)
+
+User caught a v2 failure I missed: calling the target style "embroidery patch / applique
+clip art" steered Imagen into rendering FINISHED EMBROIDERY - the fox came back with a
+patch border, the sunflower with literal stitch-mark rings and thread-vein texture (which
+then posterized into noise and helped wreck its conversion). The closing "no mockup" guard
+lost to the opening frame. v3 reframes: the style vocabulary is pure illustration ("die-cut
+sticker / storybook / printed-ink"), the medium is never named, a positive instruction
+("must look like flat printed ink") replaces reliance on the negative list, dashed/dotted
+lines are banned explicitly, and the textile negative list is expanded and moved to the
+end as an absolute. To validate in the v3 sweep alongside the complexity governor.
+
+### Course Correction: Visual Fidelity Is Now Measured (2026-06-11)
+
+User verdict on the A/B results at zoom: "not even remotely close to shippable" — correct,
+and the misrepresentation was mine: mechanical gates (engine q, hatch-likeness) measure
+sewability, not appearance. Three concrete failures triaged:
+1. WASHED-OUT FILLS: preview rendered fill rows at ~1/3 thread width (0.22mm strokes on
+   0.6mm spacing) — vermilion read as pink while the JEF threads were CORRECT. Fixed:
+   thread-realistic preview widths (fills 0.52-0.6mm). Fox now reads solid vermilion.
+2. PRE-STITCHED SOURCES: prompt v2's "embroidery patch" vocabulary made Imagen render
+   finished embroidery (stitch-mark rings on the sunflower, patch borders). v3 never names
+   the medium ("die-cut sticker / storybook / printed ink"), leads with THE ONE RULE
+   (flat solid color fills), bans dashed/dotted lines, expanded textile negatives.
+3. NO FIDELITY INSTRUMENT: scripts/visual_fidelity.py now scores source-vs-stitched
+   (colorFidelity/regionRecall/silhouetteIoU -> 0-100). Calibration: washed fox 54.4 and
+   broken sunflower 44.0 (both engine-q100/90 !), fixed fox 90.9, faithful sunflower 84.7
+   — the gate flags exactly what the user flagged.
+
+TEXT WORK PARKED per user (#22 pending) — image quality first. Remaining known fidelity
+gap: small-region color fidelity (fox face whites/oranges posterized into dark mush).
+NEXT: v3 prompt sweep across ~8 subjects when Imagen quota resets, scored by BOTH gates
+(fidelity >= 90 AND engine q >= 96 as the provisional shippable bar), results on the
+review page for human cherry-pick.
+
+### Fresh-Image Loop, Iteration 0 (fox) — 2026-06-11
+
+Scorecard runner verdict: NOT SHIPPABLE (engine 100 PASS, fidelity 84.0 FAIL) — gates and
+eyes now agree. Worst-crop rule auto-rendered the diagnostic crops.
+
+DIAGNOSIS TRAIL (with one honest dead end):
+1. Probe-box error: sampled "head" stats from a box dominated by canvas around the ears →
+   chased a phantom "white forehead reserved as background" for several fixes. The
+   reservation overlay render proved the reservation CORRECT. LESSON ENFORCED: visualize
+   masks before diagnosing from numbers. Surroundedness reservation change REVERTED
+   (unvalidated, no demonstrated benefit).
+2. KEPT (correct hardening, battery pending): leak-proof background reservation (erode
+   before connectivity, bounded dilation back — defeats AA pinhole floods), connectivity-
+   aware _is_background_color (border_frac param: enclosed white = white THREAD), duplicate
+   -merge excludes the border-owning label.
+3. REAL ROOT CAUSE (defect: solidity-gap): face surface s8 (#c3915a, 327mm2) planned as
+   same_color_underpaint — half-density base expecting top coverage that never comes (the
+   black face marks are tiny). Customer-facing surface = sparse underpaint. The visible-
+   member computation wrongly treats the face as covered. Also color-drift: light-orange
+   face clustered to muddy tan thread (palette wasted 2 slots on snap-duplicates).
+
+NEXT (iteration 0 fix phase): same_color_underpaint visibility logic — a surface whose
+"covering" details are < ~40% of its area must get a full-density top fill; then the
+snap-duplicate cluster waste (re-cluster until k distinct threads). Then regression battery
++ fresh subject (iteration 1) when Imagen quota resets.
+
+### Iteration 0 Fix Phase, Part 1: Enclosed Whites Stitch (2026-06-11)
+
+Bisect of the background-hardening bundle after leaf_single regressed (corner junk
+stitched, q82, +1087 st):
+- (A) eroded flood reservation + border band — REVERTED. Motivated by the probe-box
+  phantom; shrank thin-margin reservations below the 8% reserve threshold, which flipped
+  reserve_background off and let faint source corner junk stitch as dark line art. Also
+  exposed a latent dtype bug (`~False` int coercion in the dark-line mask) — that fix KEPT.
+- (B) connectivity-aware _is_background_color (border_frac param) — KEPT (defense; no
+  fixture impact).
+- (C) duplicate-merge excludes the border-owning label — KEPT and it is THE win:
+  badge_circle_star's white star now STITCHES as white thread (was bare fabric, the
+  white cluster used to merge into the background label). leaf q100 restored (1173 st,
+  +285 = legit white accents now stitching), badge q100 (2336 st), elephant baseline.
+
+Round-16b full battery running to certify B+C+dtype. The solidity-gap fix
+(same_color_underpaint visibility — the fox face) is next.
+
+### Iteration 0, Fix Phase 2: Instrument Solid; Face Defect Root Cause Refined (2026-06-11)
+
+FIDELITY GATE v2.1 COMMITTED (7cf49f3): nearest-colour assignment, AA palette dedup,
+morphologically-closed partCount. Calibration triple reads true: broken sunflower 40.8,
+faithful-simple sunflower 90.0, fox 86.9.
+
+ENCLOSED-WHITE FIX CERTIFIED + COMMITTED (ada1db1, round 16b: all gates clean, hatch 96.5,
+badge's white star stitches).
+
+TRIED AND REVERTED: thread-snap collision recluster (top-up KMeans k until distinct
+threads). Ineffective for its motivating case — the fox's palette collisions are between
+RESERVED layers (dark-line/accent) and KMeans clusters, not cluster-vs-cluster; the loop
+never sees them. Needs reserved-aware dedup instead.
+
+FACE DEFECT ROOT CAUSE (refined by 240dpi head zoom): the fox face renders as a black mask
+because the DARK-LINE RESERVATION absorbs the whole face — dense facial features (eyes +
+muzzle + brow strokes close together) pass the stroke-like component test and the entire
+face area becomes black line-art network. Defect class: detail-mush via over-greedy line
+reservation. NEXT: (1) dark-line mask density/coverage cap per local area (a region that is
+>50% "line" is a dark FILL, not line art), (2) reserved-vs-cluster thread dedup,
+(3) iteration 1 fresh subject.
