@@ -3112,3 +3112,97 @@ the museum with the balloon as its exhibit.
 KEPT (round-19 battery running): scale-relative detail cap, uniform-field detail budget,
 complex_region_count advisory — the strawberry trio, re-applied after a too-blunt git
 checkout discarded them (verified: strawberry SHIPPABLE 100/93.1, elephant baseline 5947).
+
+### Iteration 3: Holly Wreath — Source Gate Stress Test (2026-06-11)
+
+The wreath is a deliberate dual probe: donut topology (interior-holes defect class) and
+naturally-repeated parts (leaves/berries vs the region budget).
+
+- Attempt 1: REGEN — 35 regions (> 24). No engine time wasted on slop: the gate did its job.
+- Attempt 2: REGEN — 49 regions + 9% micro-detail debt. Imagen wants dense foliage for
+  wreaths regardless of the v3 "fewer, larger" language.
+- Attempt 3 (in flight): FEEDBACK-AUGMENTED REGENERATION — the retry prompt now carries
+  the gate's measurements ("previous attempts drew 49 regions; limit 18; at most 12 large
+  leaves"). If this pattern works it becomes the production regeneration flow: gate
+  verdicts feed back into the next attempt instead of blind retries.
+
+PRODUCT INSIGHT either way: subject classes with naturally-repeated parts (wreaths,
+mandalas, gardens) are the prompt's hard cases — the gate + feedback loop is how the
+product handles them without shipping slop or burning engine time.
+
+### Iteration 3 Pivot: Wreath Conceded to the Museum (2026-06-11)
+
+Attempt 3 (gate-feedback prompt) made it WORSE: 54 regions, 22% micro-debt. Three verdicts
+= conclusive: Imagen will not draw a budget-compliant wreath regardless of instruction —
+the dense-foliage prior wins. Museum entry, defect class 'overcomplex-source/subject-prior'.
+PRODUCT IMPLICATIONS: (1) feedback-augmented regeneration is NOT reliable as the only
+retry strategy; (2) multi-candidate generation + gate selection (plan 4d) is the honest
+path for hard subject classes; (3) the generator UI should set expectations for
+naturally-dense subjects (wreaths, mandalas, gardens). Iteration 3 pivots to a fresh
+subject (sleeping cat) per the loop.
+
+### Accent-Colour Destruction: FIXED AT THE TRUE ROOT (2026-06-11)
+
+The dedicated diagnosis the three failed attempts demanded paid off in three steps:
+
+1. ELEPHANT MERGE CENSUS (read-only spy): exactly 6 enclosed-island forced merges, ALL
+   pink->black slivers of a label with a huge body elsewhere (the shadow wedges). The
+   elephant NEEDS those merges; the balloon's green must not take them. DISCRIMINATOR
+   FOUND: merge slivers of colours that live on elsewhere; KEEP islands that constitute
+   most of their label (sole-colour accents). Landed as the >30%-of-label guard in the
+   enclosed shortcut — elephant/sparrow EXACT baseline.
+2. That alone could not save the green (it never had its own label — camouflaged as olive
+   then coral before any guard could see it). PRESERVATION DIAGNOSIS: green passes every
+   salience/novelty gate (novelty 8550) but ranked 4th behind tonal variants of existing
+   hues; ranking changed to HUE NOVELTY first (a new hue is identity; a new tone is nice).
+3. STILL blocked: _choose_accent_replacement_label found ZERO sacrificeable slots — the
+   duplicate-slot offering picked the LARGEST member of each duplicate group (the 72%
+   white background, always rejected by the size cap) instead of the redundant small one.
+   Fixed: offer the smallest members. The balloon now preserves BOTH green (#b9a564 khaki
+   snap, 1010/1364 px on its own label) and the brown basket accent (#a05a28).
+
+Canaries exact through all three changes: elephant 5947, bee 1678, sunflower 1640,
+badge 2336. Round-20 battery running. Balloon fidelity remains 81.3 — its detailIntegrity
+penalty is dominated by the OTHER open defect (ragged black swag/basket network), not
+colour. Iteration 3 (cat): source gate PASS on loop attempt 1 (the generate-gate-retry
+loop works); conversion 86/86.4 — calico patch fragmentation + the v3 prompt's "die-cut
+sticker" wording induced a literal white sticker keyline (v4 prompt note).
+
+### USER CORRECTION #3: The Strawberry Is Not Shippable — Noodling (2026-06-12)
+
+At full zoom the strawberry's black work is a mess: stray single-stitch lines crossing
+finished satin (leaves, border), doubled/overlapping passes, chaotic bar angles at
+junctions, seed halos. The SHIPPABLE-CANDIDATE verdict was wrong — the gates measure
+colour/region presence and sewability, NOT stitch neatness.
+
+ROOT CAUSE OWNED: rounds 10-13 traded VISIBLE CARRIES for trim metrics. The "covered
+travel" same-colour rule ("on top of own thread is invisible") is FALSE at zoom — a travel
+line crossing satin bars perpendicular sits on top as a stray ridge. ~10 hatch points were
+bought at a disqualifying visual price. Jumps/trims are mechanically costly but visually
+clean; the trade was backwards.
+
+FIX 1 LANDED: same-colour corridors and same-colour straight-coverage REMOVED — carries
+hide only under LATER stitching. Strawberry leaf-crown strays GONE at zoom (verified).
+Engine score dropped 100 -> 92 for the CLEANER version — the scorer still can't see
+noodling and now punishes the honest jumps. Round-21 battery pricing the trade suite-wide
+(rounds 10-13 trim/jump gains will partially reverse — accepted, visual wins).
+
+REMAINING (the now-dominant defect class): satin-network junction chaos — bars at
+conflicting angles and doubled coverage where trails meet (strawberry crown, balloon
+basket, fox ears, cat outline). Needs: (a) a NEATNESS metric computed from stitch geometry
+(stray-crossing count, overlap density, local bar-angle coherence) added to the scorecard
+so the gates see what zoom sees; (b) the junction-rendering engine fix.
+
+### Neatness Gate Landed; Strawberry Correctly Fails It (2026-06-12)
+
+scripts/neatness.py: crossingRate / overworkFrac / chaosFrac from raw stitch geometry,
+bands from the 18 reference JEFs. chaosFrac discriminates (refs 0.074-0.231): strawberry
+0.302 (junction noodling — FAILS, matching the user's zoom), elephant 0.206 (in band,
+matching its clean look), sparrow 0.325 (its black linework is genuinely busy), balloon
+0.252. Scorecard verdict now requires all three gates; the strawberry's SHIPPABLE claim is
+formally retracted by instrument.
+
+NEXT ENGINE TARGET (the path to any future shippable verdict): satin-network junction
+rendering — bars at conflicting angles + doubled coverage where medial trails meet.
+Affected: strawberry crown 0.30, sparrow 0.33, balloon 0.25 — target: chaosFrac <= 0.235
+suite-wide. This is the quality ceiling now.
