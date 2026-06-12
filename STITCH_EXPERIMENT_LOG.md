@@ -2885,3 +2885,13 @@ clear dimensional depth per satin bar (shadow underside + directional highlight;
 read as raised thread, not flat ink) and hides travel-stitch clutter that the classic
 preview exposes near details. Full-scale difference is subtle but richer. Product now
 defaults to preview_style='thread' (embroidery-mom e3b63b8); API default stays classic.
+
+### 🚀 PRODUCTION DEPLOY (2026-06-11)
+
+The full campaign is LIVE. Backend main fast-forwarded bd39628 -> a874e8f (entire
+hatch-quality-2026-06 branch: 16k insertions), container image 74b794cc deployed to
+Cloudflare (embroidery-stitch-backend.witlogic.workers.dev, direct access firewalled);
+embroidery-mom main e3b63b8 deployed (worker + SPA, thread previews default). Production
+smoke test through the real route (/api/stitch on the mom worker): bee_simple converted in
+24.4s, q100, 1,674 stitches, 6 jumps — the round-15 certified numbers, with thread preview
+active. Operational hardening plan written as ROADMAP Phase 2H (launch gate for payments).
