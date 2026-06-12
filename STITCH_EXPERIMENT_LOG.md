@@ -3333,3 +3333,69 @@ D. Dense fine line art (lighthouse, fox face) — filed, deep session.
 
 The ladybug is one fix from gates-plausible (body/spots/legs all decent). The instruments,
 prompt, and gate chain all behaved exactly as designed throughout the sweep.
+
+### Phase 3a: Stitch-Order-Aware Seam Overlap — Root Cause Was Deeper (2026-06-12)
+
+The specced version (earlier fill expands 0.3mm under later adjacent fill) was implemented
+and FIRED ON NOTHING: tulip petals are never directly adjacent — every "seam" is a dark
+line-art CORRIDOR 0.87-2.0mm wide between fills. Bisecting the actual crack mechanism at
+the central tulip seam found a decision-order bug plus a fill-contract gap:
+
+1. INSET-WITHOUT-OWNER BUG (the crack engine): _select_outline_mode picked satin -> fill
+   inset 0.8mm to the satin inner rail -> at EMIT time the satin was demoted to running
+   ('dark_band_owner' >= 35% ring coverage) -> inset with no covering band = bare moat all
+   around the ring. The banned "fill shrink without an edge owner" defect, reintroduced by
+   decision ordering. FIX: demotion now computed BEFORE fill geometry (dark_band_demoted).
+2. FULL UNDERPAINT FOR DEMOTED RINGS: when the dark band owns the ring and sews last, the
+   fill now covers the WHOLE polygon (no corridor subtraction, no inset) and row ends
+   extend -0.3mm under the band. This is what the satin-inset branch accidentally did well
+   (whole-surface continuity) minus the moat. Subtracting interior corridors
+   (_outlined_fill_polygon) is what fragmented rows into coherence-risk confetti.
+3. Corridor-strip polygon expansion (two drafts: whole-perimeter, then corridor-local)
+   REVERTED with evidence: strips parallel to scan rows fragment rows -> fillCoherence
+   34-60, engine 100->34/40. Polygon unions are the wrong tool for corridor coverage;
+   whole-surface underpaint + row-end extension is the right one.
+4. fill_fill direct-seam bands KEPT (0.3mm, earlier-under-later, accent-subtracted,
+   never bidirectional) for flat-adjacency styles; reconstructed underpaint supports are
+   EXCLUDED (their seams always sit under the accent network; bands against support
+   geometry just union sliver strips).
+
+NEATNESS METRIC CORRECTED + RECALIBRATED (per-colour-block chaos): full underpaint under
+line art tripped chaosFrac 0.084->0.202 — the metric was scoring HIDDEN layering as hash
+(multi-colour cells: red rows under black bars). chaosFrac now judges coherence per colour
+block within each cell — what a customer sees noodling in is one thread's own work, and a
+stray can no longer hide inside another colour's coherent mass. Two-sided recalibration on
+the 18 reference JEFs: band 0.0113-0.0998 (was 0.044-0.172), ceiling 0.185 -> 0.107.
+Falsification pair re-verified: noodly strawberry 0.1753 FAIL / shippable strawberry
+0.0904 PASS.
+
+TULIP RESULT (the class-A flagship): central seam crack VISUALLY HEALED (worst-crop
+zoom confirms red continuous under the line), engine 100, chaos contribution of the seam
+work = ZERO (all 16 remaining chaotic cells are accent-block junction spray = task #24).
+Fidelity 78.3 -> 78.9 only: the tulip's real fidelity loss was never the seam — it is
+fragmented/dropped black line art (partCount 0.192, detailIntegrity 0.333), class D.
+
+### Round 25 Battery (Phase 3a) + Grader Calibration (2026-06-12)
+
+FULL BATTERY with Phase 3a (early demotion + full underpaint + fill_fill bands):
+- Format regressions: 48/48 status 200 (6 formats x 8 cases). Uploaded suite: 6x quality 100.
+- Quality gate: elephant B-/90 -> A/100 (the underpaint-heavy fixture — exactly what full
+  underpaint targets), sparrow B-/89 -> B/94, sunflower canary 91.2 -> 94.0 hatch. Suite
+  hatch average 94.9 -> 94.8 (badge 100 -> 97.6, leaf_single 94.7 -> 90.6 — both in band).
+- ONE regression: bee A/100 -> B-/87. Visual zoom verdict: the NEW bee is BETTER — the old
+  one had white moats between yellow segments and black stripes; the new one fills solid to
+  the line. The grader was penalizing honest coverage: its fillSegmentDensityPerMm2 > 0.12
+  bound encodes ~14mm expected rows — impossible geometry inside a 7mm stripe. FIX
+  (task #18 class): density bound is now size-aware (detail surfaces 0.30 = 5mm rows at
+  0.6mm pitch). Bee re-grades 100/no-warnings. Same calibration family as the jump-rate fix.
+
+LIBRARY SWEEP RESCORE (same sources, Phase 3a engine): sailboat engine 86 -> 100,
+watermelon 64 -> 100, ladybug fidelity 69.5 -> 71.6. Remaining blockers are class B
+(ladybug accent kill-chain), class C (colour drift), class D (line-art quality) — fidelity
+70-83 everywhere, no longer seam-driven.
+
+WATERMELON CHAOS 0.2222 DIAGNOSED: 6 chaotic cells of only 27 qualifying (sparse design =
+small-denominator noise), all in the sketchy hand-drawn outline strokes of the source
+(wobbly double lines — borderline for the prompt's bold-uniform-outline rule). The design
+itself converts cleanly (crisp seeds, solid pink). Two follow-ups filed: chaosFrac needs a
+minimum-cell-count confidence floor; source gate could flag sketchy/double-line styles.
