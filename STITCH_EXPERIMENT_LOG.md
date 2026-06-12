@@ -3449,3 +3449,31 @@ cream-in-black (2 eyespots ~11mm2, 2 pockets ~4mm2 — the island merge); antenn
 (~1mm curved strokes) drop entirely so clubs float detached; head-top renders as crossing
 bars (wide-band-with-holes geometry defeats both the stroke walk and the 2.25mm wide-core
 rule). These are one cluster: the network walk on wide/holed/thin-mixed geometry.
+
+### Accent Network Session, Part 2: Stray-Energy Connector Blocking (2026-06-12)
+
+THE THIRD HOME OF THE STRAWBERRY COMPLAINT: the converter sewed same-component outline
+gaps <=8mm as straight travel runs ("same-colour thread blends with whatever it crosses"
+— FALSE between separated line art), and gaps just over the limit emitted as single-record
+untrimmed JUMPS — thread dragged across fabric, invisible in previews (fabric-truth gap:
+the daisy dragged black over white petals silently; previews never render jumps).
+
+DISCRIMINATOR CALIBRATION (three iterations, measured on opposing fixtures):
+1. any-uncovered-point @0.6mm: blocked the ladybug strays ✓ but also the daisy's petal-
+   wedge hops -> trim storm (7->19), hatch 92.6->87.6, zero visible change. REJECTED.
+2. contiguous-bare-span >1.8mm/3mm: INVERTED the cases — the ladybug stray's bare run is
+   interrupted mid-way by the centre stripe (two ~2.5mm halves -> unblocked) while daisy
+   hops are 3-4mm contiguous (-> blocked). REJECTED with the measurement.
+3. STRAY ENERGY = integral of (distance beyond 0.6mm to own stitched polylines) over the
+   hop (~1mm sampling): daisy junction hops ~0-0.6mm2, ladybug open-field diagonals
+   1.5-8.7mm2. Threshold 0.45mm2. KEPT — round 30: hatch daisy 92.9 (ABOVE its r28
+   baseline), suite 6xA + 2xB/94, avg 94.1, 48/48 formats. Backend commit 4af9b8b.
+
+Blocked connectors force-trim (>3mm): an untrimmed jump drags the same visible thread.
+Real cure for the daisy's 5-8.5mm ring-to-ring hops = outline ROUTING (task #28).
+
+STRAWBERRY TOUCHSTONE under the recalibrated gate: engine 100, fidelity 93.8 PASS
+(improved), chaos 0.1211 vs 0.107 — the overage is 6 fresh chaotic cells ALL at the crown
+junction hub + crown leaf tips (rendered overlay: tmp/p3a/strawberry_fresh_chaos.png).
+That is task #24's exact geometry, now precisely localized. #24 (junction hub ownership)
+is the next session opener; the saved eyespot patch re-applies after it.
