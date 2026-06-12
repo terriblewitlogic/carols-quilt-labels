@@ -3047,3 +3047,68 @@ DEFECT QUEUE FROM ITERATION 1:
 
 The loop is working exactly as designed: fresh subject, source attribution clean, one
 precise engine defect class identified for root-cause fixing before iteration 2.
+
+### Iteration 1 Fix Phase: First SHIPPABLE-CANDIDATE (2026-06-11)
+
+Three root-cause fixes, each verified on the strawberry scorecard:
+1. SCALE-RELATIVE DETAIL CAP (_classify_color_components): the cap dropped same-scale seed
+   dots beyond MAX_DETAIL_COMPONENTS=24 (seeds sewed as bare holes). Now only sub-scale
+   specks (<0.4x median of principal details) drop; uniform fields keep up to 60.
+   Fidelity 92.1 -> 93.1, regionRecall 1.0 (every seed present).
+2. UNIFORM-FIELD DETAIL BUDGET (_detail_budget_assessment): 30 seeds at 7.7-9.6mm2 + one
+   780mm2 outlier wrecked the variance test -> median-band field test (>=75% of details
+   within [0.5x, 2x] median). Budget 84/'review' -> ok; tiny_region_risk stopped firing.
+   Engine 82 -> 92.
+3. complex_region_count -> pure advisory (weight 8 -> 0): region count PREDICTS complexity
+   but jump rate / routing / budget gates measure the OUTCOME — a clean 30-dot design was
+   pre-punished -8 while sewing at 0.76% jumps. Engine 92 -> 100.
+
+STRAWBERRY: engine 100 + fidelity 93.1 = first SHIPPABLE-CANDIDATE through both gates.
+Eyes-at-zoom verdict: close — clean seed field, solid fills; remaining nits = thin white
+seed halos (fill avoidance margins; pros run fill under small details) and salmon-vs-orange
+drift (reserved-vs-cluster thread dedup still queued). Round-17 battery running.
+
+### Iteration 2: Hot Air Balloon (2026-06-11)
+
+SOURCE GATE: PASS clean (flat 0.1%, micro 0, 13 regions, 6 colours) — v3 prompt 2-for-2.
+SCORECARD: engine 100 PASS, fidelity 81.3 FAIL — detailIntegrity 0.1 caught the defect:
+the GREEN basket accents (sandbags, 1,364px ≈ 14mm²) vanished entirely.
+
+KILL CHAIN TRACED (normalization spy): green assigned to olive label (reasonable nearest)
+-> absorb_antialias_edge_tones moved it to CORAL (guards compare label colours, not the
+component's actual pixels) -> prune_low_value_satellites moved it to BLACK (the enclosed-
+island shortcut force-merges islands fully surrounded by a forbidden label — the
+eye-highlight rule misfiring on saturated accents).
+
+FIX LANDED (round-18 battery running): _replace_mask_with_neighbor_label gains
+max_color_dist guard (refuses re-labelings beyond a colour distance; the island is KEPT) —
+wired at the satellite-prune site (140.0). Green now survives as coral: visible, wrong hue.
+IDEAL (queued): _preserve_saturated_accent_labels should claim the green as its own thread;
+a chroma 80->70 threshold tweak was tried and REVERTED (ineffective — the preservation
+fails for a deeper reason than the salience gate; needs its own diagnosis).
+
+PROCESS VIOLATION (own goal, logged per discipline): engine edits made while round-17
+format regressions were still running — formats contaminated (acceptance suites finished
+pre-edit and were clean: ZERO drift from the detail-field changes, primitives 98.5).
+Round 18 reruns everything over the final tree.
+
+### Iteration 2 Closure: Green Defect OPEN, Three Failed Approaches Recorded (2026-06-11)
+
+The balloon's green-accent destruction resisted three fixes, each reverted with evidence:
+1. Blanket max_color_dist guard at the satellite-prune site: saved the green (as coral)
+   but elephant HALVED its stitches (5947 -> 2896), sparrow/bird/tiny drifted, hatch
+   96.5 -> 95.1. The colour-blind merges are load-bearing for the underpaint chain.
+2. _preserve_saturated_accent_labels chroma 80 -> 70: ineffective (green still lost; the
+   preservation fails deeper than the salience gate — candidate scoring or slot choice).
+3. Saturated-island exemption in the enclosed-merge shortcut: saved the green AND halved
+   the elephant again — the shortcut force-merges saturated pink slivers the elephant's
+   reconstruction depends on.
+
+VERDICT: the enclosed-island/satellite cleanup chain has at least three constituencies
+(eye highlights, elephant underpaint, accent survival) and needs a dedicated diagnosis of
+the elephant pathway before any change. Defect 'accent-colour-destruction' stays OPEN in
+the museum with the balloon as its exhibit.
+
+KEPT (round-19 battery running): scale-relative detail cap, uniform-field detail budget,
+complex_region_count advisory — the strawberry trio, re-applied after a too-blunt git
+checkout discarded them (verified: strawberry SHIPPABLE 100/93.1, elephant baseline 5947).
