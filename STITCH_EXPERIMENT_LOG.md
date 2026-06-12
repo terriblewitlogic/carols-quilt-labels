@@ -3311,3 +3311,25 @@ TWO FINDINGS:
 
 Iteration 4 verdict chain working as designed: fresh subject -> new manifestation of a
 known class -> instrument refinement + engine defect precisely filed.
+
+### First Library Sweep: 0 of 6 Shippable — Generalization Gap Measured (2026-06-12)
+
+Six sweet-spot subjects through the full pipeline. Source gate worked (acorn correctly
+never passed — 3 attempts of dense caps; sailboat/teapot regenerated to clean sources).
+ALL conversions failed gates: fidelity 69.5-82.5, engine 64-100. The fixture suite being
+pristine while fresh subjects fail = the generalization gap, now measured and honest.
+
+DEFECT CLASSES NAMED (by scorecard components + eyes):
+A. SEAM GAPS between adjacent fills (tulip: white cracks between petals; watermelon
+   silhouette 0.747) — regions butt edge-to-edge, fabric shows at every joint. This is
+   Phase 3a stitch-order-aware overlap (task #9) — specced in the ORIGINAL plan, never
+   implemented, now the top fidelity killer (drives partCount/detailIntegrity down
+   everywhere). PROMOTED TO TOP OF ENGINE QUEUE.
+B. SOLE-COLOUR ENCLOSED ACCENTS still dying via some path (ladybug cream head -> black,
+   meaningful_color_dropped, detailIntegrity 0.0) — the enclosed-merge guard + slot fixes
+   didn't cover this configuration. Needs the kill-chain trace (the balloon method).
+C. COLOUR DRIFT: colorFidelity 0.70-0.83 across all (thread snap + cluster centers).
+D. Dense fine line art (lighthouse, fox face) — filed, deep session.
+
+The ladybug is one fix from gates-plausible (body/spots/legs all decent). The instruments,
+prompt, and gate chain all behaved exactly as designed throughout the sweep.
