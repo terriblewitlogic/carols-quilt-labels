@@ -2895,3 +2895,26 @@ embroidery-mom main e3b63b8 deployed (worker + SPA, thread previews default). Pr
 smoke test through the real route (/api/stitch on the mom worker): bee_simple converted in
 24.4s, q100, 1,674 stitches, 6 jumps — the round-15 certified numbers, with thread preview
 active. Operational hardening plan written as ROADMAP Phase 2H (launch gate for payments).
+
+### Source-Art Prompt Review + A/B (2026-06-11)
+
+User verdict on the acceptance-fixture art: AI slop, not library-grade. Root cause found in
+the generation prompt (same text in production worker, fixture generator, legacy function):
+it demands a "simple flat emoji sticker, 3 to 6 shapes, prefer no outline" — a defensive
+crouch written for the old engine. It FORBIDS bold outlines (now the engine's showcase
+feature), bans stripes/dots/line art (now handled beautifully), caps complexity far below
+the engine's routing ability, gives zero aesthetic direction, and never receives numColors.
+
+A/B (Imagen 4, same subjects): NEW prompt (embroidery-patch aesthetic, bold uniform
+outlines, 2%-of-canvas feature floor, personality language) produces dramatically better
+art — the fox is a full-body folk-art design that converts at q100 / 7,099 stitches and
+reads as a sellable patch stitched. Failure mode found: the new sunflower overdrew (dozens
+of tiny petals + seed texture -> q38) — v2 prompt adds a complexity governor (8-18 regions,
+"fewer, larger repeated parts", flower centers as one disk). Artifacts: tmp/prompt_ab/
+(ab_sheet.png, fox_new_stitched.png, system_prompt_v2.txt).
+
+LIBRARY CURATION PIPELINE (proposed): generate 3-4 candidates per subject with v2 ->
+engine gate (q >= 96 + battery metrics) -> visual review -> human cherry-pick. The engine
+quality score becomes the slop filter; prompt v2 raises the ceiling worth filtering for.
+NOT yet shipped to production worker — needs one validation sweep across ~8 subjects when
+the Imagen rate limit resets (4 images burned the quota this round).
