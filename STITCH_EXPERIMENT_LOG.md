@@ -3255,3 +3255,21 @@ false positives). Recalibrated reference band: 0.070-0.208; gate ceiling 0.215.
 SUITE CENSUS: 12 of 14 in band — elephant 0.102, strawberry 0.153 (was 0.302 at the user's
 screenshot), sparrow 0.181, teddy 0.151, thick_flower 0.180, tiny 0.111, others 0.0-0.18.
 REMAINING TRUE CHAOS: badge_circle_star 0.291, bee_simple 0.263 — next diagnosis targets.
+
+### Neatness Metric Two-Sided Calibration Complete (2026-06-12)
+
+Diagnosis of the last two offenders by overlay + eyes: badge chaos = star corner fans
+(eyes: near-pro, mildly lumpy points), bee = compact head/junction area (eyes: decent).
+Metric refined twice:
+1. Fan-tolerant (smooth sequential rotation = pro corners/curves) — FAILED CALIBRATION:
+   the user's noodly strawberry passed at 0.039 because cross-pass pairs were skipped and
+   multi-pass hash cells only tested their smooth within-trail steps.
+2. Single-run fan rule: fan exemption only when the cell is one sequential run; multi-pass
+   overlay = hash regardless of internal smoothness. CALIBRATED BOTH DIRECTIONS:
+   noodly 0.280 FAIL / fixed 0.127 PASS / refs 0.068-0.206 / ceiling 0.215.
+
+FINAL SUITE CENSUS: 13 of 14 in band. badge_circle_star 0.252 out — agrees with eyes (star
+points mildly lumpy): queued defect = satin corner MITRE treatment for sharp points (<60°)
+instead of continuous fans. The neatness instrument is now trusted; the engine work that
+remains visible at zoom: badge star mitres, strawberry crown bare-patch refinement (owner
+bars extending into junctions), and a fresh-subject iteration to prove generalization.
