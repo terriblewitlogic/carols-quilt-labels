@@ -2877,3 +2877,11 @@ routing handles merged groups; travel segments skipped; fills stay polylines. El
 payload 746KB -> 332KB (batching). Renders: tmp/text_experiment/{elephant,sunflower,
 script}_thread.png. Classic output verified byte-identical (badge + sunflower).
 Frontend wiring (embroidery-mom passing preview_style) left as a product decision.
+
+### Thread Preview: Visual Verdict + Product Default (2026-06-11)
+
+Zoomed comparison (tmp/text_experiment/preview_zoom_comparison.png): thread style shows
+clear dimensional depth per satin bar (shadow underside + directional highlight; borders
+read as raised thread, not flat ink) and hides travel-stitch clutter that the classic
+preview exposes near details. Full-scale difference is subtle but richer. Product now
+defaults to preview_style='thread' (embroidery-mom e3b63b8); API default stays classic.
