@@ -3206,3 +3206,52 @@ NEXT ENGINE TARGET (the path to any future shippable verdict): satin-network jun
 rendering — bars at conflicting angles + doubled coverage where medial trails meet.
 Affected: strawberry crown 0.30, sparrow 0.33, balloon 0.25 — target: chaosFrac <= 0.235
 suite-wide. This is the quality ceiling now.
+
+### Junction-Chaos Fix, Part 1: Parallel Dot Satin (2026-06-12)
+
+Chaos-cell overlay on the strawberry split the defect: (a) the leaf-crown junction cluster
+(trails meeting at conflicting angles), (b) the SEED FIELD — the medial walk fans bars
+around tiny dots, making every seed an orientation-chaos cell where a professional sews
+parallel bars at one angle.
+
+LANDED: _parallel_dot_satin — compact blobs <= 12mm2 with compactness >= 0.5 entering the
+satin column path emit a one-angle mini satin patch (parallel rail-to-rail bars marching
+across the PCA angle) instead of the medial walk. Strawberry: chaosFrac 0.302 -> 0.2023
+(IN the pro band), fidelity 93.1 -> 94.1 (partCount 0.84 -> 0.91), seeds at zoom are clean
+solid satin ovals.
+
+EYES VERDICT: still NOT shippable — the crown junction cluster remains (crossing bars,
+ragged patches). The gates pass because chaosFrac is a band AVERAGE and seeds dominated
+the cell count; concentrated local chaos persists. Part 2 (junction ownership: bars of
+non-owner trails stop short of junction disks) is the remaining fix. Also noted: the
+neatness gate should additionally bound LOCAL chaos clusters (e.g. max chaotic-cell
+density in any 10mm window), not just the global fraction. Round-22 battery running.
+
+### Junction Ownership Landed (Neatness Part 2) — 2026-06-12
+
+At medial junctions (vertex shared by >=3 trail endpoints), every incident trail laid bars
+through the junction disk at its own angle. Now the LONGEST incident trail owns each
+junction; the others stop bars short of the junction disk (radius = local half-width via
+boundary distance, capped at 30% of the trail) and the owner covers it.
+
+chaosFrac: strawberry 0.202 -> 0.161, elephant 0.204 -> 0.171, bee 0.329 -> 0.246.
+Sparrow unmoved at 0.328 — different mechanism (needs its own chaos-cell overlay; likely
+its dense compact-detail black rather than junctions).
+
+EYES AT ZOOM: best strawberry yet — full view clean, seeds proper satin dots, border
+defined. Crown ~70% improved; still busier than a pro file at extreme zoom with a few
+small bare patches where suppressed bars lack owner coverage (follow-up: owner trails
+could extend their bars slightly INTO owned junctions). NOT claiming shippable; the user
+judges from the review page. Round-23 battery running (all satin networks touched;
+elephant -190 stitches of junction overlap removed).
+
+### Neatness Campaign Census After Parts 1+2 (2026-06-12)
+
+Round 23 certified (junction ownership; drift IS the fix: bee -116 / thick_flower -488
+stitches of doubled junction bars). Chaos metric refined to bimodal-tolerant (two coherent
+angle families = orderly adjacency, not noodling — the sparrow's thin-border cells were
+false positives). Recalibrated reference band: 0.070-0.208; gate ceiling 0.215.
+
+SUITE CENSUS: 12 of 14 in band — elephant 0.102, strawberry 0.153 (was 0.302 at the user's
+screenshot), sparrow 0.181, teddy 0.151, thick_flower 0.180, tiny 0.111, others 0.0-0.18.
+REMAINING TRUE CHAOS: badge_circle_star 0.291, bee_simple 0.263 — next diagnosis targets.
