@@ -3656,3 +3656,50 @@ corridor guard, (4) thread preview de-chunked. The sweep now reads as competent 
 (ladybug/strawberry clearly; sailboat/teapot/tulip much improved). The remaining true-stitch
 refinements (curve lumpiness, small petal-junction knots below the big-hub gate) are subtle
 and partly inherent to medial-axis satin; diminishing returns vs regression risk.
+
+================================================================================
+2026-06-13 — ADVERSARIAL TRUE-GEOMETRY AUDIT + ENGINE PROGRAM BATCH 1
+================================================================================
+
+PREMISES OVERTURNED (both my own, by data):
+1. "Junction over-fill" bug DOES NOT EXIST. Posterized black region vs source ink on
+   production: 98% agree, 2% over-fill (noise); red wedges between converging strokes are
+   correctly OPEN. tmp/blob/overfill_map_V.png. The "fix it upstream" hunt dead-ended.
+2. Drifting to "it's just the chunky thread preview / unfair fidelity gate" — KILLED by an
+   adversarial audit (15 agents: optimist + 2 skeptics per design) on the CLASSIC preview =
+   true stitch geometry. Verdict: 0/5 shippable by eye (4.0-5.0/10). Defects are REAL IN THE
+   STITCHES. User's eye was right; I was too optimistic.
+
+CURRENT-CODE GATES (stale Jun-12 cards discarded): all 5 sweep subjects PASS engine(100) +
+neatness; ONLY fidelity fails (76.8-88.4 vs 90) — and fidelity = match-to-source, NOT the bar.
+
+FOUR SYSTEMIC DEFECTS (each on all 5): incoherent_linework 30 (7 sev), gap 28 (5 sev),
+noodle 15 (4 sev), stray 11. User chose "full engine program: grind all 4."
+
+8 root causes code-traced by a diagnostic workflow (wf result tmp .../tasks/wjxhh8hmx.output,
+file:line + fixes). BATCH 1 landed (5 fixes + cull), validated BY EYE vs committed baseline:
+ - serrated satin edge: clamp_rail tests containment vs poly.buffer(SATIN_COVERAGE_BIAS_MM),
+   not the raw jagged raster — the 0.35mm bias was snapped back onto the per-pixel sawtooth.
+   Rail RMS 0.14->0.09mm. Teapot rings / tulip edges visibly smoother. (_two_rail_for_trail)
+ - bean gate uses p25 (shaft) width not median: a fat body-root corrupted the median > 1.4mm
+   so legs stayed satin ("centipede"). Ladybug legs now clean thin bean. (_satin_column_segments)
+ - skip disk(1) opening on thin line-art labels: the erosion severed thin closed rings.
+   Watermelon outer loop + teapot handle now CLOSED. (_extract_color_components)
+ - trail-global reach cap gmed*4 in _two_rail robust_reach: a sustained corridor-escape ramp
+   poisoned the windowed median -> 7mm crossing bars. Sailboat masthead club-tangle GONE.
+ - REGRESSION from the above (thin lines fragmenting into floating dashes/strays: antenna tip,
+   rigging) -> _cull_isolated_line_fragments: clusters a stroke group's segments by endpoint
+   proximity, drops clusters whose whole bbox < FRAGMENT_CULL_DIAG_MM(4mm). Antenna tip +
+   rigging dashes removed; watermelon loop (long, connected) kept. NOTE: segments are lists of
+   {'x','y'} DICTS at 10 units/mm.
+
+ACCEPTANCE BATTERY held: 6xA, 2xB (leaf 94, sparrow 94), 0 C/D/F — no regression.
+NET BY EYE: clear win on all 5. Sailboat masthead improved, thin rigging remains.
+Two agents wrote their fixes into the shared tree DURING the diagnostic workflow (bean-gate,
+broken-ring) — kept (clean, well-commented) after review; the rest applied by hand. Lesson:
+give write-capable workflow agents isolation:'worktree' or read-only roles.
+
+STILL OPEN (next batches, diagnosed): gap/coverage — unbordered ladybug wing (inset demoted
+fill, MEDIUM risk: moat agent says current code has NO moat, don't over-inset), sailboat
+fill-spill (cap-clip demoted path vs union(poly,neighbors)), tulip/teapot seam moats;
+antenna-coil spin-guard in two-rail; deeper masthead. Review page localhost:5301 top = befores/afters.
