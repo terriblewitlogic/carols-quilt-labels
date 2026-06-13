@@ -3609,3 +3609,26 @@ tangles, under workflow investigation).
 LINEWORK SCORECARD SO FAR (all eye-judged, battery guards regressions): (1) round-dot
 starburst -> solid (d65db1a+dd6458a); (2) centipede thin lines -> bean (f04cc28). Remaining:
 junction tangles, then chunky satin texture on medium lines.
+
+### Linework Fix #3: Junction Corridor Guard (2026-06-13, committed 924f733)
+
+JUNCTION TANGLES (sailboat mast-foot fan-spray). A 3-phase /workflows investigation
+(localize -> trace by instrumentation -> design) found the mechanism: the boom trail's
+horizontal tangent casts a VERTICAL satin bar; because mast+boom+deck are ONE connected
+polygon, poly.intersection returns a long chord UP THE MAST instead of the boom width.
+The foot IS a 42-member/11.8mm hub but the suppression disk is clamped to 2.5mm (36/42
+junctions uncovered); the boom owns the hub (longest trail) so its mis-cast bars never
+suppress. Fix: corridor-escape guard GATED to large hubs (>=12 members AND >=7mm radius):
+inside a big hub, drop bars > 2x local column width. The hub-size gate is the crux — it
+MATHEMATICALLY cannot fire on the strawberry crown (9/5.3mm), solving the "strawberry trap"
+that defeats every per-bar scalar. Workflow ruled out two non-fixes with rendered evidence
+(widen clamp -> bald 50%-coverage hub; solid-fill -> splotch). Eye-verified: foot tangle
+-> organized junction, 115 bars dropped, strawberry untouched (SHIPPABLE 93.7/0.0918).
+Round 39 byte-identical suite.
+
+LINEWORK SWEEP NOW (current engine, all 3 fixes): ladybug 100/82.0/0.040 (was 78.9/0.069),
+sailboat 100/75.6/0.064 (chaos was 0.101), tulip 100/78.9/0.124, teapot 100/88.0/0.038,
+watermelon 100/74.8/0.093, strawberry 100/93.7/0.092 SHIP. Eye verdict: ladybug + strawberry
+read as competent embroidery; sailboat/teapot/tulip much improved. REMAINING linework item:
+chunky satin TEXTURE on medium-width outlines (tulip outline, teapot bands) — the railroad-
+track coarseness. Review page localhost:5301 has all before/afters + the full sweep.
