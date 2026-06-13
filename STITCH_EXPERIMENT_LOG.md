@@ -3588,3 +3588,24 @@ hacking across ~10 fragile bar-loop increment sites):
 
 New scripts (harness, regression-guard only): scripts/workmanship.py (overlap-based, found
 unreliable for tangle/texture — kept for the gap/coverage sub-check it does measure).
+
+### Linework Fix #2: Bean Stitch for Thin Appendages (2026-06-13, committed f04cc28)
+
+CENTIPEDE legs/antennae/rigging: thin medial trails (~1mm) satin into a chunky ladder of
+fat dashes. Fix: _satin_column_segments renders a thin trail as a smooth BEAN (triple-pass
+running) line instead of bars. Eye-verified dramatic on the ladybug legs (centipede ->
+smooth thin line) and antennae.
+
+KEY CALIBRATION (the trap): width ALONE cannot gate this — the elephant's bold OUTLINE is
+thinner at the medial (0.74mm) than the ladybug legs, yet wants to stay a bolded satin
+(looks bold/pro); a thin bean there weakens it. Width-only @1.6mm dropped hatch elephant
+-8.2 / bee -4.9 / leaf_two_tone -5.5. The real distinction is APPENDAGE vs BOUNDARY:
+appendages are SHORT free-ended spurs (<=18mm), boundary strokes are LONG. Gate on width
+(<1.4mm) AND length (<=18mm). Round 38: all three recovered, hatch avg 94.4 (>= 94.3
+baseline), suite identical, 48/48 formats. Sweep re-render: sailboat rigging + ladybug
+legs visibly cleaner; remaining knots = sailboat mast/gooseneck + tulip centre (junction
+tangles, under workflow investigation).
+
+LINEWORK SCORECARD SO FAR (all eye-judged, battery guards regressions): (1) round-dot
+starburst -> solid (d65db1a+dd6458a); (2) centipede thin lines -> bean (f04cc28). Remaining:
+junction tangles, then chunky satin texture on medium lines.
