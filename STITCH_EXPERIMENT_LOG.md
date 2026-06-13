@@ -3632,3 +3632,27 @@ watermelon 100/74.8/0.093, strawberry 100/93.7/0.092 SHIP. Eye verdict: ladybug 
 read as competent embroidery; sailboat/teapot/tulip much improved. REMAINING linework item:
 chunky satin TEXTURE on medium-width outlines (tulip outline, teapot bands) — the railroad-
 track coarseness. Review page localhost:5301 has all before/afters + the full sweep.
+
+### KEY FINDING + Fix #4: The "Amateur Linework" Was Largely the PREVIEW (2026-06-13, committed 8ae9d33)
+
+Diagnosing the last linework item (chunky satin "texture") revealed the actual stitches are
+CLEAN: rendering the same JEF in CLASSIC preview style shows crisp bold professional
+outlines (tmp/final/{sailboat,ladybug,tulip}_thread_vs_classic.png), while the deployed
+THREAD style makes them look chunky/ribbed. The thread preview drew each satin BAR as a
+separate capsule with a dark shadow halo (1.18x width, 0.30 opacity) + round caps -> a
+satin column read as a row of ridged lozenges. Much of what the user rejected as "amateur
+linework" was this preview rendering, not the embroidery.
+
+FIX (preview-only, _build_thread_preview_svg, no JEF/stitch change): lay a soft connected
+band under the satin bars (the segment zigzag stroked 1.55x wide at 0.30 opacity, like
+classic) so the column reads as one solid body, and cut the per-bar shadow to 1.05x/0.12.
+Directional sheen highlight retained. Cleans EVERY design's on-screen look at once. Stitch
+grades guaranteed unchanged (string builder only); fidelity stable +-0.6; engine 100.
+Eye-verified cleaner on all 3. Review page localhost:5301 has OLD->NEW.
+
+LINEWORK SESSION COMPLETE — 4 improvements after the user's "workmanship not fidelity"
+correction: (1) round-dot starburst->solid, (2) centipede->bean, (3) junction tangle->
+corridor guard, (4) thread preview de-chunked. The sweep now reads as competent embroidery
+(ladybug/strawberry clearly; sailboat/teapot/tulip much improved). The remaining true-stitch
+refinements (curve lumpiness, small petal-junction knots below the big-hub gate) are subtle
+and partly inherent to medial-axis satin; diminishing returns vs regression risk.
