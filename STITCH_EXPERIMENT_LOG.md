@@ -3512,3 +3512,36 @@ trims 16 -> ~8 (band edge). Implementation-ready sketch with debug fields.
 SERIAL TRACK same period: junction clustering committed (45bd95f, strawberry SHIPPABLE,
 round 31 battery green); SECOND eyespot-keep attempt failed (chaos 0.130 — hole CLIPPING,
 not junction spray; needs hole-aware bar emission; noted in code).
+
+### Class B/C Closed at All Kill Sites + Grader Calibration — Engine Gate Universal (2026-06-12)
+
+THE TEAPOT PURPLE (committed 85891f5): "stitched green" was THREE stacked bugs, traced
+from the parallel teapot triage:
+1. thread_palette.nearest_thread is HUE-BLIND for muted chromatics — purple (146,115,169)
+   ranked Medium Grey (perceptual 6367) ahead of Medium Violet (7575). Now: chromatic
+   sources (chroma>=40) penalise neutral threads x3 and charge chromatic candidates for
+   hue distance; neutral sources keep the exact match. GENERAL class-C repair.
+2. _choose_accent_replacement_label donated purple's slot (4.2% canvas, hue-unique) to
+   seat a 0.2% green band. Now: a >=1% chroma>=40 label that is its hue family's only
+   representative (nearest other slot > 80 wdist) is never offered as a donor.
+3. _posterize hue-coverage repair: dead/duplicate MiniBatchKMeans centers (reassignment
+   _ratio 0) reseeded to uncovered substantial source hues, re-predict chunked; plus
+   converter warning meaningful_color_killed_in_quantization for the unrepairable case.
+Teapot: engine 74->100, fidelity 81.9->88.1, chaos 0.0914->0.038, all 7 hues stitch.
+
+GRADER CAP-ROW EXEMPTION (committed 2329f15, task #18 done): a solid_scan detail with
+<=12 rows + a real body (max>8mm) discounts its 2 silhouette cap rows from tiny/short
+counts. The teapot's clean crescent was double-charged -26 (30->5 now); genuine fragments
+(8 tiny of 12) stay 45.
+
+MILESTONE — ENGINE GATE NOW UNIVERSAL across the library sweep:
+  teapot 100/88.1/0.038, tulip 100/78.9/0.124, ladybug 100/78.9/0.069,
+  sailboat 100/76.8/0.101, watermelon 100/74.8/0.093, strawberry 100/93.8/0.092 SHIPPABLE.
+All 6 pass ENGINE; 5/6 pass CHAOS; strawberry fully SHIPPABLE. The campaign has collapsed
+from mixed engine/fidelity/chaos failures to ONE uniform wall: FIDELITY, driven by class-D
+line-art width. The sailboat counterfactual proves it — fixing every other component only
+reaches 88.7; black overcoverage caps colorFidelity. WIDTH-MATCHED STROKE SATIN is the
+next and highest-leverage lever (class-D investigations A/B running).
+
+Every fixture battery this run (rounds 31-33) stayed 6xA + 2xB/94, hatch 94.0 min 90.6,
+uploaded 6x100, 48/48 formats — no regressions across 7 engine commits.
