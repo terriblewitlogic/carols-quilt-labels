@@ -3545,3 +3545,46 @@ next and highest-leverage lever (class-D investigations A/B running).
 
 Every fixture battery this run (rounds 31-33) stayed 6xA + 2xB/94, hatch 94.0 min 90.6,
 uploaded 6x100, 48/48 formats — no regressions across 7 engine commits.
+
+### Linework Reset: User Rejected "Fidelity" Framing — It's Workmanship (2026-06-12)
+
+USER CORRECTION (decisive): the library subjects are not unshippable because they don't
+match the source — they're unshippable because the EMBROIDERY ITSELF looks amateur: gaps,
+stray/noodle lines, incoherent/unfinished linework that "look like mistakes even if you
+can't see the original." My "fidelity vs thread-width physics" framing was the wrong
+premise. The defects are all in the BLACK LINEWORK (colour fills are clean).
+
+THE NEATNESS GATE IS BLIND TO THIS. chaosFrac (angle coherence in cells) passed a ladybug
+(0.069) with a stray across its head. THREE geometric scalars tried and ALL fail to
+separate professional dense satin from amateur tangle: chaosFrac, crossingRate (the
+SHIPPABLE strawberry has the MOST black crossings, 1977, yet looks clean), and raster
+overlap strayFrac. Conclusion logged: aesthetic linework quality is not capturable by one
+scalar; judge by EYE, demote the gates to regression-guards only.
+
+TWO WRONG HYPOTHESES, DISPROVEN BY DATA (logged so they're not re-attempted):
+1. "Visible long stray carries" — FALSE. The ladybug black block max stitch is 4.8mm,
+   ZERO >8mm; cross-island links are 115 jumps + 50 trims (invisible). The render's
+   "webbing" was the legitimate body-outline run (253mm path, all <=1.3mm stitches), not
+   strays. A groups-level harness replicating the converter's stitch/jump decision found
+   0 uncovered stitched travels on all 5 subjects.
+2. "Compact-disc outline-mode" gate — missed (eyespots are annular at the outline stage).
+
+FIX #1 LANDED (committed d65db1a + dd6458a, eye-verified, round 35/36 batteries clean):
+ROUND-DOT STARBURST. The ladybug bullseye spots (solid 8mm round discs, compactness 0.62)
+hit the blob-region path and got a 1.2mm satin BORDER — a border wrapped around a small
+round disc curls its bars radially into a spiky starburst (the "scribbles in the spots").
+Fix: compact near-round blobs (compactness>=0.55, inscribed r<6mm) fill SOLID (no border),
+pitch tightened to density x0.62 so they read opaque. Before/after on the review page
+(localhost:5301): spiky bullseyes -> clean solid dots. Suite identical both batteries.
+
+STILL OPEN (deeper satin-renderer rework; HIGH regression risk — shares machinery with the
+text/appliqué/bee/sparrow fixtures; deferred to a fresh focused session, NOT end-of-session
+hacking across ~10 fragile bar-loop increment sites):
+- CENTIPEDE thin lines: legs/antennae/rigging are ~1.2mm wide, satin'd into fat dashes
+  (measured: leg width p50 1.17mm, consecutive bar-angle steps ~70deg). Right fix = bean/
+  triple-run for thin lines (<~1.5mm), standard digitizing — but it touches the satin path
+  the text fixtures depend on.
+- JUNCTION TANGLES: the sailboat mast/gooseneck knot where many trails converge.
+
+New scripts (harness, regression-guard only): scripts/workmanship.py (overlap-based, found
+unreliable for tangle/texture — kept for the gap/coverage sub-check it does measure).
