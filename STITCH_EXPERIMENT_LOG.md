@@ -3477,3 +3477,38 @@ STRAWBERRY TOUCHSTONE under the recalibrated gate: engine 100, fidelity 93.8 PAS
 junction hub + crown leaf tips (rendered overlay: tmp/p3a/strawberry_fresh_chaos.png).
 That is task #24's exact geometry, now precisely localized. #24 (junction hub ownership)
 is the next session opener; the saved eyespot patch re-applies after it.
+
+### Parallel Tracks Round-Up: 5 Agents, 2 Landings, 3 Designs/Triages (2026-06-12)
+
+Five parallel workstreams ran while the serial engine track landed junction clustering.
+COMMITTED (backend 2bf9b15, both validated with falsification discipline):
+- #25 chaosAdjusted = cells/max(total, 75): sparse designs judged on the professional
+  8-chaotic-cell budget (Flamingo 4x4 ships with exactly 8); references bit-identical;
+  Wilson + smoothing REJECTED (both flip the tulip's genuine FAIL); watermelon 0.080 PASS.
+- #26 sketchFragments (detached thin ink dashes > 5 -> REGEN): watermelon 19 vs worst
+  good source 1 (19x margin); counts the exact geometry that stitched as chaos; zero
+  calibration regressions; closing-gain + width-variance rejected (no separation).
+
+TEAPOT TRIAGE (tmp/parallel/teapot/triage.md): the engine 74 is ONE clean 27mm2 crescent
+double-charged -26 at exactly threshold (task #18, sharpened). Fidelity 81.9 is a NEW
+CLASS B KILL SITE: MiniBatchKMeans (reassignment_ratio=0.0) left two dead duplicate-green
+centers while purple (12% of content) got none — annihilated pre-label, invisible to
+meaningful_color_dropped. Filed as task #30 (hue-coverage repair + quantization kill
+detector). Chaos now PASSES (0.0914) after this session's engine work; residual black-band
+cosmetics are #24/#27 fixtures. Teapot needs NO new stitch-geometry work to be plausible.
+
+SAILBOAT TRIAGE (synthesized; agent died post-analysis): counterfactual ladder shows even
+fixing ALL component losses -> 88.7 < 90; the cap is black overcoverage. Source ~0.8-1mm
+rigging renders as ~3mm chunky satin that crushes the teal pennant and swallows the yellow
+deck stripe (all five yellow details okFrac 0.0). Lighthouse-class mechanism on a
+gate-passing source: WIDTH-MATCHED STROKE SATIN is the single highest-leverage engine
+change (audit bolding floor 1.2-1.4mm + SATIN_AUTO_MIN_WIDTH + dense-cluster merging).
+
+ROUTING DESIGN #28 (tmp/parallel/routing/design.md): route_mode='rings' — ring-level
+walk-greedy + 2-opt under hop+stray-energy objective for outline groups. Simulated on the
+real daisy geometry: stray energy 83.4 -> 4.7mm2, blocked connectors 9 -> 0-1, design
+trims 16 -> ~8 (band edge). Implementation-ready sketch with debug fields.
+
+SERIAL TRACK same period: junction clustering committed (45bd95f, strawberry SHIPPABLE,
+round 31 battery green); SECOND eyespot-keep attempt failed (chaos 0.130 — hole CLIPPING,
+not junction spray; needs hole-aware bar emission; noted in code).
