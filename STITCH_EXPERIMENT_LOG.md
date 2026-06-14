@@ -3829,3 +3829,23 @@ posterizer session (same class as the teapot-purple fix #30). Also: acorn DOUBLE
 OUTLINE = the source sticker die-cut border (white ring + keyline) rendered bold ->
 two heavy black rings (audit double_outline severe). NEXT: focused acorn posterizer
 (tone-coverage) session; double-outline suppression.
+
+================================================================================
+2026-06-14 — ACORN TONE-COVERAGE FIX (backend 96bc942)
+================================================================================
+
+Pinned the acorn brown-cap->black bug precisely (NOT what I first guessed): the brown
+SURVIVES KMeans (MiniBatch gives a healthy 19% brown cluster 146,80,44) and is NOT
+dark-reserved (chroma 110 > the dark-mask's chroma<=55 gate). It dies in the post-
+KMeans normalization chain: _collapse_oversegmented_tonal_families flattens the
+orange-brown tonal family and folds the small (1.2%) brown cap into black/coral. It
+failed both existing protections (small-accent needs chroma>=145; big-patch needs
+>=34% of largest). FIX: protect any family member that is >=1% of the image AND
+luminance-separated >=35 from the dominant colour (a real material, not a middle-tone
+sliver). Battery 6xA/2xB -> 7xA/1xB (SPARROW B->A, its same-hue fragment kept);
+watermelon keeps a faithful blush tone; ladybug/strawberry/tulip unchanged.
+LIMIT (separate issue): the acorn cap STILL reads dark — its source is brown scale-
+FACES over dense BLACK scale-LINEWORK; at embroidery res the black over-absorbs the
+thin brown faces (cap region 81% black). That is a fine-detail/resolution limit, not
+the collapse. HEAVINESS recap: global satin-thinning marginal (committed ee73990,
+bias 0.22 + bold 1.0); the real heaviness is faithful bold-source + per-design color.
