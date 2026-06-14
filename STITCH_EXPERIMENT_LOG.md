@@ -3703,3 +3703,52 @@ STILL OPEN (next batches, diagnosed): gap/coverage — unbordered ladybug wing (
 fill, MEDIUM risk: moat agent says current code has NO moat, don't over-inset), sailboat
 fill-spill (cap-clip demoted path vs union(poly,neighbors)), tulip/teapot seam moats;
 antenna-coil spin-guard in two-rail; deeper masthead. Review page localhost:5301 top = befores/afters.
+
+================================================================================
+2026-06-13 — ENGINE BATCH 2 (GAP/COVERAGE DESIGN PASS), backend c87bc5b
+================================================================================
+
+After the re-audit honestly TEMPERED batch 1 (I over-claimed "clean win on all 5";
+adversarial skeptics showed the subjects were NOT closer to shippable because the
+GAP/COVERAGE family dominates the verdict and batch 1 only cleaned linework detail;
+absolute audit scores are NOISY +-1-2pt), the user chose the gap/coverage DESIGN
+PASS. 4 read-only agents dissected each gap mechanism on production with proof
+(wf w94yjansw.output; proofs in tmp/blob/design/). Two designs converged and two
+were standalone. TWO fixes landed, validated by eye, acceptance battery held
+(6xA, 2xB/94, 0 C/D/F):
+
+(1) COVERAGE FLOOR — the dominant fix. A medial satin column on a BRANCHING dark
+body tiles only 62-71% of its own source footprint (measured ladybug 64%, sailboat
+71%, teapot 90%), leaving a bare rim at the silhouette edge (the un-bordered fill
+edge) and against colour bands (the seam moat). Root: the medial axis cannot tile a
+branching/widening body. FIX: _segment_coverage_frac + in _process_polygon's
+outline-network branch, when coverage < STROKE_COVERAGE_FLOOR_MIN(0.92), lay a
+serpentine floor of the SOURCE footprint `poly` (never grown/clipped, so it cannot
+spill onto colour or background) UNDER the bars. Clean ribbon strokes (leaf/letter/
+tulip) tile fully and skip it (gate works: tulip/watermelon stitch count unchanged;
+bee +57%, elephant +37%, ladybug +54%, sailboat +50%). EYE: thin/ragged/patchy
+black -> SOLID BOLD outlines (clearest on ladybug body edge + sailboat). Grader
+accepts the denser black (pro designs ARE dense). INCIDENTAL WIN: the lumpy ladybug
+leg (Design 4) is fixed for free — its satin footprint is now filled solid, so the
+ribbed centipede is gone. So Design 4 (leg trail-truncation) NOT needed.
+
+(2) ENCLOSED-BACKGROUND-CAVITY RESCUE — fixes the severe sailboat hull gap (~11k px
+bare deck) + sail highlights + watermelon seed glints. Root: background is decided
+per-LABEL, so a light region fully ENCLOSED by the design carries the page-bg label
+and is dropped to bare fabric. FIX: _rescue_enclosed_background_cavities at end of
+prepare_image_analysis — split each bg label by connectivity, keep the border-
+touching comp as bg, reassign each enclosed comp (>=~5mm2, min(h,w)>=0.30*max = not
+a thin separator) to a NEW palette index with the SAME rgb so it sews as thread.
+Sailboat gains a White stop; sail highlights + seed glints fill. (Deck cockpit may
+still partly connect to sky/bg -> partial; verify.)
+
+NOTE the cost: coverage-floor double-covers (floor + bars). +37-57% stitches on
+branching-black designs, but grades + density held and the bold-solid look is the
+pro standard, so KEPT. If cost ever bites, switch floor to poly.difference(covered)
+(cheaper, but the bare rim fragments — design preferred whole-poly).
+
+REMAINING (smaller, deferred): sailboat masthead/rigging still busy; colored fill
+SPILL past the silhouette into bare bg (Design 1.2, ~0.42mm, subtle — coverage-floor
+covers the ladybug protrusion but not the external sailboat fringe); deck cavity if
+it connects to bg. Re-audit of batch 2 running (wf wkdzl18zz). Review page top =
+ladybug/sailboat/teapot/watermelon before/afters.
