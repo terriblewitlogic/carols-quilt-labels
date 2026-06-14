@@ -3797,3 +3797,35 @@ ladybug unchanged; battery 6xA/2xB. MODEST by eye — the residual masthead busy
 is the PEAK convergence (near-parallel lines meeting at a point), a DIFFERENT geometry
 the angle-keyed dedup does not target (and lowering the angle would risk the crown).
 Honest ceiling: very-dense convergent rigging is inherently hard line-art.
+
+================================================================================
+2026-06-14 — SEED-5 REVIEW + HEAVINESS + ACORN COLOR (user feedback)
+================================================================================
+
+Stitched 5 bold-simple seed candidates (acorn, ladybug, strawberry, watermelon,
+tulip). Adversarial audit (wf w764jbdll): ladybug 6.0, acorn 5.3, strawberry 4.7,
+watermelon 4.3, tulip 3.0 — NONE shippable; DOMINANT severe = too_heavy (4/5) +
+double_outline + strays. Confirms user "thick/dark all around".
+
+HEAVINESS — global satin levers are MARGINAL. Measured rendered black > source
+(tulip 134%, acorn 159%). Reduced SATIN_COVERAGE_BIAS_MM 0.35->0.22 (+0.7mm/column
+was the main artificial widener) and bold floor 1.2->1.0 (backend ee73990): only
+~5% less black on satin-column outlines (tulip/strawberry), ZERO on acorn/watermelon
+(their black is filled regions / non-two-rail paths). Battery held 6xA/2xB, no new
+gaps. Conclusion: the bulk of perceived heaviness is faithful bold-SOURCE outlines +
+filled regions, not removable widening; the big wins are DESIGN-SPECIFIC.
+
+ACORN — the real heaviness + the color bug are the same thing: the brown cap
+(153,85,43, chroma 110) renders as a SOLID BLACK mass. Diagnosed: NOT the dark-line
+reservation (the cap is chroma>55 -> excluded from the dark mask; and the cap+outline
+component is chromatic_dark_fill=True -> not reserved). It collapses during KMEANS
+QUANTIZATION/thread-snap: the cap-brown and nut-tan are the SAME HUE FAMILY as coral
+but different TONES, so the hue-coverage repair (hue-based, reseeds dead centers for
+missing HUES) considers the hue "covered" by coral and never gives the browns their
+own cluster -> dark brown -> black, light tan -> coral; a "Medium Brown" palette entry
+exists with 0 px. Exact collapse step (KMeans assign vs snap) NOT fully pinned; fix =
+extend the coverage repair to TONE (not just hue) — a focused, regression-risky
+posterizer session (same class as the teapot-purple fix #30). Also: acorn DOUBLE
+OUTLINE = the source sticker die-cut border (white ring + keyline) rendered bold ->
+two heavy black rings (audit double_outline severe). NEXT: focused acorn posterizer
+(tone-coverage) session; double-outline suppression.
