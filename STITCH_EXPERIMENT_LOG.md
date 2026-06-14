@@ -3772,3 +3772,28 @@ sticker outline still bold), ladybug bold solid + clean leg preserved. Battery h
 (~1.7mm) still floored (>1.4mm) so stays fixed. REMAINING: bolding (1.2mm min width)
 still thickens thin lines a touch; sailboat masthead/rigging junction noodle (separate
 convergence-tangle issue); cavity-rescue luminance guard (watermelon 588mm2 pink→white).
+
+================================================================================
+2026-06-14 — "TOO THICK/OVERLAPPING" follow-up (user feedback)
+================================================================================
+
+ISSUE 1 (thick lines): investigated + REVERTED as no clean win. Built a crowding-
+aware bold reduction (crowd = closed_area/footprint, sailboat 1.45 main net), but
+measured the sailboat main network bolds only +0.1mm (source 1.09 -> 1.2); the mast/
+rigging are thick because the SOURCE lines are ~1.1mm rendered as satin, not bolding.
+Reducing further distorts the source. Reverted (invisible effect). The wide-only
+declutter (5d9cd8c) already did the real crowding work.
+
+ISSUE 2 (masthead tangle): CROSS-TRAIL CROSSHATCH SUPPRESSION landed (backend 1f73d29).
+Raw stitches showed the mast column is clean; the knot is where mast + 2 sail edges
+cross. The big-hub guard is member-count gated (>=12) and the strawberry crown (9
+members, unprotected, shippable) has the SAME geometry -> can't separate by hub size.
+New mechanism: track placed bars in a spatial grid; drop a bar that ACTUALLY
+intersects a DIFFERENT-trail bar at >= SATIN_XHATCH_MIN_ANGLE_DEG(50). Same-trail
+(curves) never compared; steep-angle+true-intersection spares shallow fans/parallel
+satin. Strawberry-guarded A/B: crown visually identical (-139 crossing bars, no
+coverage loss => trap AVOIDED); sailboat mid-mast crossing thinned (-25, cleaner);
+ladybug unchanged; battery 6xA/2xB. MODEST by eye — the residual masthead busyness
+is the PEAK convergence (near-parallel lines meeting at a point), a DIFFERENT geometry
+the angle-keyed dedup does not target (and lowering the angle would risk the crown).
+Honest ceiling: very-dense convergent rigging is inherently hard line-art.
