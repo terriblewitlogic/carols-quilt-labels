@@ -3752,3 +3752,23 @@ SPILL past the silhouette into bare bg (Design 1.2, ~0.42mm, subtle — coverage
 covers the ladybug protrusion but not the external sailboat fringe); deck cavity if
 it connects to bg. Re-audit of batch 2 running (wf wkdzl18zz). Review page top =
 ladybug/sailboat/teapot/watermelon before/afters.
+
+================================================================================
+2026-06-14 — CROWDING-AWARE COVERAGE FLOOR (declutter), backend 5d9cd8c
+================================================================================
+
+User feedback after batch 2: outlines too thick/overlapping → cluttered interiors,
+esp. the sailboat (mast/rigging/deck). Cause: the batch-2 coverage floor filled a
+dark network's WHOLE footprint solid; on crowded thin linework the bolded+solid
+lines merge into a black mass. FIX: floor now morphologically OPENS the footprint
+(buffer -r +r, STROKE_FLOOR_WIDE_RADIUS_MM=0.7) and fills only sub-regions wider
+than ~1.4mm (head domes, hull bodies, band cores — where medial satin truly under-
+covers); thin lines (rigging, fine outlines) stay distinct, left to the satin/bean
+that already tiles them. Measured black width (erosion survival): sailboat 83% thin
+(floor now ~17%), ladybug 60% wide (bold look kept), teapot 44% wide (bands floored,
+moat fix preserved). EYE: sailboat interior decluttered (thin distinct lines, outer
+sticker outline still bold), ladybug bold solid + clean leg preserved. Battery held
+6xA/2xB; busy designs lighter (sailboat -2477, bee -557, elephant -1834). Lumpy leg
+(~1.7mm) still floored (>1.4mm) so stays fixed. REMAINING: bolding (1.2mm min width)
+still thickens thin lines a touch; sailboat masthead/rigging junction noodle (separate
+convergence-tangle issue); cavity-rescue luminance guard (watermelon 588mm2 pink→white).
