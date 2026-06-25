@@ -35,7 +35,9 @@ export const CATALOG = [
     name: 'Sunflower',
     category: 'florals',
     description: 'Bold single sunflower with golden petals and dark seed centre',
-    prompt: 'a single sunflower with bold golden-yellow petals arranged in a perfect radial ring, a flat warm amber-brown circular seed centre, a straight green stem with two identical matching leaves on either side, bold black outlines only, centered on white',
+    // Previous prompt:
+    // prompt: 'a single sunflower with bold golden-yellow petals arranged in a perfect radial ring, a flat warm amber-brown circular seed centre, a straight green stem with two identical matching leaves on either side, bold black outlines only, centered on white',
+    prompt: 'A simple flat coloring-book sunflower icon on pure white. Draw one complete centered sunflower only, with no extra flowers, no partial flowers, and no cropped objects. One front-facing sunflower with twelve large rounded golden-yellow petals arranged around one warm amber-brown circular center, one straight green stem, and two simple green leaves. Every petal must be a separate closed yellow filled shape fully enclosed by a thick continuous black outline. The center must be one simple closed circle with a thick continuous black outline. Leaves and stem must be simple closed green filled shapes with thick continuous black outlines. Use smooth simple silhouettes and generous spacing between petals. No thread texture, no stitch lines, no fabric, no shadows, no gradients, no highlights, no veins, no seeds, no hatching, no tiny details',
     settings: { ...D, numColors: 5 }, // black outline, amber-brown centre, golden-yellow petals, green leaves/stem
   },
   {
@@ -51,8 +53,11 @@ export const CATALOG = [
     name: 'Daisy',
     category: 'florals',
     description: 'Simple white daisy with yellow centre',
-    prompt: 'a single white daisy flower viewed from the front with uniform white petals arranged in a perfect radial ring around a bright yellow circular centre, a short straight green stem, centered on white',
-    settings: { ...D, numColors: 4 }, // black outline, white petals, yellow centre, green stem
+    // prompt: 'a single white daisy flower viewed from the front with uniform white petals arranged in a perfect radial ring around a bright yellow circular centre, a short straight green stem, centered on white',
+    // Previous tuned prompt:
+    // prompt: 'Create a simple embroidery-ready daisy icon, centered on a pure white background. Use flat vector artwork only. Use exactly five solid colors: black outline, pale cream petals, bright yellow center, green stem and leaves, pure white background. Subject: one daisy flower viewed straight-on with exactly 8 large rounded pale cream petals around one large bright yellow circular center, one straight green stem, and two large simple green leaves. Every petal must be a separate closed filled shape fully enclosed by a thick black outline. The petal fill must be pale cream and visibly different from the pure white background. The yellow center must be one large closed circle with a thick black outline. Leaves and stem must be simple closed filled shapes with thick black outlines. No gradients. No shadows. No texture. No sketch lines. No interior veins. No overlapping fill outside outlines. No tiny details. No background objects. Leave generous white margin around the flower. High contrast, clean children’s coloring-book style, suitable for raster-to-embroidery conversion',
+    prompt: 'A simple flat coloring-book daisy icon on pure white. Draw one complete centered daisy only, with no extra flowers, no partial flowers, and no cropped objects. One front-facing daisy with exactly eight large rounded pale cream petals around one bright yellow circular center, one straight green stem, and two simple green leaves. Every petal must be a separate closed pale cream filled shape fully enclosed by a thick continuous black outline. Petal fill must clearly differ from the pure white background. The yellow center must be one simple closed circle with a thick continuous black outline. Leaves and stem must be simple closed green filled shapes with thick continuous black outlines. Use smooth simple silhouettes and generous spacing between petals. No thread texture, no stitch lines, no fabric, no shadows, no gradients, no highlights, no veins, no hatching, no tiny details',
+    settings: { ...D, numColors: 5 }, // black outline, pale cream petals, yellow centre, green stem, white background
   },
   {
     id: 'lavender-sprig',

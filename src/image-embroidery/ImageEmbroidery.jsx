@@ -108,9 +108,6 @@ function injectFabricColor(svg, color) {
   return svg.replace(/background:[^"']+/, `background:${color}`);
 }
 
-const embroideryPromptSuffix = (numColors) =>
-  `, bold vector sticker art style, flat colors, thick black outlines, no gradients, white background, exactly ${numColors} distinct fill colors, clean simple shapes, embroidery patch design`;
-
 const STITCH_SPEED_SPM = 400; // stitches per minute (typical home machine)
 
 export default function ImageEmbroidery({ onBack }) {
@@ -166,8 +163,7 @@ export default function ImageEmbroidery({ onBack }) {
     setLayers(null);
     setColorOrder(null);
     try {
-      const fullPrompt = prompt.trim() + embroideryPromptSuffix(numColors);
-      const data = await generateImage(fullPrompt);
+      const data = await generateImage(prompt.trim());
       setGeneratedImage(data.imageBase64);
       // Auto-posterize so the layer panel appears immediately after generation
       setPosterizing(true);
@@ -185,7 +181,7 @@ export default function ImageEmbroidery({ onBack }) {
     } finally {
       setGenerating(false);
     }
-  }, [prompt, numColors, hoop]);
+  }, [prompt, hoop, numColors]);
 
   const handleConvert = useCallback(async () => {
     if (!generatedImage) return;

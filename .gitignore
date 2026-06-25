@@ -3,6 +3,7 @@ node_modules/
 
 # Build output
 dist/
+website/*/dist/
 
 # Netlify local cache
 .netlify/
@@ -19,8 +20,25 @@ netlify/functions/export/__pycache__/
 
 # Temp / test files
 Longer.be
+tmp/
+website/embroidery-stitch-backend/tmp/
+website/*/node_modules/
+website/*/.git/
+website/*/.wrangler/
+website/*/.vscode/
+
+# Local/reference assets not part of source checkpoints
+example files/
+logos/
+
+# Account/security exports
+website/*SecurityInsights*.csv
 
 # Secrets / local env
 .env
 .env.local
 .vercel
+website/*/.env
+website/*/.env.*
+website/*/.dev.vars
+website/*/.dev.vars.*

@@ -4,3 +4,5 @@ numpy>=1.24
 scikit-image>=0.21
 scikit-learn>=1.3
 shapely>=2.0
+trimesh>=4.0   # vector medial axis for true satin column generation
+reportlab>=4.0 # PDF generation for the stitch instruction sheet
