@@ -181,8 +181,35 @@ Useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_radial_route_20260626.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_trim16_20260626.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_trim16_20260626.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_covered_travel35_same_hue_20260626.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_covered_travel35_20260626.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_covered_travel35_20260626.html`
 
 Rule: every stitch-algorithm change that affects generated fixtures should produce a comparison report and should run `--fail-on-regression` when comparing against the previous accepted run.
+
+### Covered Travel Window For Same-Hue Facets
+
+Status: keep.
+
+Why: the previous `16mm` inter-component trim threshold safely reduced trim pressure, but the remaining same-hue acorn facet relocations include longer moves. Raising the global trim threshold created long untrimmed carry diagnostics, so the safe next step was to extend only the covered-travel search window.
+
+Change accepted:
+
+- Added `COVERED_TRAVEL_MAX_GAP_EMB = 350.0` (`35mm`).
+- `_merge_covered_travel` now considers `2-35mm` carries instead of stopping at `20mm`.
+- Existing coverage requirements stayed intact: a carry must be directly covered by later stitching or routed along a covered detour.
+
+Measured result:
+
+- `same_hue_acorn_facets`: trims `8 -> 7`
+- `same_hue_acorn_facets`: jumps `21 -> 20`
+- `same_hue_acorn_facets`: cross-surface trimmed long spans `4 -> 3`
+- `same_hue_acorn_facets`: covered travel merges `38 -> 39`
+- quality stayed `100`; colors stayed preserved
+- no actual-thread connector risk, stitched long spans, or untrimmed jump long spans
+- full generated and underpaint comparisons were unchanged versus the `trim16` baseline
+
+Guardrail: do not generalize this into "long carries are okay." The accepted path is hidden by later stitch geometry. The remaining acorn trims are exposed `23-43mm` moves and should be attacked through route-local ordering or same-color surface grouping, not a wider trim threshold.
 
 ### Same-Hue Facet Trim Reduction
 

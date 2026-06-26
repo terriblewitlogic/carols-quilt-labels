@@ -233,6 +233,7 @@ Recent backend/frontend progress:
 - Upload-style tone/material policy checks now include a same-hue acorn fixture that preserves dark-brown, tan, and light tan thread colors.
 - Same-hue faceted material stress coverage now preserves substantial darker end-members instead of flattening them into mid-tone facets.
 - Same-hue facet trim pressure now has acorn, mushroom, and shell stress fixtures; the accepted inter-component trim threshold is `16mm`, reducing `same_hue_acorn_facets` trims `11 -> 8` without long untrimmed jump diagnostics.
+- Covered-travel routing now searches up to `35mm` only when later stitches prove the carry is hidden; `same_hue_acorn_facets` trims improved again `8 -> 7` with no actual-thread connector risk.
 - Added generated-run HTML comparison tooling:
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/scripts/compare_generated_runs.py`
   - `npm run compare:generated`
@@ -240,7 +241,7 @@ Recent backend/frontend progress:
 Current generator/stitch backlog:
 
 - expand tone/color preservation fixtures with real generated/uploaded examples, especially remaining same-hue trim/fragmentation cases
-- improve same-hue trim pressure with smarter covered travel or component merging, not by raising the current `16mm` trim threshold
+- improve remaining exposed same-hue relocations with route-local ordering or same-color surface grouping, not by raising the current `16mm` trim threshold
 - preserve meaningful accent colors without preserving noisy fragments, using strict source-policy checks
 - add targeted repeated-island fixtures before broadening route optimization further
 - keep using generated-run comparison reports before accepting algorithm changes

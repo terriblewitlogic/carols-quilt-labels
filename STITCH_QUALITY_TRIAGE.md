@@ -18,6 +18,7 @@ Recent shipped backend changes:
 - Upload-style tone-material preservation now has a deterministic `same_hue_acorn` guard: dark-brown cap, tan body, and light tan highlight must survive as separate thread colors.
 - Same-hue tonal stress coverage now includes `same_hue_acorn_facets`, and the posterizer protects substantial darker end-members so dark caps/bases are not flattened into mid-tone facets.
 - Same-hue facet trim pressure now has explicit acorn, mushroom, and shell stress coverage; modest inter-component carries trim at `16mm` instead of `8mm`, reducing faceted acorn trims without introducing long untrimmed jump diagnostics.
+- Covered-travel routing now considers longer `2-35mm` carries only when later stitch geometry proves the path is hidden; this reduces faceted acorn trims again while leaving exposed long moves as jumps/trims.
 
 The remaining quality problems are mostly in generated icon art:
 
@@ -49,6 +50,9 @@ Current useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_radial_route_20260626.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_trim16_20260626.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_trim16_20260626.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_covered_travel35_same_hue_20260626.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_covered_travel35_20260626.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_covered_travel35_20260626.html`
 
 ## Research Coverage Map
 
@@ -75,6 +79,7 @@ Implemented now:
 - same-hue material preservation fixture: `same_hue_acorn` verifies the posterizer/thread snap keeps `#783c14`, `#c3915a`, and `#d2aa6e` instead of collapsing a dark cap, tan body, and light highlight into one family.
 - same-hue faceted stress fixture: `same_hue_acorn_facets` is available by explicit `--case` but excluded from default uploaded acceptance; the current result is quality `100`, `0` broad/detail risk surfaces, and preserved `#783c14`, `#a05a28`, `#c3915a`, and `#d2aa6e`.
 - same-hue facet trim reduction: `same_hue_acorn_facets`, `same_hue_mushroom_facets`, and `same_hue_shell_facets` exercise same-hue material fields with internal facets. Inter-component trims now use a `16mm` threshold, which reduced acorn facet trims while keeping long untrimmed jump diagnostics at zero.
+- covered travel extension: `_merge_covered_travel` now considers hidden carries up to `35mm`, but only when a later fill/outline directly covers the route or offers a covered detour. It removes one remaining faceted-acorn relocation without raising the global trim threshold.
 
 Research later:
 
@@ -91,7 +96,48 @@ Out of scope for now:
 - cross-stitch DFS/parity algorithms unless cross-stitch becomes a product mode
 - applique placement/cutting/tackdown workflows until the core generated-icon pipeline is stable
 
-## Current Patch: Same-Hue Facet Trim Reduction
+## Current Patch: Covered Travel Window For Same-Hue Facets
+
+The last patch deliberately stopped at a `16mm` inter-component trim threshold because looser global thresholds created long untrimmed jump diagnostics. The safer next step was to extend the existing covered-travel pass, which only stitches a carry when later geometry proves it will be hidden under a subsequent fill/outline.
+
+What changed:
+
+- `COVERED_TRAVEL_MAX_GAP_EMB = 350.0` (`35mm`) replaces the old implicit `20mm` candidate ceiling in `_merge_covered_travel`.
+- The coverage test is unchanged: exposed long carries still stay as jumps/trims.
+- The accepted acorn improvement came from one additional covered merge, not from allowing untrimmed exposed jumps.
+
+Current outcome:
+
+- `same_hue_acorn_facets`: trims `8 -> 7`
+- `same_hue_acorn_facets`: jumps `21 -> 20`
+- `same_hue_acorn_facets`: stitches `6205 -> 6214`
+- `same_hue_acorn_facets`: cross-surface trimmed long spans `4 -> 3`
+- `same_hue_acorn_facets`: covered travel merges `38 -> 39`
+- quality stays `100`; colors stay `#783c14`, `#a05a28`, `#c3915a`, `#d2aa6e`, and black
+- no actual-thread connector risk, stitched long spans, or untrimmed jump long spans
+- generated and underpaint full comparisons are unchanged versus the `trim16` baseline
+
+Validation:
+
+- targeted same-hue uploaded acceptance
+- same-hue uploaded comparison with `--fail-on-regression`
+- full uploaded strict source policy
+- full generated acceptance
+- generated comparison with `--fail-on-regression`
+- underpaint benchmark and underpaint comparison with `--fail-on-regression`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- `npm run benchmark:underpaint`
+
+Key reports:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_covered_travel35_same_hue_20260626.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_covered_travel35_20260626.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_covered_travel35_20260626.html`
+
+Next direction: the remaining acorn facet trims are still exposed `23-43mm` relocations. Do not solve those by raising the global trim threshold; the next option is route-local ordering or same-color surface grouping that shortens the exposed moves before command generation.
+
+## Recent Patch: Same-Hue Facet Trim Reduction
 
 The dark-endpoint guard fixed color preservation for faceted same-hue material art, but it exposed the next issue: the now-preserved material facets created extra trim pressure. The acorn fixture improved visually, but trims rose from `7 -> 11` because formerly flattened mid-tone facets became real stitched regions.
 
@@ -128,7 +174,7 @@ Key reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_trim16_20260626.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_trim16_20260626.html`
 
-Next direction: do not keep raising the trim threshold. The next improvement should use smarter covered travel or component merging for real same-hue generated/uploaded examples, because longer untrimmed carries quickly become visible risk.
+Next direction from this patch was smarter covered travel or component merging rather than raising the trim threshold. The first covered-travel extension is now implemented above.
 
 ## Recent Patch: Same-Hue Dark Endpoint Guard
 
@@ -269,7 +315,7 @@ Caveat: the generated acceptance score for sunflower still drops from `100` to `
 ## Next Best Work
 
 1. Expand color/tone preservation fixtures.
-   The clean same-hue material guard is live (`same_hue_acorn`, quality `100`) and faceted same-hue stress coverage now includes acorn, mushroom, and shell. The next broad quality pass should add real generated/uploaded examples where same-hue materials still collapse, over-fragment, or create too many trims.
+   The clean same-hue material guard is live (`same_hue_acorn`, quality `100`) and faceted same-hue stress coverage now includes acorn, mushroom, and shell. The next broad quality pass should add real generated/uploaded examples where same-hue materials still collapse, over-fragment, or create exposed long relocations.
 
 2. Add targeted repeated-island route fixtures before broadening optimization.
    Daisy and sunflower now prove the selector can reject unsafe tours and preserve radial angular routing. The next route-specific step should add non-flower disconnected-island fixtures before changing acceptance rules.

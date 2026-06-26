@@ -31,10 +31,14 @@ Recent shipped work since the original pro-design comparison:
   - `_TRIM_GAP_INTER_COMPONENT_EMB` `8mm -> 16mm`
   - `same_hue_acorn_facets` trims `11 -> 8`
   - quality stayed `100`, colors stayed preserved, and no long untrimmed jump diagnostics appeared
+- Extended covered travel only when later stitch geometry proves the carry is hidden:
+  - `_merge_covered_travel` now considers `2-35mm` carries instead of stopping at `20mm`
+  - `same_hue_acorn_facets` trims `8 -> 7` and jumps `21 -> 20`
+  - exposed `23-43mm` remaining relocations still trim; no actual-thread connector risk or untrimmed long-span diagnostics appeared
 
 Current next-best stitch work:
 
-1. Expand color/tone preservation coverage with real generated/uploaded examples, especially same-hue materials that still over-fragment, collapse into the wrong thread family, or create avoidable trims. The next trim work should prefer smarter covered travel or component merging over raising the inter-component threshold again.
+1. Expand color/tone preservation coverage with real generated/uploaded examples, especially same-hue materials that still over-fragment, collapse into the wrong thread family, or create exposed long relocations. The next trim work should prefer route-local ordering or same-color surface grouping over raising the inter-component threshold again.
 2. Preserve meaningful small accent colors while continuing to drop/absorb noisy fragments under strict source-policy checks.
 3. Add targeted repeated-island fixtures before broadening route optimization further; the graph-aware selector now rejects unsafe tours but did not find a safe daisy improvement.
 4. Use `compare_generated_runs.py ... --fail-on-regression` for every keep/revert decision.
@@ -43,7 +47,7 @@ Current next-best stitch work:
 Research review status:
 
 - Already covered: role-specific stitch caps, multi-pass layer planning, underlay chains, medial/satin narrow-shape fills, seam ownership, detail heuristics, and gated angular routing.
-- Implemented now: graph-aware route ordering for disconnected same-color fill islands using nearest, angular, MST preorder, and 2-opt candidate tours. It preserves the sunflower angular win and records candidate rejection diagnostics; it does not yet reduce daisy trims. Source/detail and same-hue material guardrails now make tiny-detail promotion, simplification, unresolved-detail regressions, cap/body/highlight tone collapse, and faceted same-hue dark-endpoint collapse visible in uploaded-art acceptance output. Same-hue facet trim pressure is now covered by acorn, mushroom, and shell stress fixtures, with the accepted trim threshold set at `16mm` because higher thresholds introduced long-carry risk.
+- Implemented now: graph-aware route ordering for disconnected same-color fill islands using nearest, angular, MST preorder, and 2-opt candidate tours. It preserves the sunflower angular win and records candidate rejection diagnostics; it does not yet reduce daisy trims. Source/detail and same-hue material guardrails now make tiny-detail promotion, simplification, unresolved-detail regressions, cap/body/highlight tone collapse, and faceted same-hue dark-endpoint collapse visible in uploaded-art acceptance output. Same-hue facet trim pressure is now covered by acorn, mushroom, and shell stress fixtures, with the accepted trim threshold set at `16mm` because higher thresholds introduced long-carry risk. Covered travel can now search up to `35mm` only when later stitch geometry proves the route is hidden.
 - Later: direction-field streamlines, offset-curve/auto-split partitioning, stronger vectorization, stitch-style classification, texture synthesis for preview/style inspiration, and multi-objective optimization once deterministic fixtures are stronger.
 - Out of scope: exact b-matching in this sprint, cross-stitch DFS/parity, and applique workflows.
 
