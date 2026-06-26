@@ -24,10 +24,11 @@ Recent shipped work since the original pro-design comparison:
 - Added upload-style source/detail policy guardrails:
   - `surface-plan.json` now summarizes tiny-detail decision counts.
   - `uploaded_art_acceptance.py --strict-source-policy` fails if tiny-detail accounting, detail-budget status, or key accent-color preservation regresses.
+- Added `same_hue_acorn` to upload-style acceptance so dark-brown cap, tan body, and light tan highlight must stay separate thread colors.
 
 Current next-best stitch work:
 
-1. Improve color/tone preservation before stitch generation, especially same-hue materials that collapse into the wrong thread family.
+1. Expand color/tone preservation coverage with real generated/uploaded examples, especially same-hue materials that collapse into the wrong thread family or stitch as fragmented surfaces.
 2. Preserve meaningful small accent colors while continuing to drop/absorb noisy fragments under strict source-policy checks.
 3. Add targeted repeated-island fixtures before broadening route optimization further; the graph-aware selector now rejects unsafe tours but did not find a safe daisy improvement.
 4. Use `compare_generated_runs.py ... --fail-on-regression` for every keep/revert decision.
@@ -36,7 +37,7 @@ Current next-best stitch work:
 Research review status:
 
 - Already covered: role-specific stitch caps, multi-pass layer planning, underlay chains, medial/satin narrow-shape fills, seam ownership, detail heuristics, and gated angular routing.
-- Implemented now: graph-aware route ordering for disconnected same-color fill islands using nearest, angular, MST preorder, and 2-opt candidate tours. It preserves the sunflower angular win and records candidate rejection diagnostics; it does not yet reduce daisy trims. Source/detail policy guardrails now make tiny-detail promotion, simplification, and unresolved-detail regressions visible in uploaded-art acceptance output.
+- Implemented now: graph-aware route ordering for disconnected same-color fill islands using nearest, angular, MST preorder, and 2-opt candidate tours. It preserves the sunflower angular win and records candidate rejection diagnostics; it does not yet reduce daisy trims. Source/detail and same-hue material guardrails now make tiny-detail promotion, simplification, unresolved-detail regressions, and cap/body/highlight tone collapse visible in uploaded-art acceptance output.
 - Later: direction-field streamlines, offset-curve/auto-split partitioning, stronger vectorization, stitch-style classification, texture synthesis for preview/style inspiration, and multi-objective optimization once deterministic fixtures are stronger.
 - Out of scope: exact b-matching in this sprint, cross-stitch DFS/parity, and applique workflows.
 

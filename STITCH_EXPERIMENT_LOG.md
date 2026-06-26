@@ -3975,3 +3975,43 @@ Validation:
 NEXT: tone/color preservation before stitch generation, especially same-hue material
 families that collapse into wrong thread families; add non-flower repeated-island
 fixtures before broadening route optimization.
+
+================================================================================
+2026-06-26 — SAME-HUE MATERIAL PRESERVATION GUARD
+================================================================================
+
+Added a deterministic upload-style `same_hue_acorn` fixture to lock the acorn-class
+posterizer lesson into acceptance. The fixture is deliberately clean, not a
+fragmentation stress case: dark-brown cap, tan body, light tan highlight, black
+outline, white background.
+
+New strict-source-policy contract:
+
+- preserves `#783c14` dark-brown cap
+- preserves `#c3915a` tan body
+- preserves `#d2aa6e` light tan highlight
+- keeps black outline
+- requires at least two warm brown/tan tones with meaningful luminance separation
+
+Targeted result: `same_hue_acorn` quality 100, 23 jumps, 3 trims, 5296 stitches,
+0 broad-fill risk, 0 detail-fill risk. Full uploaded strict suite now has 7 cases
+and passes.
+
+Important negative probe: an over-adversarial acorn variant with extra same-hue
+body/cap facets did exercise `collapse_oversegmented_tonal_families`, but it became
+a fill-fragmentation fixture (quality 50-60, broad/fill-coherence risk). Keep that
+failure class separate: it belongs to future surface simplification/fill planning,
+not the clean same-hue material preservation guard.
+
+Validation:
+
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- full uploaded strict source policy: 7 cases, 0 failures
+- full generated acceptance: 9 cases, 0 failures
+- generated comparison against previous source-policy run passed `--fail-on-regression`
+- full underpaint benchmark: 12 cases, 0 failures
+
+NEXT: add real generated/uploaded examples where same-hue materials collapse or
+turn into fragmented fill surfaces; keep the clean acorn fixture as the color
+preservation sentinel.

@@ -15,6 +15,7 @@ Recent shipped backend changes:
 - Large radial repeated motifs can use angular routing; this reduced `flower_sunflower_simple` trims `9 -> 7` without changing the daisy.
 - Graph-aware route candidate diagnostics compare nearest, angular, MST preorder, and 2-opt tours for disconnected same-color fill islands.
 - Upload-style source/detail policy diagnostics now surface tiny-detail accounting, compact-detail promotion, simplification, and detail-budget status in acceptance summaries.
+- Upload-style tone-material preservation now has a deterministic `same_hue_acorn` guard: dark-brown cap, tan body, and light tan highlight must survive as separate thread colors.
 
 The remaining quality problems are mostly in generated icon art:
 
@@ -60,11 +61,13 @@ Already implemented in the current engine:
 - gated angular routing for large repeated radial motifs
 - generated-run HTML comparison harness for visual keep/revert decisions
 - source/detail policy guardrails for uploaded-art fixtures
+- tone/material color guardrails for same-hue uploaded art
 
 Implemented now:
 
 - graph-aware component routing for disconnected same-color fill islands, inspired by embroidery/sewing path-ordering work, geometric TSP/MST heuristics, and 2-opt. The production adaptation compares nearest, angular, MST preorder, and 2-opt component tours, then keeps a new route only when predicted trims/jumps improve without increasing long-span or visible-carry risk.
 - source/detail decision diagnostics for upload-style fixtures: `surface-plan.json` records tiny-component decision counts and `uploaded_art_acceptance.py --strict-source-policy` fails on unresolved tiny decisions, bad detail budgets, lost accent colors, or detail-fill risk regressions.
+- same-hue material preservation fixture: `same_hue_acorn` verifies the posterizer/thread snap keeps `#783c14`, `#c3915a`, and `#d2aa6e` instead of collapsing a dark cap, tan body, and light highlight into one family.
 
 Research later:
 
@@ -188,8 +191,8 @@ Caveat: the generated acceptance score for sunflower still drops from `100` to `
 
 ## Next Best Work
 
-1. Improve color and tone preservation on upload-style art.
-   The source/detail layer is now explicit and guarded, and current upload fixtures pass strict source-policy checks. The next broad quality pass should focus on tone-preservation failures where meaningful same-hue materials collapse into the wrong thread family.
+1. Expand color/tone preservation fixtures.
+   The first same-hue material guard is live (`same_hue_acorn`, quality `100`, no broad/detail risk, cap/body/highlight preserved). The next broad quality pass should add real generated/uploaded examples where meaningful same-hue materials still collapse or stitch as fragmented surfaces.
 
 2. Add targeted repeated-island route fixtures before broadening optimization.
    Daisy and sunflower now prove the selector can reject unsafe tours and preserve radial angular routing. The next route-specific step should add non-flower disconnected-island fixtures before changing acceptance rules.
