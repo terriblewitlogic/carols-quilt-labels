@@ -164,6 +164,103 @@ Rule: stable detail scan must be accepted only when candidate gap scoring predic
 
 ## Promising Or Accepted Directions
 
+### Generated Run Comparison Harness
+
+Status: keep.
+
+Why: stitch-quality work needs visual comparison, not just pass/fail metrics. The new harness compares two existing generated acceptance or underpaint output directories and produces a browser report with source art, stitch previews, path/travel diagnostics, segmentation, surface diagnostics, colors, fill strategies, top risks, metric deltas, added/removed cases, and optional strict regression failure.
+
+Current tool:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/scripts/compare_generated_runs.py`
+
+Useful reports:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_gradient_elephant.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_underpaint_final_to_tonal_merge.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_radial_route_20260626.html`
+
+Rule: every stitch-algorithm change that affects generated fixtures should produce a comparison report and should run `--fail-on-regression` when comparing against the previous accepted run.
+
+### Simple Gradient Icon Acceptance
+
+Status: keep.
+
+Why: a generated pink elephant with a clear single subject, white background, and mild soft shading was incorrectly blocked as “too detailed.” That is product-hostile: users reasonably expect simple app-icon-like source art to convert.
+
+Changes accepted:
+
+- Frontend source gate treats simple connected generated icons as acceptable even with soft shading when structural/detail flags are absent.
+- Backend fixture `gradient_elephant_simple` records this class as a generated acceptance/underpaint case.
+- Tonal cleanup collapses mild broad same-hue gradient bands unless the secondary tone is strongly luminance/perceptually separated.
+
+Measured result on `gradient_elephant_simple`:
+
+- same-surface long spans `3 -> 0`
+- trims `8 -> 4`
+- jumps `14 -> 8`
+- stitches `6269 -> 5062`
+- `scan_lanes` removed from the gradient body
+
+Guardrail: do not make tone merging global. Preserve real material colors such as two-tone leaves, sparrow browns, and acorn/teddy-style separated colors.
+
+### Radial Repeated Motif Routing
+
+Status: keep.
+
+Why: repeated radial motifs are not loose clusters. For large rings of similarly sized petals, nearest routing can bounce across the design and add avoidable trims. Angular routing around the ring keeps hops local.
+
+Current gate:
+
+- fill group only
+- foundation/detail role only
+- at least 10 components
+- similar component area
+- ring has enough radius and occupies most of the circle
+
+Measured result:
+
+- `flower_sunflower_simple`: trims `9 -> 7`
+- `flower_sunflower_simple`: stitches `1832 -> 1823`
+- `flower_daisy_simple`: unchanged at `26 jumps / 14 trims`
+
+Guardrail: do not lower the component threshold casually. An eight-petal daisy got worse under angular routing (`14 -> 15` trims), so it must stay on nearest routing until a better daisy-specific general geometry rule exists.
+
+### Graph-Aware Component Routing
+
+Status: keep as guarded selector/diagnostic.
+
+Why: the research review points to route ordering as the highest-value missing production idea. The engine already has the major stitch-generation primitives in place, but disconnected same-color islands still create avoidable trim/jump pressure. Rather than implementing exact b-matching from the embroidery-path papers, the production adaptation compares deterministic candidate tours over existing stitch components.
+
+Current gate:
+
+- fill group only
+- foundation/detail role only
+- 4 to 30 disconnected components
+- enough two-axis spread to matter
+- skips structural/no-flip underlay-sensitive groups
+- falls back to existing routing when no candidate safely improves trims/jumps
+
+Candidate orders:
+
+- current nearest route baseline
+- angular route
+- MST preorder
+- 2-opt improvement from nearest
+- 2-opt improvement from MST preorder
+
+Selection rule: keep a candidate only if predicted trim or jump pressure improves without increasing long-span counts, same-surface long-span counts, or visible-carry risk. Candidate scores and rejection reasons are written into `surface-plan.json` through `componentRouteDecisions`.
+
+Measured result:
+
+- `flower_daisy_simple`: no safe improvement found; nearest remains selected at `26 jumps / 14 trims`.
+- `flower_sunflower_simple`: radial angular baseline remains selected at `20 jumps / 7 trims`.
+- `gradient_elephant_simple`: stable at `8 jumps / 4 trims`.
+- Full generated comparison passed with `--fail-on-regression`.
+- Full underpaint benchmark passed with daisy added to the generated fixture set.
+
+Guardrail: this is a route-order improvement, not permission to enable broad lane routing or source simplification. Any candidate that improves one flower while regressing daisy, sunflower, gradient elephant, circle-hole, or the synthetic cutout trap should be rejected or left as diagnostics only.
+
 ### Surface Planning Layer
 
 Status: keep.

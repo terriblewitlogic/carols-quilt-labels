@@ -1,5 +1,43 @@
 # Stitch Algorithm Improvement Plan
 
+## Current status — 2026-06-26
+
+This document is the long-range pro-quality plan. The active day-to-day backlog now lives in:
+
+- `/Users/partido/jeflabelmaker/STITCH_QUALITY_TRIAGE.md`
+- `/Users/partido/jeflabelmaker/STITCH_EXPERIMENT_LOG.md`
+
+Recent shipped work since the original pro-design comparison:
+
+- Added `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/scripts/compare_generated_runs.py` and `npm run compare:generated` for before/after generated-run review.
+- Accepted simple generated icons with mild soft shading when they are one connected subject and do not have structural/detail overload.
+- Added `gradient_elephant_simple` as a fixture and regression case.
+- Improved tonal cleanup for mild same-hue generated gradients:
+  - `gradient_elephant_simple` same-surface long spans `3 -> 0`
+  - trims `8 -> 4`
+  - jumps `14 -> 8`
+  - stitches `6269 -> 5062`
+- Re-enabled angular routing only for large radial repeated motif rings:
+  - `flower_sunflower_simple` trims `9 -> 7`
+  - `flower_daisy_simple` intentionally unchanged because angular routing worsened the eight-petal case.
+
+Current next-best stitch work:
+
+1. Improve source/detail simplification and color preservation before stitch generation.
+2. Preserve meaningful small accent colors while dropping/absorbing noisy fragments.
+3. Add targeted repeated-island fixtures before broadening route optimization further; the graph-aware selector now rejects unsafe tours but did not find a safe daisy improvement.
+4. Use `compare_generated_runs.py ... --fail-on-regression` for every keep/revert decision.
+5. Revisit broad-underpaint/lane routing only when comparison reports show actual stitched-span risk.
+
+Research review status:
+
+- Already covered: role-specific stitch caps, multi-pass layer planning, underlay chains, medial/satin narrow-shape fills, seam ownership, detail heuristics, and gated angular routing.
+- Implemented now: graph-aware route ordering for disconnected same-color fill islands using nearest, angular, MST preorder, and 2-opt candidate tours. It preserves the sunflower angular win and records candidate rejection diagnostics; it does not yet reduce daisy trims.
+- Later: direction-field streamlines, offset-curve/auto-split partitioning, stronger vectorization, stitch-style classification, texture synthesis for preview/style inspiration, and multi-objective optimization once deterministic fixtures are stronger.
+- Out of scope: exact b-matching in this sprint, cross-stitch DFS/parity, and applique workflows.
+
+---
+
 Based on analysis of six professional designs (Find Joy, F is for Flamingo, Z for Zebra, Faithful Friends, Boundaries, Unbounded Faithfulness) digitized in **Hatch Embroidery Digitizer** with Isacord 40 thread, and direct comparison to the current output of `raster_to_stitches.py`.
 
 The professional files were hand-digitized; ours are auto-converted from raster. Closing the gap fully is impossible, but specific, measurable improvements can move the output dramatically closer to professional quality.

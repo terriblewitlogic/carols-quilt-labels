@@ -1,19 +1,148 @@
 # Stitch Quality Triage
 
-Last updated: 2026-05-23
+Last updated: 2026-06-26
 
 ## Current Read
 
-The engine is no longer failing mainly because of simple geometry primitives. Rectangles, circles, circle holes, single leaves, double circles, daisy, and elephant all export across `JEF`, `PES`, `DST`, `EXP`, `VP3`, and `XXX` without conversion failures.
+The engine is no longer failing mainly because of simple geometry primitives. Current generated-icon work is now measured through `generated_acceptance.py`, `underpaint_benchmark.py`, and the generated-run HTML comparison harness.
+
+Recent shipped backend changes:
+
+- `compare_generated_runs.py` compares two existing acceptance/benchmark output dirs and produces an HTML visual + metric report.
+- The frontend source gate now accepts simple connected generated icons with soft shading instead of rejecting them as too detailed.
+- `gradient_elephant_simple` is a backend fixture and regression case.
+- Mild generated gradient tone bands now collapse into stitchable thread fields while preserving meaningful material contrast.
+- Large radial repeated motifs can use angular routing; this reduced `flower_sunflower_simple` trims `9 -> 7` without changing the daisy.
 
 The remaining quality problems are mostly in generated icon art:
 
-- broad same-color underpaint split by internal line art, especially bird/elephant bodies
-- small foundation patches that are visually filled shapes but trip satin/stroke fallback
+- repeated-island designs still have too many jumps/trims, especially `flower_daisy_simple`
 - source-generation detail overload: too many small regions, low-contrast tones, or embroidery-like source imagery
+- meaningful small accent colors must be preserved without preserving noisy fragments
 - some residual preview clutter from jumps that are not actually stitched
+- broad-underpaint/lane routing should only be revisited when reports show actual stitched-span risk
 
-## Current Patch: Narrowed Small Patch Stable Scan
+## Current Tooling: Generated Run Comparison
+
+Use `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/scripts/compare_generated_runs.py` for every ambiguous stitch-quality change.
+
+Example:
+
+```bash
+cd /Users/partido/jeflabelmaker/website/embroidery-stitch-backend
+python3 scripts/compare_generated_runs.py BEFORE_DIR AFTER_DIR \
+  --out tmp/generated_compare_report.html \
+  --fail-on-regression
+```
+
+The report shows source art, preview SVGs, stitch/path/travel diagnostics, surface diagnostics, colors, fill strategies, top risks, metric deltas, added/removed cases, and strict regression failures.
+
+Current useful reports:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_gradient_elephant.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_underpaint_final_to_tonal_merge.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_radial_route_20260626.html`
+
+## Research Coverage Map
+
+Reviewed against `Embroidery Stitching Algorithm Research.pdf` and the follow-up bibliography screenshot on 2026-06-26.
+
+Already implemented in the current engine:
+
+- role-specific stitch caps for fill, underlay, outline, and travel
+- multi-pass layer planning with foundation/detail/outline roles
+- underlay caps and underlay-before-cover stitch chains
+- medial-axis/satin handling for narrow shapes
+- overlap/seam ownership between fills and outlines
+- heuristic source/detail classification and tiny-detail pruning/promotion
+- gated angular routing for large repeated radial motifs
+- generated-run HTML comparison harness for visual keep/revert decisions
+
+Implement now:
+
+- graph-aware component routing for disconnected same-color fill islands, inspired by embroidery/sewing path-ordering work, geometric TSP/MST heuristics, and 2-opt. The production adaptation compares nearest, angular, MST preorder, and 2-opt component tours, then keeps a new route only when predicted trims/jumps improve without increasing long-span or visible-carry risk.
+
+Research later:
+
+- direction-field/divergence or vector-field streamlines for artistic flow fills
+- offset-curve and auto-split fill partitioning for complex regions
+- improved raster-to-vector contour simplification before surface planning
+- stitch-style classification beyond current heuristic labels
+- texture synthesis for preview/style inspiration, not direct machine stitches
+- genetic/evolutionary multi-objective optimization after deterministic fixtures are stronger
+
+Out of scope for now:
+
+- exact b-matching/planar graph formulation from the embroidery-path papers; the current engine routes generated stitch segments, not a pure required-edge graph
+- cross-stitch DFS/parity algorithms unless cross-stitch becomes a product mode
+- applique placement/cutting/tackdown workflows until the core generated-icon pipeline is stable
+
+## Current Patch: Graph-Aware Component Routing
+
+Disconnected same-color fill islands now enter a guarded route-candidate selector. The selector compares nearest, angular, MST preorder, 2-opt from nearest, and 2-opt from MST. Non-radial groups benchmark against nearest; radial rings benchmark against the already-accepted angular behavior so the selector cannot quietly undo the sunflower fix.
+
+Current outcome:
+
+- `flower_daisy_simple`: graph candidates rejected; nearest stays selected at `26 jumps / 14 trims`, with no same-surface long spans or risk surfaces.
+- `flower_sunflower_simple`: radial baseline preserved; angular stays selected at `20 jumps / 7 trims`, with no same-surface long spans or risk surfaces.
+- `gradient_elephant_simple`: stable at `8 jumps / 4 trims`, no same-surface long spans, no `scan_lanes` on the body.
+- synthetic cutout and circle-hole benchmarks stayed inside their existing guardrails.
+
+Validation:
+
+- targeted flower generated acceptance
+- targeted underpaint focus set for daisy, sunflower, gradient elephant, cutout trap, and circle-hole
+- full generated acceptance
+- full generated comparison with `--fail-on-regression`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- full `npm run benchmark:underpaint`
+
+Key reports:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_graph_route_flowers_20260626.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_graph_route_full_20260626.html`
+
+## Recent Patch: Radial Repeated Motif Routing
+
+Large radial repeated color islands now route angularly when the geometry clearly forms a ring. The gate is deliberately narrow: at least 10 similarly sized components, enough radial spread, and no large angular gap. Loose clusters stay on nearest routing.
+
+What improved:
+
+- `flower_sunflower_simple`: trims `9 -> 7`
+- `flower_sunflower_simple`: stitches `1832 -> 1823`
+- no strict generated-comparison regressions
+- `flower_daisy_simple` is unchanged at `26 jumps / 14 trims`
+
+Validation:
+
+- targeted flower generated acceptance
+- targeted sunflower underpaint benchmark
+- full generated acceptance
+- `compare_generated_runs.py ... --fail-on-regression`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- full `npm run benchmark:underpaint`
+
+## Recent Patch: Gradient Elephant Source Acceptance + Tonal Cleanup
+
+The product had rejected a simple soft-shaded generated elephant as “too detailed.” That case should work: it has one clear subject, white background, few semantic parts, and mild gradients.
+
+What changed:
+
+- Frontend source-quality gate allows `simpleConnectedSubject` with soft shading when no structural problems are present.
+- Backend fixture `gradient_elephant_simple` was added from the user screenshot.
+- Tonal cleanup now collapses broad mild gradient bands unless they are strongly luminance/perceptually separated.
+
+Result:
+
+- `gradient_elephant_simple`: same-surface long spans `3 -> 0`
+- trims `8 -> 4`
+- jumps `14 -> 8`
+- stitches `6269 -> 5062`
+- `scan_lanes` removed from the gradient body
+
+## Historical Patch: Narrowed Small Patch Stable Scan
 
 The latest guarded patch scores patch-like foundation surfaces before they reach satin fallback. If the scan-row candidate has no long spans and no trim count, it forces scan fill and records debug fields in `surface-plan.json`.
 
@@ -44,29 +173,33 @@ Caveat: the generated acceptance score for sunflower still drops from `100` to `
 | Fixture | Current State | Notes |
 | --- | --- | --- |
 | badge_circle_star | Stable | Primitive-like; no risk surfaces. |
-| bee_simple | Stable | Narrowed small-patch scan restored the bee to baseline after the first version regressed it. |
-| cartoon_elephant | Improved from previous lane-order work | Still has one same-surface jump long span; broad route risk stayed cleared. |
-| flower_daisy_simple | Stable | Remaining risk is small/detail fill, not broad routing. |
-| flower_sunflower_simple | Visually improved leaves | Still has center/high-risk residue; scoring needs calibration. |
+| bee_simple | Stable | Still diagnosed as source complexity, but no long-span/risk regression. |
+| cartoon_elephant | Stable but not solved | Still has one same-surface trimmed long span and a visual-lobe route conflict diagnostic. |
+| gradient_elephant_simple | Improved | Accepted as valid generated source; tonal cleanup removed same-surface long spans and lane-routed gradient body. |
+| flower_daisy_simple | Stable but trim-heavy | Eight-petal case stays better on nearest routing; current result is `26 jumps / 14 trims`. |
+| flower_sunflower_simple | Improved | Angular repeated-ring routing reduced trims `9 -> 7` with no long-span regression. |
 | leaf_single_smooth | Stable | Guarded detail scan correctly rejects the bad dark-detail candidate. |
 | leaf_two_tone | Improved | Guarded detail stable scan remains useful here. |
 | sparrow_flat_app_icon | Stable but not solved | Remaining issues are source complexity and broad underpaint/detail handling. |
 
 ## Next Best Work
 
-1. Improve source-art triage and source compiler behavior.
-   The new triage report shows the main remaining failure buckets are source complexity, detail fragmentation, and color preservation. That means the next high-leverage work is upstream of fill rows: simplify stitch-hostile generated/uploaded art, preserve meaningful accent colors, and classify tiny details before stitch generation.
+1. Improve source/detail simplification and color preservation.
+   The graph route selector now rejects unsafe repeated-island tours and preserves the sunflower angular win, but it did not find a safe daisy trim reduction. The next broad quality pass should move upstream: simplify stitch-hostile generated/uploaded art, preserve meaningful accent colors, and classify tiny details before stitch generation.
 
-2. Fix color preservation on upload-style art.
+2. Add targeted repeated-island route fixtures before broadening optimization.
+   Daisy and sunflower now prove the selector can reject unsafe tours and preserve radial angular routing. The next route-specific step should add non-flower disconnected-island fixtures before changing acceptance rules.
+
+3. Fix color preservation on upload-style art.
    The upload-style badge and thick-outline flower both show dropped source colors. This is the same class of problem the bird beak/feet exposed: visible accent colors should not vanish just because they are small or near another thread color.
 
-3. Absorb or promote tiny detail intentionally.
+4. Absorb or promote tiny detail intentionally.
    `tiny_detail_icon`, `cartoon_elephant`, `low_contrast_bird`, and `leaf_single_smooth` are currently classified as detail-fragmentation problems. The engine needs a deliberate "keep as detail / merge into parent / drop as too small" decision before fill generation.
 
-4. Use visual comparison and triage sheets.
-   The comparison script now puts `source`, `preview`, `path-preview`, and `surface-diagnostics` side by side for generated acceptance runs, and renders SVG artifacts to PNGs when local renderer support is available. This should be part of every ambiguous keep/revert decision.
+5. Use generated comparison reports for every keep/revert decision.
+   The current comparison script puts source, preview, stitch-only preview, path preview, travel debug, segmentation, surface diagnostics, colors, strategies, and metric deltas side by side. It should be part of every ambiguous keep/revert decision.
 
-5. Continue broad-underpaint diagnostics only when actual stitched spans return.
+6. Continue broad-underpaint diagnostics only when actual stitched spans return.
    The latest triage reports show most current "web" risk is source complexity, detail fragmentation, or preview-only clutter rather than long stitched connector spans. Do not spend another sprint on lane routing unless the report points to `stitch_planner_routing`.
 
 ## Source-Art Triage Reports
@@ -101,16 +234,15 @@ Interpretation: the next impactful fix should be source compiler/detail/color pr
 
 ## Candidate Review Workflow
 
-Use `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/scripts/compare_acceptance_runs.py` whenever a patch has a plausible visual win but ambiguous numeric movement. The report should compare the previous generated acceptance run against the candidate run and include:
+Use `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/scripts/compare_generated_runs.py` whenever a patch has a plausible visual win but ambiguous numeric movement. The report should compare the previous generated acceptance or underpaint run against the candidate run and include:
 
-- score/stitch/jump/trim deltas
-- product-facing rubric grade deltas
-- fill-risk and stitched-web deltas
-- side-by-side source, preview, path preview, and surface diagnostics, with SVGs rendered to PNGs for steadier visual review
-- a contact-sheet PNG for fast visual scanning
-- explicit flags for score/visual-risk disagreement
+- status/stitch/jump/trim/quality deltas
+- long-span and risk-surface deltas
+- side-by-side source, preview, stitch-only preview, path preview, travel debug, segmentation, and surface diagnostics
+- color and fill-strategy changes
+- explicit regression failures when `--fail-on-regression` is used
 
-For the narrowed small-patch stable-scan patch, the report shows one material visual-risk improvement: `flower_sunflower_simple` dropped from 7 fill-risk surfaces to 3, while its engine score dropped from 100 to 84. The calibrated product rubric stays `C+ -> C+`, which is a better reflection of the ambiguous visual tradeoff. The first version regressed `bee_simple`, but the narrowed area gate restores it to baseline (`B -> B`).
+Keep `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/scripts/compare_acceptance_runs.py` as a historical/product-rubric comparison tool, but prefer `compare_generated_runs.py` for the current generated-icon stitch work because it reads both generated acceptance and underpaint benchmark outputs.
 
 ## Do Not Repeat
 

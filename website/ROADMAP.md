@@ -214,6 +214,32 @@ For users with ad blockers: the current UI already shows the credit/subscribe op
 [ ] 2G  Account page → pull real credit balance + download history from DB
 ```
 
+### Generator/stitch-engine status — 2026-06-26
+
+Generator wiring is live enough for internal iteration, but the product is **not ready for real users**. The active work is still stitch-quality hardening for generated source art.
+
+Recent backend/frontend progress:
+
+- Simple connected generated icons with mild soft shading are accepted instead of blocked as “too detailed.”
+- `gradient_elephant_simple` is now a regression fixture for this class.
+- Tonal cleanup improved the gradient elephant output:
+  - same-surface long spans `3 -> 0`
+  - trims `8 -> 4`
+  - jumps `14 -> 8`
+  - stitches `6269 -> 5062`
+- Large radial repeated motif routing improved `flower_sunflower_simple` trims `9 -> 7` without regressing `flower_daisy_simple`.
+- Graph-aware component routing is now in the stitch engine for repeated/disconnected same-color islands; it compares nearest, angular, MST preorder, and 2-opt tours behind benchmark gates and records candidate diagnostics.
+- Added generated-run HTML comparison tooling:
+  - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/scripts/compare_generated_runs.py`
+  - `npm run compare:generated`
+
+Current generator/stitch backlog:
+
+- improve source/detail simplification and color preservation
+- preserve meaningful accent colors without preserving noisy fragments
+- add targeted repeated-island fixtures before broadening route optimization further
+- keep using generated-run comparison reports before accepting algorithm changes
+
 ---
 
 ## Phase 2H — Operational hardening (before payments go live)
