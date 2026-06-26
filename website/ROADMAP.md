@@ -229,14 +229,15 @@ Recent backend/frontend progress:
   - stitches `6269 -> 5062`
 - Large radial repeated motif routing improved `flower_sunflower_simple` trims `9 -> 7` without regressing `flower_daisy_simple`.
 - Graph-aware component routing is now in the stitch engine for repeated/disconnected same-color islands; it compares nearest, angular, MST preorder, and 2-opt tours behind benchmark gates and records candidate diagnostics.
+- Upload-style source/detail policy checks now expose tiny-detail accounting and guard against unresolved tiny decisions, lost accent colors, and detail-budget regressions.
 - Added generated-run HTML comparison tooling:
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/scripts/compare_generated_runs.py`
   - `npm run compare:generated`
 
 Current generator/stitch backlog:
 
-- improve source/detail simplification and color preservation
-- preserve meaningful accent colors without preserving noisy fragments
+- improve tone/color preservation before stitch generation
+- preserve meaningful accent colors without preserving noisy fragments, using strict source-policy checks
 - add targeted repeated-island fixtures before broadening route optimization further
 - keep using generated-run comparison reports before accepting algorithm changes
 

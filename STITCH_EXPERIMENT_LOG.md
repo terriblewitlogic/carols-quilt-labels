@@ -3946,3 +3946,32 @@ FACES over dense BLACK scale-LINEWORK; at embroidery res the black over-absorbs 
 thin brown faces (cap region 81% black). That is a fine-detail/resolution limit, not
 the collapse. HEAVINESS recap: global satin-thinning marginal (committed ee73990,
 bias 0.22 + bold 1.0); the real heaviness is faithful bold-source + per-design color.
+
+================================================================================
+2026-06-26 — SOURCE/DETAIL POLICY GUARDRAIL
+================================================================================
+
+After the graph-aware routing pass, checked the next research-informed gap: source
+detail classification before stitch generation. Baseline upload-style fixtures were
+already healthy, so no broad behavior change landed. Instead, made the decision layer
+auditable and testable:
+
+- `surface-plan.json` tinyComponentPolicy now includes component/source-detail/
+  absorption decision counts plus tiny surface ID samples.
+- `uploaded_art_acceptance.py` summary rows expose tiny-policy counts and detail
+  budget status.
+- New `--strict-source-policy` mode fails on unresolved tiny decisions, bad detail
+  budgets, detail-fill risk surfaces, and fixture-specific accent-color drops.
+
+Validation:
+
+- targeted upload strict run passed for `tiny_detail_icon`, `low_contrast_bird`,
+  and `thick_outline_flower`.
+- full upload strict run passed for all six upload-style fixtures.
+- `tiny_detail_icon` contract: 9 source tiny components, 9 compact promotions,
+  6 simplified excess details, 3 intentional tiny stitch surfaces, 0 unresolved,
+  with green/pink/yellow dot colors preserved.
+
+NEXT: tone/color preservation before stitch generation, especially same-hue material
+families that collapse into wrong thread families; add non-flower repeated-island
+fixtures before broadening route optimization.

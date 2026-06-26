@@ -20,11 +20,15 @@ Recent shipped work since the original pro-design comparison:
 - Re-enabled angular routing only for large radial repeated motif rings:
   - `flower_sunflower_simple` trims `9 -> 7`
   - `flower_daisy_simple` intentionally unchanged because angular routing worsened the eight-petal case.
+- Added graph-aware route candidate diagnostics for repeated/disconnected same-color fill islands.
+- Added upload-style source/detail policy guardrails:
+  - `surface-plan.json` now summarizes tiny-detail decision counts.
+  - `uploaded_art_acceptance.py --strict-source-policy` fails if tiny-detail accounting, detail-budget status, or key accent-color preservation regresses.
 
 Current next-best stitch work:
 
-1. Improve source/detail simplification and color preservation before stitch generation.
-2. Preserve meaningful small accent colors while dropping/absorbing noisy fragments.
+1. Improve color/tone preservation before stitch generation, especially same-hue materials that collapse into the wrong thread family.
+2. Preserve meaningful small accent colors while continuing to drop/absorb noisy fragments under strict source-policy checks.
 3. Add targeted repeated-island fixtures before broadening route optimization further; the graph-aware selector now rejects unsafe tours but did not find a safe daisy improvement.
 4. Use `compare_generated_runs.py ... --fail-on-regression` for every keep/revert decision.
 5. Revisit broad-underpaint/lane routing only when comparison reports show actual stitched-span risk.
@@ -32,7 +36,7 @@ Current next-best stitch work:
 Research review status:
 
 - Already covered: role-specific stitch caps, multi-pass layer planning, underlay chains, medial/satin narrow-shape fills, seam ownership, detail heuristics, and gated angular routing.
-- Implemented now: graph-aware route ordering for disconnected same-color fill islands using nearest, angular, MST preorder, and 2-opt candidate tours. It preserves the sunflower angular win and records candidate rejection diagnostics; it does not yet reduce daisy trims.
+- Implemented now: graph-aware route ordering for disconnected same-color fill islands using nearest, angular, MST preorder, and 2-opt candidate tours. It preserves the sunflower angular win and records candidate rejection diagnostics; it does not yet reduce daisy trims. Source/detail policy guardrails now make tiny-detail promotion, simplification, and unresolved-detail regressions visible in uploaded-art acceptance output.
 - Later: direction-field streamlines, offset-curve/auto-split partitioning, stronger vectorization, stitch-style classification, texture synthesis for preview/style inspiration, and multi-objective optimization once deterministic fixtures are stronger.
 - Out of scope: exact b-matching in this sprint, cross-stitch DFS/parity, and applique workflows.
 

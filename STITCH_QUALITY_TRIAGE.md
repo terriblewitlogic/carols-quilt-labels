@@ -13,6 +13,8 @@ Recent shipped backend changes:
 - `gradient_elephant_simple` is a backend fixture and regression case.
 - Mild generated gradient tone bands now collapse into stitchable thread fields while preserving meaningful material contrast.
 - Large radial repeated motifs can use angular routing; this reduced `flower_sunflower_simple` trims `9 -> 7` without changing the daisy.
+- Graph-aware route candidate diagnostics compare nearest, angular, MST preorder, and 2-opt tours for disconnected same-color fill islands.
+- Upload-style source/detail policy diagnostics now surface tiny-detail accounting, compact-detail promotion, simplification, and detail-budget status in acceptance summaries.
 
 The remaining quality problems are mostly in generated icon art:
 
@@ -57,10 +59,12 @@ Already implemented in the current engine:
 - heuristic source/detail classification and tiny-detail pruning/promotion
 - gated angular routing for large repeated radial motifs
 - generated-run HTML comparison harness for visual keep/revert decisions
+- source/detail policy guardrails for uploaded-art fixtures
 
-Implement now:
+Implemented now:
 
 - graph-aware component routing for disconnected same-color fill islands, inspired by embroidery/sewing path-ordering work, geometric TSP/MST heuristics, and 2-opt. The production adaptation compares nearest, angular, MST preorder, and 2-opt component tours, then keeps a new route only when predicted trims/jumps improve without increasing long-span or visible-carry risk.
+- source/detail decision diagnostics for upload-style fixtures: `surface-plan.json` records tiny-component decision counts and `uploaded_art_acceptance.py --strict-source-policy` fails on unresolved tiny decisions, bad detail budgets, lost accent colors, or detail-fill risk regressions.
 
 Research later:
 
@@ -184,8 +188,8 @@ Caveat: the generated acceptance score for sunflower still drops from `100` to `
 
 ## Next Best Work
 
-1. Improve source/detail simplification and color preservation.
-   The graph route selector now rejects unsafe repeated-island tours and preserves the sunflower angular win, but it did not find a safe daisy trim reduction. The next broad quality pass should move upstream: simplify stitch-hostile generated/uploaded art, preserve meaningful accent colors, and classify tiny details before stitch generation.
+1. Improve color and tone preservation on upload-style art.
+   The source/detail layer is now explicit and guarded, and current upload fixtures pass strict source-policy checks. The next broad quality pass should focus on tone-preservation failures where meaningful same-hue materials collapse into the wrong thread family.
 
 2. Add targeted repeated-island route fixtures before broadening optimization.
    Daisy and sunflower now prove the selector can reject unsafe tours and preserve radial angular routing. The next route-specific step should add non-flower disconnected-island fixtures before changing acceptance rules.
@@ -193,8 +197,8 @@ Caveat: the generated acceptance score for sunflower still drops from `100` to `
 3. Fix color preservation on upload-style art.
    The upload-style badge and thick-outline flower both show dropped source colors. This is the same class of problem the bird beak/feet exposed: visible accent colors should not vanish just because they are small or near another thread color.
 
-4. Absorb or promote tiny detail intentionally.
-   `tiny_detail_icon`, `cartoon_elephant`, `low_contrast_bird`, and `leaf_single_smooth` are currently classified as detail-fragmentation problems. The engine needs a deliberate "keep as detail / merge into parent / drop as too small" decision before fill generation.
+4. Keep tiny detail decisions explicit.
+   `tiny_detail_icon` now accounts for all 9 tiny source components: 9 compact-detail promotions, 6 simplified excess details, 3 intentional tiny stitch surfaces, and 0 unresolved tiny decisions. Future detail changes should keep `uploaded_art_acceptance.py --strict-source-policy` green before moving into broader generated fixtures.
 
 5. Use generated comparison reports for every keep/revert decision.
    The current comparison script puts source, preview, stitch-only preview, path preview, travel debug, segmentation, surface diagnostics, colors, strategies, and metric deltas side by side. It should be part of every ambiguous keep/revert decision.
