@@ -179,8 +179,33 @@ Useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_gradient_elephant.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_underpaint_final_to_tonal_merge.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_radial_route_20260626.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_trim16_20260626.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_trim16_20260626.html`
 
 Rule: every stitch-algorithm change that affects generated fixtures should produce a comparison report and should run `--fail-on-regression` when comparing against the previous accepted run.
+
+### Same-Hue Facet Trim Reduction
+
+Status: keep.
+
+Why: the same-hue dark-endpoint guard preserved material colors correctly, but it also turned formerly flattened facets into real stitch regions. That exposed avoidable trim pressure in faceted same-hue source art such as the acorn.
+
+Change accepted:
+
+- `_TRIM_GAP_INTER_COMPONENT_EMB` increased from `8mm` to `16mm`.
+- Candidate graph routing now evaluates 3-component fill groups as well as larger groups.
+- Uploaded-art stress coverage now includes `same_hue_mushroom_facets` and `same_hue_shell_facets` alongside `same_hue_acorn_facets`.
+
+Measured result:
+
+- `same_hue_acorn_facets`: trims `11 -> 8`
+- `same_hue_acorn_facets`: stitches `6217 -> 6205`
+- `same_hue_acorn_facets`: quality stays `100`
+- preserved thread colors stay `#783c14`, `#a05a28`, `#c3915a`, `#d2aa6e`, and black
+- no untrimmed long-span diagnostics, broad-fill route risk, or detail-fill risk
+- full generated and underpaint comparisons passed with `--fail-on-regression`
+
+Guardrail: do not keep raising this threshold as a general trim reducer. Experiments at `25mm+` reduced trim count further but introduced long untrimmed carry diagnostics. The next version should use smarter covered travel, component merging, or route-local geometry rather than accepting visibly long carries.
 
 ### Simple Gradient Icon Acceptance
 

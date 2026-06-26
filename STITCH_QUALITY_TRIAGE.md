@@ -17,6 +17,7 @@ Recent shipped backend changes:
 - Upload-style source/detail policy diagnostics now surface tiny-detail accounting, compact-detail promotion, simplification, and detail-budget status in acceptance summaries.
 - Upload-style tone-material preservation now has a deterministic `same_hue_acorn` guard: dark-brown cap, tan body, and light tan highlight must survive as separate thread colors.
 - Same-hue tonal stress coverage now includes `same_hue_acorn_facets`, and the posterizer protects substantial darker end-members so dark caps/bases are not flattened into mid-tone facets.
+- Same-hue facet trim pressure now has explicit acorn, mushroom, and shell stress coverage; modest inter-component carries trim at `16mm` instead of `8mm`, reducing faceted acorn trims without introducing long untrimmed jump diagnostics.
 
 The remaining quality problems are mostly in generated icon art:
 
@@ -46,6 +47,8 @@ Current useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_gradient_elephant.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_underpaint_final_to_tonal_merge.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_radial_route_20260626.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_trim16_20260626.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_trim16_20260626.html`
 
 ## Research Coverage Map
 
@@ -71,6 +74,7 @@ Implemented now:
 - source/detail decision diagnostics for upload-style fixtures: `surface-plan.json` records tiny-component decision counts and `uploaded_art_acceptance.py --strict-source-policy` fails on unresolved tiny decisions, bad detail budgets, lost accent colors, or detail-fill risk regressions.
 - same-hue material preservation fixture: `same_hue_acorn` verifies the posterizer/thread snap keeps `#783c14`, `#c3915a`, and `#d2aa6e` instead of collapsing a dark cap, tan body, and light highlight into one family.
 - same-hue faceted stress fixture: `same_hue_acorn_facets` is available by explicit `--case` but excluded from default uploaded acceptance; the current result is quality `100`, `0` broad/detail risk surfaces, and preserved `#783c14`, `#a05a28`, `#c3915a`, and `#d2aa6e`.
+- same-hue facet trim reduction: `same_hue_acorn_facets`, `same_hue_mushroom_facets`, and `same_hue_shell_facets` exercise same-hue material fields with internal facets. Inter-component trims now use a `16mm` threshold, which reduced acorn facet trims while keeping long untrimmed jump diagnostics at zero.
 
 Research later:
 
@@ -87,7 +91,46 @@ Out of scope for now:
 - cross-stitch DFS/parity algorithms unless cross-stitch becomes a product mode
 - applique placement/cutting/tackdown workflows until the core generated-icon pipeline is stable
 
-## Current Patch: Same-Hue Dark Endpoint Guard
+## Current Patch: Same-Hue Facet Trim Reduction
+
+The dark-endpoint guard fixed color preservation for faceted same-hue material art, but it exposed the next issue: the now-preserved material facets created extra trim pressure. The acorn fixture improved visually, but trims rose from `7 -> 11` because formerly flattened mid-tone facets became real stitched regions.
+
+The converter now allows modest inter-component same-color carries before trimming:
+
+- `_TRIM_GAP_INTER_COMPONENT_EMB`: `8mm -> 16mm`
+- `16mm` was chosen because higher experimental thresholds (`25mm+`) reduced trim count further but introduced long untrimmed jump diagnostics.
+- The graph-route gate also evaluates 3-component fill groups, keeping candidate diagnostics available for small disconnected same-color material fields.
+
+Current outcome:
+
+- `same_hue_acorn_facets`: trims `11 -> 8`
+- `same_hue_acorn_facets`: stitches `6217 -> 6205`
+- `same_hue_acorn_facets`: quality stays `100`
+- `same_hue_acorn_facets`: preserved colors stay `#783c14`, `#a05a28`, `#c3915a`, `#d2aa6e`, and black
+- `same_hue_acorn_facets`: no untrimmed long-span diagnostics, broad-fill route risk, or detail-fill risk
+- `same_hue_mushroom_facets`: quality `100`, trims `5`, no broad/detail risk
+- `same_hue_shell_facets`: quality `100`, trims `5`, no broad/detail risk
+- full uploaded strict acceptance picked up collateral trim improvements in several uploaded fixtures without strict source-policy regressions
+
+Validation:
+
+- targeted faceted + clean acorn uploaded acceptance
+- full uploaded strict source policy
+- full generated acceptance
+- generated comparison with `--fail-on-regression`
+- underpaint comparison with `--fail-on-regression`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- `npm run benchmark:underpaint`
+
+Key reports:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_trim16_20260626.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_trim16_20260626.html`
+
+Next direction: do not keep raising the trim threshold. The next improvement should use smarter covered travel or component merging for real same-hue generated/uploaded examples, because longer untrimmed carries quickly become visible risk.
+
+## Recent Patch: Same-Hue Dark Endpoint Guard
 
 The acorn facet stress case showed that oversegmented same-hue families could keep a mid-tone facet as the dominant stitch color while collapsing the darker material field into it. That made the design technically convert, but it produced a review-quality result: quality `50`, one broad-fill route risk surface, heavy source normalization, and the dark cap color lost.
 
@@ -226,7 +269,7 @@ Caveat: the generated acceptance score for sunflower still drops from `100` to `
 ## Next Best Work
 
 1. Expand color/tone preservation fixtures.
-   The clean same-hue material guard is live (`same_hue_acorn`, quality `100`) and the first faceted same-hue stress case now passes (`same_hue_acorn_facets`, quality `100`, dark endpoint preserved). The next broad quality pass should add real generated/uploaded examples where same-hue materials still collapse, over-fragment, or create too many trims.
+   The clean same-hue material guard is live (`same_hue_acorn`, quality `100`) and faceted same-hue stress coverage now includes acorn, mushroom, and shell. The next broad quality pass should add real generated/uploaded examples where same-hue materials still collapse, over-fragment, or create too many trims.
 
 2. Add targeted repeated-island route fixtures before broadening optimization.
    Daisy and sunflower now prove the selector can reject unsafe tours and preserve radial angular routing. The next route-specific step should add non-flower disconnected-island fixtures before changing acceptance rules.
