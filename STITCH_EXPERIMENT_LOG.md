@@ -4015,3 +4015,73 @@ Validation:
 NEXT: add real generated/uploaded examples where same-hue materials collapse or
 turn into fragmented fill surfaces; keep the clean acorn fixture as the color
 preservation sentinel.
+
+================================================================================
+2026-06-26 — SAME-HUE FACET STRESS FIXTURE + DARK-ENDPOINT GUARD
+================================================================================
+
+Promoted the prior over-adversarial acorn probe into an explicit stress fixture
+without adding it to the default uploaded-art suite:
+
+- `same_hue_acorn` remains the clean strict-source-policy sentinel.
+- `same_hue_acorn_facets` is available via explicit `--case` and includes extra
+  same-hue cap/body facets.
+- `uploaded_art_acceptance.py` now has `STRESS_SAMPLES` plus `ALL_SAMPLES`, so
+  default acceptance stays focused on ordinary fixtures while stress cases are
+  still reproducible from the CLI.
+
+Baseline stress result reproduced:
+
+- quality `50`, status `review`
+- colors `#a05a28`, `#c3915a`, `#d2aa6e`, black
+- `#783c14` dark cap collapsed into the mid-tone family
+- broad-fill route risk `1`
+- heavy source normalization warning
+- source-normalization changed fraction `0.06482`
+- `collapse_oversegmented_tonal_families` changed `61673` pixels
+- trims `7`, jumps `18`, stitches `5696`
+
+Root cause: `collapse_oversegmented_tonal_families` protected strong secondary
+fields, but the faceted acorn's dark cap was only about 32 luminance points away
+from the mid-brown largest family member. That made it look like a disposable
+same-hue middle sliver even though it was a substantial darker end-member of the
+material family.
+
+Fix: protect a substantial darkest end-member in an oversegmented same-hue family
+when it is large enough relative to the dominant member, covers enough of the
+source, has chroma, and is at least 28 luminance points darker than the dominant
+mid-tone. This is still generic: no acorn-specific colors, shapes, or prompts.
+
+Candidate result:
+
+- `same_hue_acorn_facets` quality `50 -> 100`
+- broad-fill route risk `1 -> 0`
+- source-normalization changed fraction `0.06482 -> 0.00315`
+- preserved colors `#783c14`, `#a05a28`, `#c3915a`, `#d2aa6e`, black
+- preflight warning becomes `tonal_source_partitions`, not heavy normalization
+- tradeoff: trims `7 -> 11`, jumps `18 -> 21`, stitches `5696 -> 6217`
+- clean `same_hue_acorn` unchanged: quality `100`, `23 jumps / 3 trims`,
+  `5296` stitches, no broad/detail risk
+
+Validation:
+
+- targeted stress + clean acorn run:
+  `tmp/uploaded_art_acceptance_acorn_facets_dark_endpoint_20260626`
+- full uploaded strict source policy:
+  `tmp/uploaded_art_acceptance_dark_endpoint_full_20260626`
+- full generated acceptance:
+  `tmp/generated_acceptance_dark_endpoint_20260626`
+- generated comparison with `--fail-on-regression`:
+  `tmp/generated_compare_dark_endpoint_20260626.html`
+- underpaint comparison with `--fail-on-regression`:
+  `tmp/underpaint_compare_dark_endpoint_20260626.html`
+- full underpaint benchmark:
+  `tmp/underpaint_benchmark_dark_endpoint_20260626`
+- exact npm benchmark script:
+  `npm run benchmark:underpaint`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+NEXT: keep adding real generated/uploaded same-hue material examples. The next
+problem is no longer "can this acorn convert"; it is reducing avoidable trims on
+multi-facet material fields without flattening meaningful color structure.

@@ -16,6 +16,7 @@ Recent shipped backend changes:
 - Graph-aware route candidate diagnostics compare nearest, angular, MST preorder, and 2-opt tours for disconnected same-color fill islands.
 - Upload-style source/detail policy diagnostics now surface tiny-detail accounting, compact-detail promotion, simplification, and detail-budget status in acceptance summaries.
 - Upload-style tone-material preservation now has a deterministic `same_hue_acorn` guard: dark-brown cap, tan body, and light tan highlight must survive as separate thread colors.
+- Same-hue tonal stress coverage now includes `same_hue_acorn_facets`, and the posterizer protects substantial darker end-members so dark caps/bases are not flattened into mid-tone facets.
 
 The remaining quality problems are mostly in generated icon art:
 
@@ -62,12 +63,14 @@ Already implemented in the current engine:
 - generated-run HTML comparison harness for visual keep/revert decisions
 - source/detail policy guardrails for uploaded-art fixtures
 - tone/material color guardrails for same-hue uploaded art
+- dark-endpoint tonal-family protection for substantial same-hue material fields
 
 Implemented now:
 
 - graph-aware component routing for disconnected same-color fill islands, inspired by embroidery/sewing path-ordering work, geometric TSP/MST heuristics, and 2-opt. The production adaptation compares nearest, angular, MST preorder, and 2-opt component tours, then keeps a new route only when predicted trims/jumps improve without increasing long-span or visible-carry risk.
 - source/detail decision diagnostics for upload-style fixtures: `surface-plan.json` records tiny-component decision counts and `uploaded_art_acceptance.py --strict-source-policy` fails on unresolved tiny decisions, bad detail budgets, lost accent colors, or detail-fill risk regressions.
 - same-hue material preservation fixture: `same_hue_acorn` verifies the posterizer/thread snap keeps `#783c14`, `#c3915a`, and `#d2aa6e` instead of collapsing a dark cap, tan body, and light highlight into one family.
+- same-hue faceted stress fixture: `same_hue_acorn_facets` is available by explicit `--case` but excluded from default uploaded acceptance; the current result is quality `100`, `0` broad/detail risk surfaces, and preserved `#783c14`, `#a05a28`, `#c3915a`, and `#d2aa6e`.
 
 Research later:
 
@@ -84,7 +87,38 @@ Out of scope for now:
 - cross-stitch DFS/parity algorithms unless cross-stitch becomes a product mode
 - applique placement/cutting/tackdown workflows until the core generated-icon pipeline is stable
 
-## Current Patch: Graph-Aware Component Routing
+## Current Patch: Same-Hue Dark Endpoint Guard
+
+The acorn facet stress case showed that oversegmented same-hue families could keep a mid-tone facet as the dominant stitch color while collapsing the darker material field into it. That made the design technically convert, but it produced a review-quality result: quality `50`, one broad-fill route risk surface, heavy source normalization, and the dark cap color lost.
+
+The posterizer now protects a substantial darker end-member inside an oversegmented tonal family when it has enough area and luminance separation from the dominant mid-tone. This keeps real materials such as caps, shells, bases, and dark body fields from being flattened into same-hue shading facets.
+
+Current outcome:
+
+- `same_hue_acorn_facets`: quality `50 -> 100`
+- `same_hue_acorn_facets`: broad-fill route risk `1 -> 0`
+- `same_hue_acorn_facets`: source normalization changed fraction `0.06482 -> 0.00315`
+- `same_hue_acorn_facets`: preserved colors `#783c14`, `#a05a28`, `#c3915a`, `#d2aa6e`, and black
+- tradeoff: trims `7 -> 11`, jumps `18 -> 21`, stitches `5696 -> 6217`, because the mid-tone facets now stitch as real regions instead of being flattened away
+- `same_hue_acorn`: unchanged at quality `100`, `23 jumps / 3 trims`, no broad/detail risk
+
+Validation:
+
+- targeted faceted + clean acorn uploaded acceptance
+- full uploaded strict source policy
+- full generated acceptance
+- generated comparison with `--fail-on-regression`
+- underpaint comparison with `--fail-on-regression`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- `npm run benchmark:underpaint`
+
+Key reports:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_dark_endpoint_20260626.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_dark_endpoint_20260626.html`
+
+## Recent Patch: Graph-Aware Component Routing
 
 Disconnected same-color fill islands now enter a guarded route-candidate selector. The selector compares nearest, angular, MST preorder, 2-opt from nearest, and 2-opt from MST. Non-radial groups benchmark against nearest; radial rings benchmark against the already-accepted angular behavior so the selector cannot quietly undo the sunflower fix.
 
@@ -192,7 +226,7 @@ Caveat: the generated acceptance score for sunflower still drops from `100` to `
 ## Next Best Work
 
 1. Expand color/tone preservation fixtures.
-   The first same-hue material guard is live (`same_hue_acorn`, quality `100`, no broad/detail risk, cap/body/highlight preserved). The next broad quality pass should add real generated/uploaded examples where meaningful same-hue materials still collapse or stitch as fragmented surfaces.
+   The clean same-hue material guard is live (`same_hue_acorn`, quality `100`) and the first faceted same-hue stress case now passes (`same_hue_acorn_facets`, quality `100`, dark endpoint preserved). The next broad quality pass should add real generated/uploaded examples where same-hue materials still collapse, over-fragment, or create too many trims.
 
 2. Add targeted repeated-island route fixtures before broadening optimization.
    Daisy and sunflower now prove the selector can reject unsafe tours and preserve radial angular routing. The next route-specific step should add non-flower disconnected-island fixtures before changing acceptance rules.

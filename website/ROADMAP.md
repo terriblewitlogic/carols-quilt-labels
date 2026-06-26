@@ -231,13 +231,14 @@ Recent backend/frontend progress:
 - Graph-aware component routing is now in the stitch engine for repeated/disconnected same-color islands; it compares nearest, angular, MST preorder, and 2-opt tours behind benchmark gates and records candidate diagnostics.
 - Upload-style source/detail policy checks now expose tiny-detail accounting and guard against unresolved tiny decisions, lost accent colors, and detail-budget regressions.
 - Upload-style tone/material policy checks now include a same-hue acorn fixture that preserves dark-brown, tan, and light tan thread colors.
+- Same-hue faceted material stress coverage now preserves substantial darker end-members instead of flattening them into mid-tone facets.
 - Added generated-run HTML comparison tooling:
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/scripts/compare_generated_runs.py`
   - `npm run compare:generated`
 
 Current generator/stitch backlog:
 
-- expand tone/color preservation fixtures with real generated/uploaded examples
+- expand tone/color preservation fixtures with real generated/uploaded examples, especially remaining same-hue trim/fragmentation cases
 - preserve meaningful accent colors without preserving noisy fragments, using strict source-policy checks
 - add targeted repeated-island fixtures before broadening route optimization further
 - keep using generated-run comparison reports before accepting algorithm changes
