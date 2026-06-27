@@ -71,11 +71,15 @@ Recent shipped work since the original pro-design comparison:
   - `npm run acceptance:source-color` runs `generated_acceptance.py --fixture-dir fixtures/source_color --strict`
   - `real_teapot_card` is a repeatable `C / 77` source-complexity target with preserved green, coral, purple, peach, and black threads
   - `real_strawberry` is a repeatable `C+ / 84` repeated-detail/source-complexity target with preserved green, orange, red, and black threads
+- Added compact repeated-detail source accounting:
+  - source diagnostics now recognize strawberry-like uniform seed fields as intentional compact motif repeats
+  - `real_strawberry` improved from `C+ -> B` in triage, with motif-aware adjusted components `40 -> 20`
+  - stitch output stayed unchanged at `8323` stitches, `62` jumps, `4` trims, and zero broad/stiched-span risk regressions
 
 Current next-best stitch work:
 
-1. Use the real source/color fixture lane before changing the source compiler again.
-2. Preserve meaningful small accent colors while continuing to drop/absorb noisy fragments under strict source-policy checks; muted lavender/pink coverage is now in place.
+1. Use `real_teapot_card` as the next source-complexity target, but do not widen absorption blindly; its rejected chips are separated `10-44mm` from same-family parent regions.
+2. Preserve meaningful small accent colors while continuing to drop/absorb noisy fragments under strict source-policy checks; muted lavender/pink and compact repeated-detail coverage are now in place.
 3. Expand color/tone preservation coverage with real generated/uploaded examples, especially same-hue materials that still over-fragment, collapse into the wrong thread family, or create route pressure after the right colors are preserved.
 4. Keep route broadening paused unless a comparison report shows a real stitched-span or same-surface relocation regression; the current route work is narrow and stable.
 5. Use `compare_generated_runs.py ... --fail-on-regression` for every keep/revert decision.

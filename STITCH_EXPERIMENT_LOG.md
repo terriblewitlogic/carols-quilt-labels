@@ -13,6 +13,52 @@ This is not a full changelog. It is a decision log for approaches that worked, f
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_acceptance_*`
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/regression_*`
 
+## Accepted Source Policy: Compact Repeated Detail Motifs
+
+Date: 2026-06-27
+
+Goal:
+
+- Stop classifying intentional uniform compact detail fields as generic source complexity.
+- Lock the real strawberry fixture so its seed field is explicitly accounted without changing stitch generation.
+
+Change:
+
+- Added `bboxFill` to source region diagnostics.
+- Split source repeated-motif accounting into broad motif groups and compact detail motif groups.
+- Added generated acceptance summary fields for source components, repeated motif counts, adjusted component counts, and source suitability.
+- Added a `real_strawberry` guard requiring both the leaf repeat and compact seed repeat.
+
+Result:
+
+- `real_strawberry` triage improved `C+ -> B`.
+- Source repair opportunities improved `2 -> 1`.
+- Raw components stayed `40`, but motif-aware adjusted components improved to `20`.
+- Repeated motif accounting now reports `2` groups / `26` components.
+- Stitch output stayed unchanged: `8323` stitches, `62` jumps, `4` trims, colors `[#64d250, #f0785a, #dc321e, #000000]`.
+- No same-surface stitched long spans, broad route risks, or high-risk surfaces were introduced.
+- `real_teapot_card` remains `C / source_art_complexity`, which is correct: probe distances showed its small pieces are separated color regions, not safe absorption candidates.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_acceptance_strawberry_motif_policy_20260627`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_acceptance_motif_policy_20260627`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_motif_policy_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_motif_policy_20260627/source-triage.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_motif_policy_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_motif_policy_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_motif_policy_20260627.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- full uploaded strict source policy
+- full generated acceptance `--strict`
+- full underpaint benchmark
+
+Verdict:
+
+- Keep. This is a source-policy/diagnostic improvement with no stitch-output churn.
+- Next source/color target remains teapot-like local detail clusters, but absorption must stay conservative.
+
 ## Accepted Guardrail: Real Source/Color Fixture Lane
 
 Date: 2026-06-27

@@ -27,6 +27,7 @@ Recent shipped backend changes:
 - Source/color triage grading now treats heavy source normalization as informational when diagnostics prove it only removed noise and all stitch/color risk gates are clean.
 - Upload-style muted accent coverage now includes `muted_accent_badge`: low-chroma lavender, soft pink tiny details, blue fill, and black linework must all survive strict source-policy checks.
 - Real source/color fixture coverage now has a separate file-backed lane via `npm run acceptance:source-color`, seeded with teapot and strawberry examples that are known source-complexity targets rather than default acceptance blockers.
+- Compact repeated detail motifs are now accounted in source-design diagnostics: `real_strawberry` recognizes the black seed field plus green leaf repeat as intentional motifs, improving triage from `C+` to `B` without changing stitch output.
 
 The remaining quality problems are mostly in generated icon art:
 
@@ -91,6 +92,11 @@ Current useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_muted_accent_guard_20260627/source-triage.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_real_fixture_lane_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_source_color_real_fixtures_20260627/source-triage.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_motif_policy_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_motif_policy_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_motif_policy_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_motif_policy_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_motif_policy_20260627/source-triage.html`
 
 ## Research Coverage Map
 
@@ -128,6 +134,7 @@ Implemented now:
 - covered travel extension: `_merge_covered_travel` now considers hidden carries up to `35mm`, but only when a later fill/outline directly covers the route or offers a covered detour. It removes one remaining faceted-acorn relocation without raising the global trim threshold.
 - source/color grading calibration: `grade_stitch_quality.py` now discounts heavy source-normalization pressure only when source cleanup is explicitly noise-removal, quality is high, no meaningful colors were dropped, and there is no stitched/long-span/fill risk.
 - real source/color fixture lane: `fixtures/source_color` plus `npm run acceptance:source-color` runs file-backed generated/uploaded-style troublemakers outside the default generated suite. The first cases are `real_teapot_card` and `real_strawberry`.
+- compact repeated-detail motif accounting: source-design diagnostics now recognize small uniform repeated fields, such as strawberry seed dots, as intentional motif groups. `generated_acceptance.py` exposes motif counts and guards `real_strawberry` so future source policy changes do not reclassify the seed field as generic source complexity.
 
 Research later:
 
@@ -144,7 +151,55 @@ Out of scope for now:
 - cross-stitch DFS/parity algorithms unless cross-stitch becomes a product mode
 - applique placement/cutting/tackdown workflows until the core generated-icon pipeline is stable
 
-## Current Patch: Real Source/Color Fixture Lane
+## Current Patch: Compact Repeated Detail Motif Accounting
+
+The real source/color fixture lane showed a useful false-positive in source complexity scoring. `real_strawberry` has `40` raw source regions, but most of the extra regions are intentional, uniform, compact black seed details. The detail-budget layer already treated this as a uniform detail field, but the source-design diagnostics only discounted the green leaf repeat and still counted the seed field as generic source complexity.
+
+What changed:
+
+- Added `bboxFill` to source region components so compact repeated details can be distinguished from narrow scraps.
+- Split repeated motif diagnostics into broad motif groups and compact detail motif groups.
+- Added generated-acceptance summary fields for source component counts, repeated motif counts, adjusted motif-aware component counts, and source suitability.
+- Added a `real_strawberry` guard requiring both leaf and compact seed motif groups.
+- No stitch generation, routing, fill strategy, API, frontend, or file-format behavior changed.
+
+Current outcome:
+
+- `real_strawberry`: triage improved `C+ -> B`.
+- Raw source components stayed `40`, but motif-aware adjusted components improved to `20`.
+- Repeated motif accounting improved to `2` groups / `26` components.
+- Source repair opportunities improved `2 -> 1`.
+- Stitch output stayed stable: `8323` stitches, `62` jumps, `4` trims, colors `[#64d250, #f0785a, #dc321e, #000000]`, `0` same-surface stitched long spans, `0` broad route risk surfaces.
+- `real_teapot_card` stayed correctly flagged as `C / source_art_complexity`; the earlier probe showed its small pieces are distant separated regions, not safe absorption candidates.
+
+Validation:
+
+- `python3 scripts/generated_acceptance.py --fixture-dir fixtures/source_color --case real_strawberry --out tmp/source_color_acceptance_strawberry_motif_policy_20260627 --strict`
+- `python3 scripts/generated_acceptance.py --fixture-dir fixtures/source_color --out tmp/source_color_acceptance_motif_policy_20260627 --strict`
+- `python3 scripts/compare_generated_runs.py tmp/source_color_acceptance_real_fixtures_20260627 tmp/source_color_acceptance_motif_policy_20260627 --out tmp/source_color_compare_motif_policy_20260627.html --title "Source Color Motif Policy" --fail-on-regression`
+- `python3 scripts/source_art_triage_report.py --input tmp/uploaded_art_acceptance_source_color_resume_20260627 --input tmp/generated_acceptance_source_color_resume_20260627 --input tmp/source_color_acceptance_motif_policy_20260627 --out tmp/source_art_triage_motif_policy_20260627`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- `python3 scripts/uploaded_art_acceptance.py --out tmp/uploaded_art_acceptance_motif_policy_20260627 --strict-no-500 --strict-source-policy`
+- `python3 scripts/generated_acceptance.py --out tmp/generated_acceptance_motif_policy_20260627 --strict`
+- `npm run benchmark:underpaint -- --out tmp/underpaint_benchmark_motif_policy_20260627`
+- Regression-gated uploaded/generated/underpaint comparisons all passed.
+
+Key reports:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_motif_policy_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_motif_policy_20260627/source-triage.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_motif_policy_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_motif_policy_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_motif_policy_20260627.html`
+
+Next recommended direction:
+
+- Keep source compiler behavior stable until a report shows actual color loss or stitch-risk movement.
+- Use `real_teapot_card` as the next source-complexity target, but do not widen absorption blindly: its rejected fragments are `10-44mm` from same-family parent regions and appear to be real separated color pieces.
+- Look for a source-side simplification that preserves colors while reducing teapot fill-coherence/routing pressure, probably through generator/source scoring rather than geometry absorption.
+
+## Previous Patch: Real Source/Color Fixture Lane
 
 The source/color sprint needed real failure examples before another compiler change. Historical balloon, teapot, ladybug, and strawberry notes were rechecked against the current engine. The current engine now preserves the old teapot color families and the ladybug cream/red/black colors, but teapot and strawberry still expose a repeatable source-complexity class that the default synthetic/uploaded fixtures do not exercise.
 
