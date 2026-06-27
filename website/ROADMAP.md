@@ -275,13 +275,17 @@ Recent backend/frontend progress:
   - `real_strawberry` triage improved `C+ -> B`
   - motif-aware adjusted components improved to `20` while stitch output stayed unchanged
   - `real_teapot_card` remains the main source-complexity target
+- Stitched near-white foreground accounting now treats preserved pale regions as accounted source evidence:
+  - `bee_simple`, `flower_daisy_simple`, and `low_contrast_bird` repair opportunities improved `1 -> 0`
+  - stitch output and route-risk metrics stayed unchanged
 - Added generated-run HTML comparison tooling:
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/scripts/compare_generated_runs.py`
   - `npm run compare:generated`
 
 Current generator/stitch backlog:
 
-- use `real_teapot_card` as the next source-complexity target; do not widen absorption blindly because its small color pieces are separated real regions
+- find a visible source/color behavior improvement rather than another diagnostic-only cleanup
+- use `real_teapot_card` as the next source-complexity target only if a source simplifier can reduce disconnected color pieces without losing intended colors
 - expand tone/color preservation fixtures with real generated/uploaded examples, especially remaining same-hue endpoint, trim, and fragmentation cases
 - preserve meaningful accent colors without preserving noisy fragments, using strict source-policy checks; muted lavender/pink and compact repeated-detail guard coverage are now in place
 - keep route broadening paused unless comparison reports show real stitched-span or same-surface relocation regressions

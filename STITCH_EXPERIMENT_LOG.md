@@ -13,6 +13,54 @@ This is not a full changelog. It is a decision log for approaches that worked, f
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_acceptance_*`
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/regression_*`
 
+## Accepted Source Policy: Stitched Near-White Foreground Accounting
+
+Date: 2026-06-27
+
+Goal:
+
+- Stop reporting pale foreground regions as repair opportunities when they are already preserved as stitch colors.
+- Keep pale-but-intentional source regions guarded in fixtures so they cannot disappear quietly.
+
+Change:
+
+- Added `stitchedNearWhiteForegroundColorCount` to source-design diagnostics.
+- Changed `near_white_foreground` repair handling so stitched near-white foregrounds are counted as accounted evidence, while unstitched near-white foregrounds still warn.
+- Exposed `sourceStitchedNearWhiteForegroundColorCount` in generated and uploaded acceptance summaries.
+- Added strict guards for `bee_simple`, `flower_daisy_simple`, and `low_contrast_bird`.
+
+Result:
+
+- `bee_simple`: source repair opportunities `1 -> 0`, stitched near-white count `1`; output unchanged at `1730` stitches, `17` jumps, `5` trims.
+- `flower_daisy_simple`: source repair opportunities `1 -> 0`, stitched near-white count `1`; output unchanged at `2444` stitches, `26` jumps, `6` trims.
+- `low_contrast_bird`: source repair opportunities `1 -> 0`, stitched near-white count `1`; output unchanged at `2502` stitches, `26` jumps, `3` trims.
+- `synthetic_underpaint_cutout_lane_trap`: source repair opportunities `2 -> 1`; output unchanged at `3033` stitches, `15` jumps, `7` trims.
+- Full generated acceptance now reports `0` source repair opportunities; source-color real fixtures stay in their intended source-complexity buckets.
+- No status, acceptance, quality, same-surface stitched long-span, same-surface untrimmed long-span, high-risk-surface, or broad-route-risk regression was introduced.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_acceptance_near_white_policy_target_20260627`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_art_acceptance_near_white_policy_target_20260627`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_near_white_policy_target_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_near_white_policy_target_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_near_white_policy_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_near_white_policy_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_near_white_policy_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_near_white_policy_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_near_white_policy_20260627/source-triage.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- full uploaded strict source policy
+- full generated acceptance `--strict`
+- full source-color acceptance `--strict`
+- full underpaint benchmark
+
+Verdict:
+
+- Keep. This removes source/color triage noise without stitch-output churn.
+- Next work should seek a visible behavior improvement, not another diagnostic cleanup, unless the diagnostic issue blocks a real color/detail decision.
+
 ## Accepted Source Policy: Sparse Outline Halo Accounting
 
 Date: 2026-06-27

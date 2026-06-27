@@ -30,6 +30,7 @@ Recent shipped backend changes:
 - Compact repeated detail motifs are now accounted in source-design diagnostics: `real_strawberry` recognizes the black seed field plus green leaf repeat as intentional motifs, improving triage from `C+` to `B` without changing stitch output.
 - Teapot-like local detail clusters are now explicitly accounted in source-design diagnostics: `real_teapot_card` reports `4` retained multi-component colors / `22` disconnected retained components and keeps the case classified as source-art complexity rather than a stitch-routing failure.
 - Sparse low-chroma outline halos are now accounted as pruned source residue instead of visible color loss: `thick_outline_flower` now has source suitability `100 / clean`, repair count `0`, and unchanged stitch output.
+- Stitched near-white foreground shapes are now explicitly accounted instead of reported as repair opportunities: `bee_simple`, `flower_daisy_simple`, and `low_contrast_bird` keep their pale stitched regions with repair count `0` and unchanged stitch output.
 
 The remaining quality problems are mostly in generated icon art:
 
@@ -109,6 +110,11 @@ Current useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_sparse_halo_policy_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_sparse_halo_policy_20260627/source-triage.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_motif_policy_20260627/source-triage.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_near_white_policy_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_near_white_policy_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_near_white_policy_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_near_white_policy_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_near_white_policy_20260627/source-triage.html`
 
 ## Research Coverage Map
 
@@ -163,7 +169,55 @@ Out of scope for now:
 - cross-stitch DFS/parity algorithms unless cross-stitch becomes a product mode
 - applique placement/cutting/tackdown workflows until the core generated-icon pipeline is stable
 
-## Current Patch: Compact Repeated Detail Motif Accounting
+## Current Patch: Stitched Near-White Foreground Accounting
+
+The latest source/color triage had no clear semantic color-loss behavior bug after sparse halo cleanup, but it still showed false repair opportunities for pale foreground regions that were already retained as stitches: bee wings, daisy petals, and a low-contrast bird belly.
+
+What changed:
+
+- Added `stitchedNearWhiteForegroundColorCount` to source-design diagnostics.
+- Kept `near_white_foreground` as a repair opportunity only when the near-white foreground color is not retained as a stitch color.
+- Exposed `sourceStitchedNearWhiteForegroundColorCount` in generated and uploaded acceptance summaries.
+- Added guards for `bee_simple`, `flower_daisy_simple`, and `low_contrast_bird` so pale foreground colors cannot disappear quietly.
+- No stitch generation, routing, fill strategy, API, frontend, or file-format behavior changed.
+
+Current outcome:
+
+- `bee_simple`: source repair opportunities `1 -> 0`, stitched near-white count `1`, stitch output unchanged at `1730` stitches, `17` jumps, `5` trims.
+- `flower_daisy_simple`: source repair opportunities `1 -> 0`, stitched near-white count `1`, stitch output unchanged at `2444` stitches, `26` jumps, `6` trims.
+- `low_contrast_bird`: source repair opportunities `1 -> 0`, stitched near-white count `1`, stitch output unchanged at `2502` stitches, `26` jumps, `3` trims.
+- `synthetic_underpaint_cutout_lane_trap`: source repair opportunities `2 -> 1` because the stitched white cutout is now accounted; stitch output unchanged at `3033` stitches, `15` jumps, `7` trims.
+- Generated acceptance now has `0` source repair opportunities across the default generated suite.
+- No status, quality, acceptance issue, same-surface stitched long-span, same-surface untrimmed long-span, high-risk-surface, or broad-route-risk regression was introduced.
+
+Validation:
+
+- `python3 scripts/generated_acceptance.py --out tmp/generated_acceptance_near_white_policy_target_20260627 --strict --case bee_simple --case flower_daisy_simple`
+- `python3 scripts/uploaded_art_acceptance.py --out tmp/uploaded_art_acceptance_near_white_policy_target_20260627 --strict-no-500 --strict-source-policy --case low_contrast_bird`
+- `python3 scripts/compare_generated_runs.py tmp/generated_acceptance_sparse_halo_policy_20260627 tmp/generated_acceptance_near_white_policy_target_20260627 --case bee_simple --case flower_daisy_simple --out tmp/generated_compare_near_white_policy_target_20260627.html --title "Generated near-white foreground policy target" --fail-on-regression`
+- `python3 scripts/compare_generated_runs.py tmp/uploaded_art_acceptance_sparse_halo_policy_20260627 tmp/uploaded_art_acceptance_near_white_policy_target_20260627 --case low_contrast_bird --out tmp/uploaded_compare_near_white_policy_target_20260627.html --title "Uploaded near-white foreground policy target" --fail-on-regression`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- `python3 scripts/uploaded_art_acceptance.py --out tmp/uploaded_art_acceptance_near_white_policy_20260627 --strict-no-500 --strict-source-policy`
+- `python3 scripts/generated_acceptance.py --out tmp/generated_acceptance_near_white_policy_20260627 --strict`
+- `npm run acceptance:source-color -- --out tmp/source_color_acceptance_near_white_policy_20260627`
+- `python3 scripts/underpaint_benchmark.py --out tmp/underpaint_benchmark_near_white_policy_20260627 --format jef`
+- Regression-gated uploaded/generated/source-color/underpaint comparisons all passed.
+
+Key reports:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_near_white_policy_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_near_white_policy_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_near_white_policy_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_near_white_policy_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_near_white_policy_20260627/source-triage.html`
+
+Next recommended direction:
+
+- Stop spending time on diagnostic-only source repairs unless they hide a true color/detail defect.
+- Continue looking for a real behavior target: semantic accent loss, same-hue material over-fragmentation, or a source-complexity simplifier for `real_teapot_card` that reduces disconnected pieces without dropping intended colors.
+
+## Previous Patch: Compact Repeated Detail Motif Accounting
 
 The real source/color fixture lane showed a useful false-positive in source complexity scoring. `real_strawberry` has `40` raw source regions, but most of the extra regions are intentional, uniform, compact black seed details. The detail-budget layer already treated this as a uniform detail field, but the source-design diagnostics only discounted the green leaf repeat and still counted the seed field as generic source complexity.
 
