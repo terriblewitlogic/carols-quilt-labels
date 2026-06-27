@@ -187,8 +187,41 @@ Useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_route_diag_full_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_route_diag_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_route_diag_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_structural_route_fixed_acorn_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_structural_route_fixed_full_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_structural_route_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_structural_route_20260627.html`
 
 Rule: every stitch-algorithm change that affects generated fixtures should produce a comparison report and should run `--fail-on-regression` when comparing against the previous accepted run.
+
+### Structural-Safe Component Routing
+
+Status: keep.
+
+Why: route diagnostics proved the remaining faceted-acorn opportunities were blocked by underlay-sensitive `no_flip` components. A safe route win needs to reorder whole components without reversing their underlay/cover relationship and without perturbing unrelated nearest routing.
+
+Change accepted:
+
+- Broad underlay+fill `_StitchChain` components now get chunk spans, making `safe_flip()` available while preserving underlay-before-cover order.
+- Candidate-graph routing preserves `_StitchChain` metadata only during candidate scoring. Plain nearest routing keeps the previous copied-list behavior.
+- Structural debug reports `structuralComponentCount`, `safeFlipComponentCount`, and `orientationLockedCount`.
+- Equal trim/jump candidates no longer win on travel distance alone; candidates must improve trim or jump pressure.
+
+Measured result:
+
+- `same_hue_acorn_facets`: trims `7 -> 6`, jumps stay `20`, cross-surface trimmed long spans `3 -> 1`, quality stays `100`.
+- generated/underpaint `sparrow_flat_app_icon`: trims `3 -> 2`, jumps `18 -> 17`, cross-surface trimmed long spans `3 -> 2`.
+- uploaded `thick_outline_flower`: trims `7 -> 6`, jumps `56 -> 53`, cross-surface trimmed long spans `1 -> 0`.
+- Full uploaded, generated, and underpaint comparisons passed with `--fail-on-regression`.
+
+Guardrail: do not preserve `_StitchChain` metadata for ordinary nearest routes by default. That broad version regressed unrelated uploaded fixtures by changing internal route orientation where no candidate decision was being made.
+
+Key reports:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_structural_route_fixed_acorn_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_structural_route_fixed_full_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_structural_route_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_structural_route_20260627.html`
 
 ### Route Diagnostics And Small Exact Component Tours
 

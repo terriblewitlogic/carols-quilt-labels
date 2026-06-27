@@ -19,7 +19,7 @@ Recent shipped backend changes:
 - Same-hue tonal stress coverage now includes `same_hue_acorn_facets`, and the posterizer protects substantial darker end-members so dark caps/bases are not flattened into mid-tone facets.
 - Same-hue facet trim pressure now has explicit acorn, mushroom, and shell stress coverage; modest inter-component carries trim at `16mm` instead of `8mm`, reducing faceted acorn trims without introducing long untrimmed jump diagnostics.
 - Covered-travel routing now considers longer `2-35mm` carries only when later stitch geometry proves the path is hidden; this reduces faceted acorn trims again while leaving exposed long moves as jumps/trims.
-- Route diagnostics now record rejected candidate-route opportunities even when structural/no-flip underlay sensitivity forces nearest routing; tiny component clusters also get an exact route candidate before broader heuristics win.
+- Structural/no-flip-safe routing now preserves `_StitchChain` metadata only inside candidate-graph evaluation, allowing safe component reordering without changing ordinary nearest routing.
 
 The remaining quality problems are mostly in generated icon art:
 
@@ -57,6 +57,10 @@ Current useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_route_diag_full_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_route_diag_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_route_diag_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_structural_route_fixed_acorn_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_structural_route_fixed_full_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_structural_route_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_structural_route_20260627.html`
 
 ## Research Coverage Map
 
@@ -81,6 +85,7 @@ Implemented now:
 - graph-aware component routing for disconnected same-color fill islands, inspired by embroidery/sewing path-ordering work, geometric TSP/MST heuristics, and 2-opt. The production adaptation compares nearest, angular, MST preorder, and 2-opt component tours, then keeps a new route only when predicted trims/jumps improve without increasing long-span or visible-carry risk.
 - route-decision diagnostics for structural fallbacks: `surface-plan.json` now records candidate-route gates, component counts, spread, raw-component fallback checks, and `structural_no_flip_component` rejections when route reordering would conflict with underlay-sensitive surfaces.
 - exact small-cluster route scoring for 3-7 disconnected components, aligned to the converter's `16mm` inter-component trim threshold. This keeps route scoring honest for tiny facet clusters without changing accepted output unless the candidate is strictly safer.
+- structural/no-flip-safe candidate routing: broad underlay+fill chains now expose safe flip spans, candidate-graph routing preserves `_StitchChain` metadata only while scoring candidates, and equal-travel-only route wins are rejected. This lets small exact routes improve structural same-color clusters without changing unrelated nearest-route output.
 - source/detail decision diagnostics for upload-style fixtures: `surface-plan.json` records tiny-component decision counts and `uploaded_art_acceptance.py --strict-source-policy` fails on unresolved tiny decisions, bad detail budgets, lost accent colors, or detail-fill risk regressions.
 - same-hue material preservation fixture: `same_hue_acorn` verifies the posterizer/thread snap keeps `#783c14`, `#c3915a`, and `#d2aa6e` instead of collapsing a dark cap, tan body, and light highlight into one family.
 - same-hue faceted stress fixture: `same_hue_acorn_facets` is available by explicit `--case` but excluded from default uploaded acceptance; the current result is quality `100`, `0` broad/detail risk surfaces, and preserved `#783c14`, `#a05a28`, `#c3915a`, and `#d2aa6e`.
@@ -102,7 +107,44 @@ Out of scope for now:
 - cross-stitch DFS/parity algorithms unless cross-stitch becomes a product mode
 - applique placement/cutting/tackdown workflows until the core generated-icon pipeline is stable
 
-## Current Patch: Route Diagnostics And Small Exact Component Tours
+## Current Patch: Structural-Safe Component Routing
+
+The previous route diagnostics showed the acorn facet candidates were blocked because broad underlay+fill surfaces were `no_flip`. This patch makes those structural chains safely routable inside candidate-graph scoring only: the route scorer can preserve `_StitchChain` metadata, use safe flips when chunk spans exist, and still leave ordinary nearest routing byte-for-byte stable for unrelated groups.
+
+What changed:
+
+- Broad underlay+fill `_StitchChain` components now get a single chunk span so `safe_flip()` can reverse the component while still sewing underlay before cover.
+- Candidate-graph routing preserves `_StitchChain` metadata; plain nearest routing keeps the old copied-list behavior to avoid broad fixture churn.
+- Structural route debug now reports `structuralComponentCount`, `safeFlipComponentCount`, and `orientationLockedCount`.
+- Route candidates no longer win just because max gap or total travel improves; they must improve predicted trim or jump pressure.
+
+Current outcome:
+
+- explicit `same_hue_acorn_facets`: trims `7 -> 6`, jumps stay `20`, cross-surface trimmed long spans `3 -> 1`, quality stays `100`.
+- generated and underpaint `sparrow_flat_app_icon`: trims `3 -> 2`, jumps `18 -> 17`, cross-surface trimmed long spans `3 -> 2`.
+- default uploaded `thick_outline_flower`: trims `7 -> 6`, jumps `56 -> 53`, cross-surface trimmed long spans `1 -> 0`.
+- no quality, acceptance, same-surface stitched long-span, high-risk-surface, or broad-route-risk regressions in uploaded, generated, or underpaint comparisons.
+
+Validation:
+
+- targeted `same_hue_acorn_facets` uploaded acceptance and comparison with `--fail-on-regression`
+- full uploaded strict source policy and comparison with `--fail-on-regression`
+- full generated acceptance and comparison with `--fail-on-regression`
+- underpaint benchmark and underpaint comparison with `--fail-on-regression`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- `npm run benchmark:underpaint`
+
+Key reports:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_structural_route_fixed_acorn_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_structural_route_fixed_full_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_structural_route_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_structural_route_20260627.html`
+
+Next direction: broaden structural route coverage cautiously with non-flower disconnected-island fixtures, then return to color/detail preservation. Do not make metadata-preserving routing the default for nearest routes; an attempted broad version regressed unrelated upload fixtures.
+
+## Recent Patch: Route Diagnostics And Small Exact Component Tours
 
 The graph-aware route selector needed one more diagnostic layer before touching the remaining same-hue facet trims. Direct route experiments showed small exact tours can find better predicted ordering for tiny disconnected clusters, but the real uploaded acceptance path auto-tunes the same-hue acorn into structural/no-flip surfaces. Those surfaces should not be freely reordered yet because underlay/cover relationships matter more than raw centroid distance.
 

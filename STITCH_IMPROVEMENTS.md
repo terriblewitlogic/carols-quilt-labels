@@ -40,19 +40,24 @@ Recent shipped work since the original pro-design comparison:
   - route scoring uses the same `16mm` inter-component trim threshold as conversion
   - `surface-plan.json` records structural/no-flip route rejections instead of silently selecting nearest
   - `same_hue_acorn_facets` stayed stable at quality `100`, `20 jumps / 7 trims`, and now explains why the remaining candidates are rejected
+- Added structural/no-flip-safe candidate routing:
+  - broad underlay+fill chains expose safe flip spans while preserving underlay-before-cover order
+  - `_StitchChain` metadata is preserved only inside candidate-graph scoring, not ordinary nearest routing
+  - `same_hue_acorn_facets` trims `7 -> 6` and cross-surface trimmed long spans `3 -> 1`
+  - generated/underpaint `sparrow_flat_app_icon` trims `3 -> 2` and jumps `18 -> 17`
 
 Current next-best stitch work:
 
-1. Implement a structural/no-flip-safe route improvement for same-hue facets: preserve per-surface orientation/underlay order, or split same-color structural surfaces into smaller safe stops before command generation. Do not raise the inter-component threshold again.
+1. Add more targeted disconnected-island fixtures before broadening structural route optimization further. Keep metadata-preserving routing limited to candidate scoring.
 2. Preserve meaningful small accent colors while continuing to drop/absorb noisy fragments under strict source-policy checks.
-3. Add targeted repeated-island fixtures before broadening route optimization further; the graph-aware selector now rejects unsafe tours but did not find a safe daisy improvement.
+3. Expand color/tone preservation coverage with real generated/uploaded examples, especially same-hue materials that still over-fragment, collapse into the wrong thread family, or create exposed relocations.
 4. Use `compare_generated_runs.py ... --fail-on-regression` for every keep/revert decision.
 5. Revisit broad-underpaint/lane routing only when comparison reports show actual stitched-span risk.
 
 Research review status:
 
 - Already covered: role-specific stitch caps, multi-pass layer planning, underlay chains, medial/satin narrow-shape fills, seam ownership, detail heuristics, and gated angular routing.
-- Implemented now: graph-aware route ordering for disconnected same-color fill islands using nearest, angular, MST preorder, small exact tours, and 2-opt candidate tours. It preserves the sunflower angular win, records candidate rejection diagnostics, and now exposes structural/no-flip blockers on same-hue acorn facets; it does not yet reduce daisy trims. Source/detail and same-hue material guardrails now make tiny-detail promotion, simplification, unresolved-detail regressions, cap/body/highlight tone collapse, and faceted same-hue dark-endpoint collapse visible in uploaded-art acceptance output. Same-hue facet trim pressure is now covered by acorn, mushroom, and shell stress fixtures, with the accepted trim threshold set at `16mm` because higher thresholds introduced long-carry risk. Covered travel can now search up to `35mm` only when later stitch geometry proves the route is hidden.
+- Implemented now: graph-aware route ordering for disconnected same-color fill islands using nearest, angular, MST preorder, small exact tours, and 2-opt candidate tours. It preserves the sunflower angular win, records candidate rejection diagnostics, and now supports structural/no-flip-safe candidate routing for underlay-sensitive components. It improves faceted acorn and sparrow route pressure without reducing daisy trims yet. Source/detail and same-hue material guardrails now make tiny-detail promotion, simplification, unresolved-detail regressions, cap/body/highlight tone collapse, and faceted same-hue dark-endpoint collapse visible in uploaded-art acceptance output. Same-hue facet trim pressure is now covered by acorn, mushroom, and shell stress fixtures, with the accepted trim threshold set at `16mm` because higher thresholds introduced long-carry risk. Covered travel can now search up to `35mm` only when later stitch geometry proves the route is hidden.
 - Later: direction-field streamlines, offset-curve/auto-split partitioning, stronger vectorization, stitch-style classification, texture synthesis for preview/style inspiration, and multi-objective optimization once deterministic fixtures are stronger.
 - Out of scope: exact b-matching in this sprint, cross-stitch DFS/parity, and applique workflows.
 
