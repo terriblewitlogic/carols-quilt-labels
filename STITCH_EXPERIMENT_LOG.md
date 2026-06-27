@@ -13,6 +13,53 @@ This is not a full changelog. It is a decision log for approaches that worked, f
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_acceptance_*`
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/regression_*`
 
+## Accepted Source Policy: Local Detail Cluster Accounting
+
+Date: 2026-06-27
+
+Goal:
+
+- Make teapot-like source failures explicit without widening detail absorption or changing stitch geometry.
+- Distinguish disconnected retained color-piece clusters from intentional repeated motifs such as strawberry seeds.
+
+Change:
+
+- Added source-design summary fields for retained multi-component colors and local detail cluster counts.
+- Added a `local_detail_cluster` repair opportunity and source-suitability issue when several retained foreground colors are split into many disconnected components and the case is not an intentional repeated-motif field.
+- Added a `real_teapot_card` strict acceptance guard requiring the local-cluster accounting.
+- Exposed source-suitability and local-cluster fields in generated/uploaded acceptance and source-art triage reports.
+
+Result:
+
+- `real_teapot_card` remains `C / 77`, root cause `source_art_complexity`.
+- New source accounting: `4` local detail-cluster colors / `22` retained disconnected components.
+- Source suitability is now `72 / candidate` with issues `many_regions`, `local_detail_cluster`, and `high_color_count`.
+- Stitch output stayed unchanged: `13541` stitches, `84` jumps, `15` trims, colors `[#50be46, #f0785a, #965ad2, #ffc88c, #000000]`.
+- No same-surface stitched long spans, high-risk surfaces, or broad route risks were introduced.
+- `real_strawberry` stays protected as repeated motif detail: `2` motif groups / `26` motif components / `20` adjusted components, with no local-detail-cluster label.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_acceptance_teapot_local_detail_cluster_20260627`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_acceptance_local_detail_cluster_20260627`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_teapot_local_detail_cluster_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_local_detail_cluster_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_local_detail_cluster_20260627/source-triage.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_local_detail_cluster_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_local_detail_cluster_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_local_detail_cluster_20260627.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- full uploaded strict source policy
+- full generated acceptance `--strict`
+- full source-color acceptance `--strict`
+- full underpaint benchmark
+
+Verdict:
+
+- Keep. This is a diagnostic/source-policy win with no stitch-output churn.
+- Next source/color target should be a behavior change only if reports show a meaningful color/detail loss that can be fixed without broadening routing or absorption thresholds.
+
 ## Accepted Source Policy: Compact Repeated Detail Motifs
 
 Date: 2026-06-27

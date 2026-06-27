@@ -28,6 +28,7 @@ Recent shipped backend changes:
 - Upload-style muted accent coverage now includes `muted_accent_badge`: low-chroma lavender, soft pink tiny details, blue fill, and black linework must all survive strict source-policy checks.
 - Real source/color fixture coverage now has a separate file-backed lane via `npm run acceptance:source-color`, seeded with teapot and strawberry examples that are known source-complexity targets rather than default acceptance blockers.
 - Compact repeated detail motifs are now accounted in source-design diagnostics: `real_strawberry` recognizes the black seed field plus green leaf repeat as intentional motifs, improving triage from `C+` to `B` without changing stitch output.
+- Teapot-like local detail clusters are now explicitly accounted in source-design diagnostics: `real_teapot_card` reports `4` retained multi-component colors / `22` disconnected retained components and keeps the case classified as source-art complexity rather than a stitch-routing failure.
 
 The remaining quality problems are mostly in generated icon art:
 
@@ -96,6 +97,11 @@ Current useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_motif_policy_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_motif_policy_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_motif_policy_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_local_detail_cluster_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_local_detail_cluster_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_local_detail_cluster_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_local_detail_cluster_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_local_detail_cluster_20260627/source-triage.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_motif_policy_20260627/source-triage.html`
 
 ## Research Coverage Map

@@ -107,6 +107,15 @@ src/pages/GeneratorPage.jsx   ← wire each step of the flow
 
 **Credit deduction:** Call `useCredits().spend(creditsNeeded)` before triggering the export. If `spend()` returns false (insufficient balance), show the credit purchase prompt instead.
 
+**Backend quality checkpoint — 2026-06-27:** the stitch backend now has source-color acceptance lanes for real generated art before this is exposed to users. `real_strawberry` is accounted as intentional compact repeated detail, while `real_teapot_card` is kept as a source-complexity guard with `4` retained multi-component colors / `22` disconnected retained pieces. Current validation artifacts:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_local_detail_cluster_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_local_detail_cluster_20260627/source-triage.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_local_detail_cluster_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_local_detail_cluster_20260627.html`
+
+Do not treat Generator wiring as real-user-ready until source/color triage has more accepted behavior wins, not just diagnostics.
+
 ---
 
 ### 2C — Authentication
