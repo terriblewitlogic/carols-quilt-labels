@@ -232,6 +232,7 @@ Recent backend/frontend progress:
 - Upload-style source/detail policy checks now expose tiny-detail accounting and guard against unresolved tiny decisions, lost accent colors, and detail-budget regressions.
 - Upload-style tone/material policy checks now include a same-hue acorn fixture that preserves dark-brown, tan, and light tan thread colors.
 - Same-hue faceted material stress coverage now preserves substantial darker end-members instead of flattening them into mid-tone facets.
+- Same-hue light endpoint protection now preserves mushroom-like tan/light material regions instead of flattening them into dominant orange/pink body tones.
 - Same-hue facet trim pressure now has acorn, mushroom, and shell stress fixtures; the accepted inter-component trim threshold is `16mm`, reducing `same_hue_acorn_facets` trims `11 -> 8` without long untrimmed jump diagnostics.
 - Covered-travel routing now searches up to `35mm` only when later stitches prove the carry is hidden; `same_hue_acorn_facets` trims improved again `8 -> 7` with no actual-thread connector risk.
 - Route fallback diagnostics now explain remaining same-hue acorn facet trims: exact small-cluster route candidates are scored, but the remaining `#a05a28` and `#c3915a` groups safely fall back to nearest because structural/no-flip underlay-sensitive surfaces block free reordering.
@@ -248,7 +249,7 @@ Recent backend/frontend progress:
 
 Current generator/stitch backlog:
 
-- expand tone/color preservation fixtures with real generated/uploaded examples, especially remaining same-hue trim/fragmentation cases
+- expand tone/color preservation fixtures with real generated/uploaded examples, especially remaining same-hue endpoint, trim, and fragmentation cases
 - preserve meaningful accent colors without preserving noisy fragments, using strict source-policy checks
 - keep future route broadening behind the new disconnected-island fixture gates plus daisy/sunflower/elephant/cutout benchmarks
 - keep using generated-run comparison reports before accepting algorithm changes

@@ -17,6 +17,7 @@ Recent shipped backend changes:
 - Upload-style source/detail policy diagnostics now surface tiny-detail accounting, compact-detail promotion, simplification, and detail-budget status in acceptance summaries.
 - Upload-style tone-material preservation now has a deterministic `same_hue_acorn` guard: dark-brown cap, tan body, and light tan highlight must survive as separate thread colors.
 - Same-hue tonal stress coverage now includes `same_hue_acorn_facets`, and the posterizer protects substantial darker end-members so dark caps/bases are not flattened into mid-tone facets.
+- Same-hue tonal cleanup also protects substantial light end-members, so mushroom-like material art keeps tan/light regions instead of collapsing them into the dominant orange/pink body tone.
 - Same-hue facet trim pressure now has explicit acorn, mushroom, and shell stress coverage; modest inter-component carries trim at `16mm` instead of `8mm`, reducing faceted acorn trims without introducing long untrimmed jump diagnostics.
 - Covered-travel routing now considers longer `2-35mm` carries only when later stitch geometry proves the path is hidden; this reduces faceted acorn trims again while leaving exposed long moves as jumps/trims.
 - Structural/no-flip-safe routing now preserves `_StitchChain` metadata only inside candidate-graph evaluation, allowing safe component reordering without changing ordinary nearest routing.
@@ -63,6 +64,10 @@ Current useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_structural_route_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_structural_route_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_route_fixture_coverage_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_light_endpoint_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_light_endpoint_full_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_light_endpoint_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_light_endpoint_20260627.html`
 
 ## Research Coverage Map
 
@@ -80,7 +85,7 @@ Already implemented in the current engine:
 - generated-run HTML comparison harness for visual keep/revert decisions
 - source/detail policy guardrails for uploaded-art fixtures
 - tone/material color guardrails for same-hue uploaded art
-- dark-endpoint tonal-family protection for substantial same-hue material fields
+- dark- and light-endpoint tonal-family protection for substantial same-hue material fields
 
 Implemented now:
 
@@ -92,6 +97,7 @@ Implemented now:
 - source/detail decision diagnostics for upload-style fixtures: `surface-plan.json` records tiny-component decision counts and `uploaded_art_acceptance.py --strict-source-policy` fails on unresolved tiny decisions, bad detail budgets, lost accent colors, or detail-fill risk regressions.
 - same-hue material preservation fixture: `same_hue_acorn` verifies the posterizer/thread snap keeps `#783c14`, `#c3915a`, and `#d2aa6e` instead of collapsing a dark cap, tan body, and light highlight into one family.
 - same-hue faceted stress fixture: `same_hue_acorn_facets` is available by explicit `--case` but excluded from default uploaded acceptance; the current result is quality `100`, `0` broad/detail risk surfaces, and preserved `#783c14`, `#a05a28`, `#c3915a`, and `#d2aa6e`.
+- same-hue light endpoint guard: `same_hue_mushroom_facets` now preserves `#d2aa6e` as a substantial light material region instead of flattening the stem/highlight into `#f0785a`.
 - same-hue facet trim reduction: `same_hue_acorn_facets`, `same_hue_mushroom_facets`, and `same_hue_shell_facets` exercise same-hue material fields with internal facets. Inter-component trims now use a `16mm` threshold, which reduced acorn facet trims while keeping long untrimmed jump diagnostics at zero.
 - covered travel extension: `_merge_covered_travel` now considers hidden carries up to `35mm`, but only when a later fill/outline directly covers the route or offers a covered detour. It removes one remaining faceted-acorn relocation without raising the global trim threshold.
 
@@ -110,7 +116,46 @@ Out of scope for now:
 - cross-stitch DFS/parity algorithms unless cross-stitch becomes a product mode
 - applique placement/cutting/tackdown workflows until the core generated-icon pipeline is stable
 
-## Current Patch: Disconnected-Island Route Fixture Coverage
+## Current Patch: Same-Hue Light Endpoint Preservation
+
+The dark-endpoint guard fixed same-hue material fields where a dark cap/base was being flattened into a mid-tone. The mushroom stress case exposed the symmetric problem: a substantial light tan material region could collapse into the dominant orange/pink body tone because the oversegmented tonal-family cleanup only protected the darkest endpoint.
+
+What changed:
+
+- `_collapse_oversegmented_tonal_families(...)` now finds both the darkest and lightest active members of a same-hue family.
+- The lightest member is protected only when it is substantial, chromatic, clearly lighter than the dominant family member, and not near-white antialias residue.
+- `uploaded_art_acceptance.py --strict-source-policy --case same_hue_mushroom_facets` now requires `#783c14`, `#f0785a`, `#d2aa6e`, and black, plus at least three warm tones with enough luminance spread.
+
+Current outcome:
+
+- `same_hue_mushroom_facets` colors improved from `#783c14`, `#f0785a`, black to `#783c14`, `#f0785a`, `#d2aa6e`, black.
+- Source normalization changed-pixel fraction dropped from `0.10942 -> 0.03885`.
+- Quality stays `100`, with `0` high-risk surfaces, `0` broad-route-risk surfaces, and no same-surface stitched or untrimmed long spans.
+- The preserved material costs real route pressure in the stress-only case: jumps `15 -> 20`, trims `5 -> 7`, and one preview/trimmed same-surface long-span diagnostic appears. Default uploaded, generated, and underpaint suites are unchanged.
+
+Validation:
+
+- `python3 scripts/uploaded_art_acceptance.py --out tmp/uploaded_art_acceptance_light_endpoint_20260627 --case same_hue_acorn_facets --case same_hue_mushroom_facets --case same_hue_shell_facets --strict-no-500 --strict-source-policy`
+- `python3 scripts/compare_generated_runs.py tmp/uploaded_art_acceptance_same_hue_stress_probe_20260627 tmp/uploaded_art_acceptance_light_endpoint_20260627 --out tmp/uploaded_compare_light_endpoint_20260627.html --title "Same-Hue Light Endpoint" --fail-on-regression`
+- `python3 scripts/uploaded_art_acceptance.py --out tmp/uploaded_art_acceptance_light_endpoint_full_20260627 --strict-no-500 --strict-source-policy`
+- `python3 scripts/compare_generated_runs.py tmp/uploaded_art_acceptance_structural_route_fixed_full_20260627 tmp/uploaded_art_acceptance_light_endpoint_full_20260627 --out tmp/uploaded_compare_light_endpoint_full_20260627.html --title "Light Endpoint Full Uploaded" --fail-on-regression`
+- `python3 scripts/generated_acceptance.py --out tmp/generated_acceptance_light_endpoint_20260627 --strict`
+- `python3 scripts/underpaint_benchmark.py --out tmp/underpaint_benchmark_light_endpoint_20260627 --format jef`
+- `python3 scripts/compare_generated_runs.py tmp/generated_acceptance_structural_route_20260627 tmp/generated_acceptance_light_endpoint_20260627 --out tmp/generated_compare_light_endpoint_20260627.html --title "Light Endpoint Generated" --fail-on-regression`
+- `python3 scripts/compare_generated_runs.py tmp/underpaint_benchmark tmp/underpaint_benchmark_light_endpoint_20260627 --out tmp/underpaint_compare_light_endpoint_20260627.html --title "Light Endpoint Underpaint" --fail-on-regression`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+Key reports:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_light_endpoint_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_light_endpoint_full_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_light_endpoint_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_light_endpoint_20260627.html`
+
+Next direction: keep the color win. The next useful pass is reducing the extra stress-case route pressure created by preserving the mushroom light material, but only if it does not hide the newly preserved tan region or introduce stitched/untrimmed long-span risk.
+
+## Recent Patch: Disconnected-Island Route Fixture Coverage
 
 The structural-safe routing change needed dedicated benchmark fixtures before any broader route optimization. Daisy and sunflower still matter, but they are flower-specific; this patch adds route-specific synthetic fixtures to `underpaint_benchmark.py`.
 
@@ -434,13 +479,13 @@ Caveat: the generated acceptance score for sunflower still drops from `100` to `
 ## Next Best Work
 
 1. Expand color/tone preservation fixtures.
-   The clean same-hue material guard is live (`same_hue_acorn`, quality `100`) and faceted same-hue stress coverage now includes acorn, mushroom, and shell. The next broad quality pass should add real generated/uploaded examples where same-hue materials still collapse, over-fragment, or create exposed long relocations.
+   The clean same-hue material guard is live (`same_hue_acorn`, quality `100`) and faceted same-hue stress coverage now protects both dark and light material endpoints. The next broad quality pass should add real generated/uploaded examples where same-hue materials still collapse, over-fragment, or create exposed long relocations.
 
 2. Keep route broadening behind the new disconnected-island fixtures.
    `synthetic_component_route_ring` and `synthetic_structural_route_facets` now cover plain candidate scoring, structural-safe route wins, and safe fallback. Future route changes should improve real cases without breaking those guards.
 
-3. Fix color preservation on upload-style art.
-   The upload-style badge and thick-outline flower both show dropped source colors. This is the same class of problem the bird beak/feet exposed: visible accent colors should not vanish just because they are small or near another thread color.
+3. Continue color preservation on upload-style art.
+   The strict source-policy suite now catches lost accent/material colors, but real uploaded examples can still expose cases where visible colors are too small, too close to neighboring tones, or too expensive to route. Preserve intentional colors first, then reduce the route pressure they create.
 
 4. Keep tiny detail decisions explicit.
    `tiny_detail_icon` now accounts for all 9 tiny source components: 9 compact-detail promotions, 6 simplified excess details, 3 intentional tiny stitch surfaces, and 0 unresolved tiny decisions. Future detail changes should keep `uploaded_art_acceptance.py --strict-source-policy` green before moving into broader generated fixtures.

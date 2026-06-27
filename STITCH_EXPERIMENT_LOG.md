@@ -192,8 +192,40 @@ Useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_structural_route_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_structural_route_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_route_fixture_coverage_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_light_endpoint_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_light_endpoint_full_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_light_endpoint_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_light_endpoint_20260627.html`
 
 Rule: every stitch-algorithm change that affects generated fixtures should produce a comparison report and should run `--fail-on-regression` when comparing against the previous accepted run.
+
+### Same-Hue Light Endpoint Material Preservation
+
+Status: keep.
+
+Why: the dark-endpoint guard fixed acorn-like same-hue material art, but `same_hue_mushroom_facets` still collapsed a substantial tan/light material region into the dominant orange/pink body tone. That was not a noisy fleck; it was a visible stem/highlight material.
+
+Change accepted:
+
+- `_collapse_oversegmented_tonal_families(...)` now identifies the lightest active member of a same-hue family, not only the darkest.
+- A light endpoint is protected only when it is substantial relative to the family, clearly lighter than the dominant member, chromatic, and not near-white antialias residue.
+- `same_hue_mushroom_facets` strict source-policy checks now require `#783c14`, `#f0785a`, `#d2aa6e`, and black, plus at least three warm tones with enough luminance spread.
+
+Measured result:
+
+- `same_hue_mushroom_facets` colors changed from `#783c14`, `#f0785a`, black to `#783c14`, `#f0785a`, `#d2aa6e`, black.
+- Source normalization changed-pixel fraction improved `0.10942 -> 0.03885`.
+- Quality stayed `100`, with no high-risk surfaces, no broad-route-risk surfaces, and no same-surface stitched/untrimmed long spans.
+- The stress-only mushroom case gained route pressure: jumps `15 -> 20`, trims `5 -> 7`, plus one preview/trimmed same-surface long span. Default uploaded, generated, and underpaint suites stayed unchanged.
+
+Guardrail: preserve the light material endpoint; do not undo it to make route metrics prettier. The next improvement should reduce the newly exposed mushroom route pressure without losing `#d2aa6e` or converting preview/trimmed relocations into actual stitched or untrimmed long spans.
+
+Key reports:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_light_endpoint_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_light_endpoint_full_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_light_endpoint_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_light_endpoint_20260627.html`
 
 ### Disconnected-Island Route Fixture Coverage
 
