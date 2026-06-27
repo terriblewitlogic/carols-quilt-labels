@@ -196,8 +196,43 @@ Useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_light_endpoint_full_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_light_endpoint_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_light_endpoint_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_structural_orientation_dp_same_hue_strict_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_structural_orientation_dp_full_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_structural_orientation_dp_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_structural_orientation_dp_20260627.html`
 
 Rule: every stitch-algorithm change that affects generated fixtures should produce a comparison report and should run `--fail-on-regression` when comparing against the previous accepted run.
+
+### Structural Safe-Flip Orientation DP
+
+Status: keep.
+
+Why: preserving the mushroom's light tan material endpoint was correct, but it exposed one same-surface trimmed relocation inside an underlay-sensitive structural chain. Simply disabling structural safe flips fixed mushroom metrics and broke the acorn structural route win. The useful move was to keep candidate routing, but let the orientation DP choose among safer structural reversals.
+
+Change accepted:
+
+- Restored `safe_flip()` to the legacy structural reversal that candidate routing already used successfully.
+- Added a second structural-safe reversal variant that reorients underlay segments toward the flipped cover start.
+- Replaced the binary original/flipped orientation DP with a multi-option DP.
+- Scored routes by external trim and long-span pressure first, then internal structural handoff trim and long-span pressure, then travel distance.
+- Tightened `same_hue_mushroom_facets` strict source policy so it now fails on any same-surface material relocation or trim count above `6`.
+
+Measured result:
+
+- `same_hue_mushroom_facets`: jumps `20 -> 19`, trims `7 -> 6`, same-surface trimmed long spans `1 -> 0`, and the preserved color set still includes `#d2aa6e`.
+- `same_hue_acorn_facets`: trims `6 -> 5`, cross-surface trimmed long spans `1 -> 0`.
+- `same_hue_shell_facets`: jumps `39 -> 37`, trims `7 -> 5`, same-surface trimmed long spans `2 -> 1`, cross-surface trimmed long spans `1 -> 0`.
+- Full generated and underpaint comparisons passed with `--fail-on-regression`; the only generated-suite change was `sparrow_flat_app_icon` stitch count `5504 -> 5488`.
+- Full uploaded comparison passed with `--fail-on-regression`; `no_outline_teddy` improved jumps `14 -> 12`, and `thick_outline_flower` kept trim/risk metrics stable with one extra jump.
+
+Guardrail: do not turn this into free structural flipping. Structural variants are only considered inside candidate-graph orientation scoring, and candidate selection still has to avoid long-span/risk regressions.
+
+Key reports:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_structural_orientation_dp_same_hue_strict_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_structural_orientation_dp_full_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_structural_orientation_dp_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_structural_orientation_dp_20260627.html`
 
 ### Same-Hue Light Endpoint Material Preservation
 
