@@ -31,6 +31,7 @@ Recent shipped backend changes:
 - Teapot-like local detail clusters are now explicitly accounted in source-design diagnostics: `real_teapot_card` reports `4` retained multi-component colors / `22` disconnected retained components and keeps the case classified as source-art complexity rather than a stitch-routing failure.
 - Sparse low-chroma outline halos are now accounted as pruned source residue instead of visible color loss: `thick_outline_flower` now has source suitability `100 / clean`, repair count `0`, and unchanged stitch output.
 - Stitched near-white foreground shapes are now explicitly accounted instead of reported as repair opportunities: `bee_simple`, `flower_daisy_simple`, and `low_contrast_bird` keep their pale stitched regions with repair count `0` and unchanged stitch output.
+- Large dark stroke-satin outline networks now use a wider density multiplier when the source stroke area is broad, reducing thread buildup on generated/uploaded icon line art while keeping risk gates clean.
 
 The remaining quality problems are mostly in generated icon art:
 
@@ -115,6 +116,11 @@ Current useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_near_white_policy_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_near_white_policy_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_near_white_policy_20260627/source-triage.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_large_stroke_spacing_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_large_stroke_spacing_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_large_stroke_spacing_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_large_stroke_spacing_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_large_stroke_spacing_20260627/source-triage.html`
 
 ## Research Coverage Map
 
@@ -169,7 +175,51 @@ Out of scope for now:
 - cross-stitch DFS/parity algorithms unless cross-stitch becomes a product mode
 - applique placement/cutting/tackdown workflows until the core generated-icon pipeline is stable
 
-## Current Patch: Stitched Near-White Foreground Accounting
+## Current Patch: Large Dark Stroke Satin Spacing
+
+The first visible source/color sprint win reduces over-dense generated/uploaded icon outlines without changing public APIs, source policy, routing thresholds, or file formats.
+
+What changed:
+
+- Dark stroke-satin fills keep the existing `0.55` density multiplier for narrow/small outlines.
+- Broad dark stroke networks at or above `250mm²` use a `0.72` multiplier, producing fewer satin steps while preserving coverage.
+- `surface-plan.json` records `strokeSatinDensityMult` / `strokeSatinDensityMults` so broad-outline behavior is explainable in diagnostics.
+
+Current outcome:
+
+- `real_teapot_card`: stitches `13541 -> 11761`, trims `15 -> 14`, jumps `84 -> 86`; quality `100`, no acceptance/risk regression.
+- `real_strawberry`: stitches `8323 -> 7549`, jumps `62 -> 65`, trims unchanged at `4`; quality `100`, no acceptance/risk regression.
+- `thick_outline_flower`: stitches `6952 -> 6122`, jumps `54 -> 53`, trims `6 -> 7`; quality `100`, no stitched-span/risk regression.
+- `same_hue_acorn`: stitches `5296 -> 4915`, jumps `23 -> 21`.
+- `cartoon_elephant`: stitches `5725 -> 5191`, jumps `29 -> 27`.
+- `badge_circle_star`: stitches `2080 -> 1893`.
+- `synthetic_structural_route_facets`: stitches `6235 -> 5883`.
+- Across uploaded, generated, source-color, and underpaint full suites, regression-gated comparisons passed with no status, acceptance issue, quality score, same-surface stitched long-span, same-surface untrimmed long-span, high-risk-surface, or broad-route-risk regression.
+
+Validation:
+
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- `python3 scripts/uploaded_art_acceptance.py --out tmp/uploaded_art_acceptance_large_stroke_spacing_20260627 --strict-no-500 --strict-source-policy`
+- `python3 scripts/generated_acceptance.py --out tmp/generated_acceptance_large_stroke_spacing_20260627 --strict`
+- `npm run acceptance:source-color -- --out tmp/source_color_acceptance_large_stroke_spacing_20260627`
+- `python3 scripts/underpaint_benchmark.py --out tmp/underpaint_benchmark_large_stroke_spacing_20260627 --format jef`
+- Regression-gated uploaded/generated/source-color/underpaint comparisons all passed.
+
+Key reports:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_large_stroke_spacing_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_large_stroke_spacing_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_large_stroke_spacing_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_large_stroke_spacing_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_large_stroke_spacing_20260627/source-triage.html`
+
+Next recommended direction:
+
+- Continue source/color behavior work against real visible targets, especially a conservative simplifier for `real_teapot_card` that can reduce disconnected color pieces without dropping intended colors.
+- Keep broad routing paused unless comparison reports show actual stitched-span or same-surface relocation risk.
+
+## Previous Patch: Stitched Near-White Foreground Accounting
 
 The latest source/color triage had no clear semantic color-loss behavior bug after sparse halo cleanup, but it still showed false repair opportunities for pale foreground regions that were already retained as stitches: bee wings, daisy petals, and a low-contrast bird belly.
 

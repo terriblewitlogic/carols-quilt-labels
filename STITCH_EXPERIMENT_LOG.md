@@ -13,6 +13,54 @@ This is not a full changelog. It is a decision log for approaches that worked, f
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_acceptance_*`
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/regression_*`
 
+## Accepted Stitch Output: Large Dark Stroke Satin Spacing
+
+Date: 2026-06-27
+
+Goal:
+
+- Reduce thread buildup and over-dense output in broad black/dark generated icon outlines.
+- Keep narrow linework dense enough to read as opaque.
+- Avoid touching routing, public APIs, source policy, or file formats.
+
+Change:
+
+- Added separate dark stroke-satin density multipliers:
+  - default/small stroke multiplier: `0.55`
+  - broad stroke network multiplier: `0.72`
+  - broad gate: `250mm²` source-stroke area
+- Added `strokeSatinDensityMult` / `strokeSatinDensityMults` diagnostics in `surface-plan.json`.
+
+Result:
+
+- `real_teapot_card`: stitches `13541 -> 11761`, trims `15 -> 14`, jumps `84 -> 86`.
+- `real_strawberry`: stitches `8323 -> 7549`, jumps `62 -> 65`, trims stayed `4`.
+- `thick_outline_flower`: stitches `6952 -> 6122`, jumps `54 -> 53`, trims `6 -> 7`.
+- `same_hue_acorn`: stitches `5296 -> 4915`, jumps `23 -> 21`.
+- `cartoon_elephant`: stitches `5725 -> 5191`, jumps `29 -> 27`.
+- `badge_circle_star`: stitches `2080 -> 1893`.
+- `synthetic_structural_route_facets`: stitches `6235 -> 5883`.
+- Full uploaded, generated, source-color, and underpaint regression-gated comparisons passed. No status, acceptance issue, quality score, same-surface stitched long-span, same-surface untrimmed long-span, high-risk-surface, or broad-route-risk regression appeared.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_large_stroke_spacing_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_large_stroke_spacing_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_large_stroke_spacing_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_large_stroke_spacing_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_large_stroke_spacing_20260627/source-triage.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- full uploaded strict source policy
+- full generated acceptance `--strict`
+- full source-color acceptance `--strict`
+- full underpaint benchmark
+
+Verdict:
+
+- Keep. This is a visible output-density improvement with only warn-level jump/trim movement and no guarded risk regression.
+- Next work should remain source/color focused: reduce real teapot-like disconnected source pieces conservatively, or find another visible semantic color/detail improvement.
+
 ## Accepted Source Policy: Stitched Near-White Foreground Accounting
 
 Date: 2026-06-27
