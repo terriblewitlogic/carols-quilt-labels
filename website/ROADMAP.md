@@ -214,7 +214,7 @@ For users with ad blockers: the current UI already shows the credit/subscribe op
 [ ] 2G  Account page → pull real credit balance + download history from DB
 ```
 
-### Generator/stitch-engine status — 2026-06-26
+### Generator/stitch-engine status — 2026-06-27
 
 Generator wiring is live enough for internal iteration, but the product is **not ready for real users**. The active work is still stitch-quality hardening for generated source art.
 
@@ -234,14 +234,15 @@ Recent backend/frontend progress:
 - Same-hue faceted material stress coverage now preserves substantial darker end-members instead of flattening them into mid-tone facets.
 - Same-hue facet trim pressure now has acorn, mushroom, and shell stress fixtures; the accepted inter-component trim threshold is `16mm`, reducing `same_hue_acorn_facets` trims `11 -> 8` without long untrimmed jump diagnostics.
 - Covered-travel routing now searches up to `35mm` only when later stitches prove the carry is hidden; `same_hue_acorn_facets` trims improved again `8 -> 7` with no actual-thread connector risk.
+- Route fallback diagnostics now explain remaining same-hue acorn facet trims: exact small-cluster route candidates are scored, but the remaining `#a05a28` and `#c3915a` groups safely fall back to nearest because structural/no-flip underlay-sensitive surfaces block free reordering.
 - Added generated-run HTML comparison tooling:
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/scripts/compare_generated_runs.py`
   - `npm run compare:generated`
 
 Current generator/stitch backlog:
 
+- improve remaining exposed same-hue relocations with structural/no-flip-safe ordering or same-color surface-stop splitting, not by raising the current `16mm` trim threshold
 - expand tone/color preservation fixtures with real generated/uploaded examples, especially remaining same-hue trim/fragmentation cases
-- improve remaining exposed same-hue relocations with route-local ordering or same-color surface grouping, not by raising the current `16mm` trim threshold
 - preserve meaningful accent colors without preserving noisy fragments, using strict source-policy checks
 - add targeted repeated-island fixtures before broadening route optimization further
 - keep using generated-run comparison reports before accepting algorithm changes

@@ -184,8 +184,39 @@ Useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_covered_travel35_same_hue_20260626.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_covered_travel35_20260626.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_covered_travel35_20260626.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_route_diag_full_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_route_diag_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_route_diag_20260627.html`
 
 Rule: every stitch-algorithm change that affects generated fixtures should produce a comparison report and should run `--fail-on-regression` when comparing against the previous accepted run.
+
+### Route Diagnostics And Small Exact Component Tours
+
+Status: keep as diagnostics and narrow route candidate.
+
+Why: the same-hue facet work reached the point where the remaining bad moves are not generic short jumps. The acorn still has exposed relocations, but direct route wins are blocked in the real uploaded acceptance path by structural/no-flip surfaces. We need the engine to explain that before attempting a riskier structural reorder.
+
+Change accepted:
+
+- Added `small_exact` as a route candidate for 3-7 disconnected components.
+- Matched route scoring to the converter's `16mm` inter-component trim threshold through `ROUTE_INTER_COMPONENT_TRIM_MM`.
+- Refactored component route gating into `_component_route_analysis()` so rejected opportunities can be reported.
+- Added raw-component centroid fallback analysis for fill groups when planned surfaces hide the route opportunity.
+- Wrote structural route rejections into `surface-plan.json` even when the selected route is nearest.
+
+Measured result:
+
+- `same_hue_acorn_facets` stayed at quality `100`, `20 jumps / 7 trims`, and `6214` stitches.
+- Two same-hue fill groups request `candidate_graph` but fall back to nearest with `rejectionReason: structural_no_flip_component`.
+- Full uploaded, generated, and underpaint comparisons had no key metric deltas versus the covered-travel baseline.
+
+Guardrail: do not bypass `no_flip` just to save trims. The next route work must preserve underlay/cover orientation or split same-color structural surfaces into smaller safe stops.
+
+Key reports:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_route_diag_full_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_route_diag_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_route_diag_20260627.html`
 
 ### Covered Travel Window For Same-Hue Facets
 
@@ -298,6 +329,7 @@ Candidate orders:
 - current nearest route baseline
 - angular route
 - MST preorder
+- small exact route for 3-7 components
 - 2-opt improvement from nearest
 - 2-opt improvement from MST preorder
 

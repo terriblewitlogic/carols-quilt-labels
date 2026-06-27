@@ -1,6 +1,6 @@
 # Stitch Quality Triage
 
-Last updated: 2026-06-26
+Last updated: 2026-06-27
 
 ## Current Read
 
@@ -19,6 +19,7 @@ Recent shipped backend changes:
 - Same-hue tonal stress coverage now includes `same_hue_acorn_facets`, and the posterizer protects substantial darker end-members so dark caps/bases are not flattened into mid-tone facets.
 - Same-hue facet trim pressure now has explicit acorn, mushroom, and shell stress coverage; modest inter-component carries trim at `16mm` instead of `8mm`, reducing faceted acorn trims without introducing long untrimmed jump diagnostics.
 - Covered-travel routing now considers longer `2-35mm` carries only when later stitch geometry proves the path is hidden; this reduces faceted acorn trims again while leaving exposed long moves as jumps/trims.
+- Route diagnostics now record rejected candidate-route opportunities even when structural/no-flip underlay sensitivity forces nearest routing; tiny component clusters also get an exact route candidate before broader heuristics win.
 
 The remaining quality problems are mostly in generated icon art:
 
@@ -53,6 +54,9 @@ Current useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_covered_travel35_same_hue_20260626.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_covered_travel35_20260626.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_covered_travel35_20260626.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_route_diag_full_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_route_diag_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_route_diag_20260627.html`
 
 ## Research Coverage Map
 
@@ -75,6 +79,8 @@ Already implemented in the current engine:
 Implemented now:
 
 - graph-aware component routing for disconnected same-color fill islands, inspired by embroidery/sewing path-ordering work, geometric TSP/MST heuristics, and 2-opt. The production adaptation compares nearest, angular, MST preorder, and 2-opt component tours, then keeps a new route only when predicted trims/jumps improve without increasing long-span or visible-carry risk.
+- route-decision diagnostics for structural fallbacks: `surface-plan.json` now records candidate-route gates, component counts, spread, raw-component fallback checks, and `structural_no_flip_component` rejections when route reordering would conflict with underlay-sensitive surfaces.
+- exact small-cluster route scoring for 3-7 disconnected components, aligned to the converter's `16mm` inter-component trim threshold. This keeps route scoring honest for tiny facet clusters without changing accepted output unless the candidate is strictly safer.
 - source/detail decision diagnostics for upload-style fixtures: `surface-plan.json` records tiny-component decision counts and `uploaded_art_acceptance.py --strict-source-policy` fails on unresolved tiny decisions, bad detail budgets, lost accent colors, or detail-fill risk regressions.
 - same-hue material preservation fixture: `same_hue_acorn` verifies the posterizer/thread snap keeps `#783c14`, `#c3915a`, and `#d2aa6e` instead of collapsing a dark cap, tan body, and light highlight into one family.
 - same-hue faceted stress fixture: `same_hue_acorn_facets` is available by explicit `--case` but excluded from default uploaded acceptance; the current result is quality `100`, `0` broad/detail risk surfaces, and preserved `#783c14`, `#a05a28`, `#c3915a`, and `#d2aa6e`.
@@ -96,7 +102,45 @@ Out of scope for now:
 - cross-stitch DFS/parity algorithms unless cross-stitch becomes a product mode
 - applique placement/cutting/tackdown workflows until the core generated-icon pipeline is stable
 
-## Current Patch: Covered Travel Window For Same-Hue Facets
+## Current Patch: Route Diagnostics And Small Exact Component Tours
+
+The graph-aware route selector needed one more diagnostic layer before touching the remaining same-hue facet trims. Direct route experiments showed small exact tours can find better predicted ordering for tiny disconnected clusters, but the real uploaded acceptance path auto-tunes the same-hue acorn into structural/no-flip surfaces. Those surfaces should not be freely reordered yet because underlay/cover relationships matter more than raw centroid distance.
+
+What changed:
+
+- `candidate_graph` scoring now includes `small_exact` for 3-7 component clusters.
+- Candidate scoring uses `ROUTE_INTER_COMPONENT_TRIM_MM = 16.0`, matching the converter's inter-component trim threshold.
+- `_component_route_analysis()` records why a group did or did not enter candidate routing.
+- Fill groups can fall back to raw-component centroid analysis when planned surfaces collapse the route signal.
+- `surface-plan.json` records nearest fallbacks when a candidate was available but rejected, including `basis`, component counts, centroid spread, raw-component gate details, and rejection reason.
+
+Current outcome:
+
+- `same_hue_acorn_facets` remains quality `100`, trims `7`, jumps `20`, and stitches `6214`.
+- The two remaining route candidates for `#a05a28` and `#c3915a` request `candidate_graph` but select `nearest` with `rejectionReason: structural_no_flip_component`.
+- Full uploaded, generated, and underpaint comparisons show no key metric movement versus the covered-travel baseline.
+- This confirms the next trim step should be structural-aware ordering or surface-stop splitting, not a broader trim threshold or unsafe global component reorder.
+
+Validation:
+
+- targeted `same_hue_acorn_facets` uploaded acceptance
+- full uploaded strict source policy
+- full generated acceptance
+- generated comparison with `--fail-on-regression`
+- underpaint benchmark and underpaint comparison with `--fail-on-regression`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- `npm run benchmark:underpaint`
+
+Key reports:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_route_diag_full_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_route_diag_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_route_diag_20260627.html`
+
+Next direction: add a structural/no-flip-safe route variant that preserves per-surface orientation and underlay order, or split same-color structural surfaces into smaller stops so exposed relocations shorten without flipping or reordering sensitive stitch geometry.
+
+## Recent Patch: Covered Travel Window For Same-Hue Facets
 
 The last patch deliberately stopped at a `16mm` inter-component trim threshold because looser global thresholds created long untrimmed jump diagnostics. The safer next step was to extend the existing covered-travel pass, which only stitches a carry when later geometry proves it will be hidden under a subsequent fill/outline.
 
