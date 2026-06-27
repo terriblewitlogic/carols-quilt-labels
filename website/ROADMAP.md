@@ -253,15 +253,19 @@ Recent backend/frontend progress:
 - Source/color quality grading now treats heavy source normalization as informational when it only removes noise and stitch/color diagnostics remain clean:
   - fresh uploaded/generated source-color baselines grade `A: 16`
   - `leaf_single_smooth` no longer appears as a false source-quality blocker after successful cleanup
+- Default uploaded-art acceptance now includes `muted_accent_badge`:
+  - protects soft lavender, soft pink, blue fill, and black linework under strict source-policy checks
+  - requires muted-accent tiny-detail accounting
+  - new source-color triage result is `A: 17`, with the new case at quality `100`
 - Added generated-run HTML comparison tooling:
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/scripts/compare_generated_runs.py`
   - `npm run compare:generated`
 
 Current generator/stitch backlog:
 
-- collect or add real source/color failure examples before more source-compiler tuning
+- collect real source/color failure examples before more source-compiler tuning
 - expand tone/color preservation fixtures with real generated/uploaded examples, especially remaining same-hue endpoint, trim, and fragmentation cases
-- preserve meaningful accent colors without preserving noisy fragments, using strict source-policy checks
+- preserve meaningful accent colors without preserving noisy fragments, using strict source-policy checks; muted lavender/pink guard coverage is now in the default upload suite
 - keep route broadening paused unless comparison reports show real stitched-span or same-surface relocation regressions
 - keep future route broadening behind the new disconnected-island fixture gates plus daisy/sunflower/elephant/cutout benchmarks
 - keep using generated-run comparison reports before accepting algorithm changes

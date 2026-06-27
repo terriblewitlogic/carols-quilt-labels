@@ -13,6 +13,47 @@ This is not a full changelog. It is a decision log for approaches that worked, f
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_acceptance_*`
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/regression_*`
 
+## Accepted Guardrail: Muted Accent Source Fixture
+
+Date: 2026-06-27
+
+Goal:
+
+- Turn the historical soft-accent probes into repeatable uploaded-art coverage before making any broader source-compiler change.
+- Protect meaningful low-chroma accent colors that are easy to flatten: lavender, soft pink, blue fill, and black linework.
+
+Change:
+
+- Added `muted_accent_badge` to `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/scripts/uploaded_art_acceptance.py`.
+- Added strict source-policy checks requiring stitched `#8cb9eb`, `#b496dc`, `#f082a0`, and `#000000`.
+- Added a tiny-detail accounting guard requiring the muted accent preservation decision `preserve_muted_accent_label:detail_component`.
+
+Result:
+
+- New fixture result: `A / 100`, `status 200`, colors `[#b496dc, #8cb9eb, #f082a0, #000000]`.
+- Metrics: `3864` stitches, `27` jumps, `3` trims.
+- Source/detail policy: `sourceTinyComponentCount 1`, `tinyPolicyAccountedCount 1`, `preserve_muted_accent_label:detail_component 2`.
+- Risk gates: `0` same-surface untrimmed long spans, `0` broad-fill route risk surfaces, `0` detail-fill risk surfaces.
+- Combined uploaded/generated triage: `A: 17`, `mostly_ok: 17`.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_art_acceptance_muted_accent_case_20260627`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_art_acceptance_muted_accent_full_20260627`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_acceptance_muted_accent_guard_20260627`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_benchmark_muted_accent_guard_20260627`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_muted_accent_guard_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_muted_accent_guard_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_muted_accent_guard_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_muted_accent_guard_20260627/source-triage.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+Verdict:
+
+- Keep. This is backend coverage only, not an engine behavior change.
+- Do not broaden color forcing from this success. The next source/color patch still needs a live failure: visible accent loss, same-hue material collapse, or tiny/detail clutter that passes current strict checks.
+
 ## Do Not Repeat Without A New Reason
 
 ### Border-Connected Background Reservation For Color Budget

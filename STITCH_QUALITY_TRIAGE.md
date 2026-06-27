@@ -25,6 +25,7 @@ Recent shipped backend changes:
 - Structural safe-flip filtering now rejects the legacy "safe" reversal only when it creates an extreme internal underlay-to-cover handoff that a reoriented variant removes; this clears the remaining shell same-surface material relocation without broad-suite metric churn.
 - Underpaint route coverage now includes targeted disconnected-island fixtures for plain candidate scoring and structural-safe candidate wins.
 - Source/color triage grading now treats heavy source normalization as informational when diagnostics prove it only removed noise and all stitch/color risk gates are clean.
+- Upload-style muted accent coverage now includes `muted_accent_badge`: low-chroma lavender, soft pink tiny details, blue fill, and black linework must all survive strict source-policy checks.
 
 The remaining quality problems are mostly in generated icon art:
 
@@ -83,6 +84,10 @@ Current useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_source_color_baseline_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_source_color_baseline_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_source_color_grading_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_muted_accent_guard_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_muted_accent_guard_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_muted_accent_guard_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_muted_accent_guard_20260627/source-triage.html`
 
 ## Research Coverage Map
 
@@ -112,6 +117,7 @@ Implemented now:
 - unsafe legacy structural flip filter: structural candidate scoring suppresses the legacy safe-flip variant when it creates an extreme internal underlay-to-cover handoff (`>=45mm`) and the reoriented variant removes internal trim/long-span risk. This keeps accepted structural route wins while eliminating the remaining shell same-surface material relocation.
 - disconnected-island route fixture coverage: `underpaint_benchmark.py` now includes `synthetic_component_route_ring` for plain candidate scoring/fallback and `synthetic_structural_route_facets` for structural-safe small-exact route wins.
 - source/detail decision diagnostics for upload-style fixtures: `surface-plan.json` records tiny-component decision counts and `uploaded_art_acceptance.py --strict-source-policy` fails on unresolved tiny decisions, bad detail budgets, lost accent colors, or detail-fill risk regressions.
+- muted-accent source guard: `muted_accent_badge` is now part of default uploaded acceptance and fails strict source-policy if low-chroma lavender `#b496dc`, soft pink `#f082a0`, blue fill `#8cb9eb`, black linework, or muted-accent tiny-detail accounting disappears.
 - same-hue material preservation fixture: `same_hue_acorn` verifies the posterizer/thread snap keeps `#783c14`, `#c3915a`, and `#d2aa6e` instead of collapsing a dark cap, tan body, and light highlight into one family.
 - same-hue faceted stress fixture: `same_hue_acorn_facets` is available by explicit `--case` but excluded from default uploaded acceptance; the current result is quality `100`, `0` broad/detail risk surfaces, and preserved `#783c14`, `#a05a28`, `#c3915a`, and `#d2aa6e`.
 - same-hue light endpoint guard: `same_hue_mushroom_facets` now preserves `#d2aa6e` as a substantial light material region instead of flattening the stem/highlight into `#f0785a`.
@@ -134,7 +140,49 @@ Out of scope for now:
 - cross-stitch DFS/parity algorithms unless cross-stitch becomes a product mode
 - applique placement/cutting/tackdown workflows until the core generated-icon pipeline is stable
 
-## Current Patch: Source/Color Triage Grading Calibration
+## Current Patch: Muted Accent Source Guard
+
+The source/color sprint found that the historical accent probes already preserve soft pink and lavender accents, but that behavior was not locked into the default uploaded-art acceptance suite. The new `muted_accent_badge` fixture turns that implicit success into a strict guard for user-upload-like art with low-chroma accent patches and one tiny soft-pink detail component.
+
+What changed:
+
+- `uploaded_art_acceptance.py` now includes `muted_accent_badge` in default `SAMPLES`.
+- Strict source-policy checks require stitched `#8cb9eb`, `#b496dc`, `#f082a0`, and `#000000`.
+- Strict source-policy checks also require the tiny muted accent component to be accounted for and the `preserve_muted_accent_label:detail_component` decision to remain present.
+- No stitch engine, routing, API, frontend, or file-format behavior changed.
+
+Current outcome:
+
+- New case added: absent before, now `A / 100`, `status 200`.
+- `muted_accent_badge`: colors `[#b496dc, #8cb9eb, #f082a0, #000000]`, stitch count `3864`, jumps `27`, trims `3`.
+- Tiny/source policy: `sourceTinyComponentCount 1`, `tinyPolicyAccountedCount 1`, `preserve_muted_accent_label:detail_component 2`, detail budget `ok`.
+- Risk gates: `0` same-surface untrimmed long spans, `0` broad-fill route risk surfaces, `0` detail-fill risk surfaces.
+- Combined uploaded/generated source triage now reports `A: 17` and `mostly_ok: 17`.
+- Generated and underpaint comparisons passed with `--fail-on-regression`; no engine-output regression was introduced.
+
+Validation:
+
+- `python3 scripts/uploaded_art_acceptance.py --case muted_accent_badge --out tmp/uploaded_art_acceptance_muted_accent_case_20260627 --strict-no-500 --strict-source-policy`
+- `python3 scripts/uploaded_art_acceptance.py --out tmp/uploaded_art_acceptance_muted_accent_full_20260627 --strict-no-500 --strict-source-policy`
+- `python3 scripts/generated_acceptance.py --out tmp/generated_acceptance_muted_accent_guard_20260627 --strict`
+- `python3 scripts/source_art_triage_report.py --input tmp/uploaded_art_acceptance_muted_accent_full_20260627 --input tmp/generated_acceptance_muted_accent_guard_20260627 --out tmp/source_art_triage_muted_accent_guard_20260627`
+- `python3 scripts/compare_generated_runs.py tmp/uploaded_art_acceptance_source_color_baseline_20260627 tmp/uploaded_art_acceptance_muted_accent_full_20260627 --out tmp/uploaded_compare_muted_accent_guard_20260627.html --title "Muted Accent Guard Uploaded" --fail-on-regression`
+- `python3 scripts/compare_generated_runs.py tmp/generated_acceptance_source_color_baseline_20260627 tmp/generated_acceptance_muted_accent_guard_20260627 --out tmp/generated_compare_muted_accent_guard_20260627.html --title "Muted Accent Guard Generated" --fail-on-regression`
+- `python3 scripts/underpaint_benchmark.py --out tmp/underpaint_benchmark_muted_accent_guard_20260627 --format jef`
+- `python3 scripts/compare_generated_runs.py tmp/underpaint_benchmark_source_color_grading_20260627 tmp/underpaint_benchmark_muted_accent_guard_20260627 --out tmp/underpaint_compare_muted_accent_guard_20260627.html --title "Muted Accent Guard Underpaint" --fail-on-regression`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+Key reports:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_muted_accent_guard_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_muted_accent_guard_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_muted_accent_guard_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_muted_accent_guard_20260627/source-triage.html`
+
+Next direction: keep this as a guardrail, not a reason to broaden color forcing. The next useful source/color work still needs a real failure example: visible accent loss, same-hue material collapse, or tiny/detail clutter that survives these strict checks.
+
+## Previous Patch: Source/Color Triage Grading Calibration
 
 The fresh source/color sprint established uploaded and generated baselines, then ran `source_art_triage_report.py`. The report found no current source/color case that justified a risky stitch-engine change: all rows were `mostly_ok`, and the only non-A grade was `leaf_single_smooth`, where heavy local cleanup removed raw antialias/noise fragments and produced clean stitch output.
 

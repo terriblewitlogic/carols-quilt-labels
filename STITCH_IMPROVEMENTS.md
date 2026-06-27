@@ -62,11 +62,16 @@ Recent shipped work since the original pro-design comparison:
   - heavy source normalization now grades as informational when it only removed noise and all stitch/color risk gates are clean
   - `leaf_single_smooth` quality-gate grade improved `B / 94 -> A / 100`
   - fresh uploaded/generated source-color baselines now grade `A: 16`, with no conversion metric changes
+- Added `muted_accent_badge` to default uploaded-art acceptance:
+  - protects low-chroma lavender `#b496dc`, soft pink `#f082a0`, blue fill `#8cb9eb`, and black linework under `--strict-source-policy`
+  - requires tiny muted-accent detail accounting via `preserve_muted_accent_label:detail_component`
+  - new fixture result is `A / 100`, `3864` stitches, `27` jumps, `3` trims, with `0` broad/detail route risks
+  - fresh uploaded/generated source-color triage now grades `A: 17`
 
 Current next-best stitch work:
 
-1. Collect or add real source/color failure examples before changing the source compiler again.
-2. Preserve meaningful small accent colors while continuing to drop/absorb noisy fragments under strict source-policy checks.
+1. Collect real source/color failure examples before changing the source compiler again.
+2. Preserve meaningful small accent colors while continuing to drop/absorb noisy fragments under strict source-policy checks; muted lavender/pink coverage is now in place.
 3. Expand color/tone preservation coverage with real generated/uploaded examples, especially same-hue materials that still over-fragment, collapse into the wrong thread family, or create route pressure after the right colors are preserved.
 4. Keep route broadening paused unless a comparison report shows a real stitched-span or same-surface relocation regression; the current route work is narrow and stable.
 5. Use `compare_generated_runs.py ... --fail-on-regression` for every keep/revert decision.
