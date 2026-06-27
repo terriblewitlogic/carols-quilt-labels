@@ -67,10 +67,14 @@ Recent shipped work since the original pro-design comparison:
   - requires tiny muted-accent detail accounting via `preserve_muted_accent_label:detail_component`
   - new fixture result is `A / 100`, `3864` stitches, `27` jumps, `3` trims, with `0` broad/detail route risks
   - fresh uploaded/generated source-color triage now grades `A: 17`
+- Added a real source/color fixture lane:
+  - `npm run acceptance:source-color` runs `generated_acceptance.py --fixture-dir fixtures/source_color --strict`
+  - `real_teapot_card` is a repeatable `C / 77` source-complexity target with preserved green, coral, purple, peach, and black threads
+  - `real_strawberry` is a repeatable `C+ / 84` repeated-detail/source-complexity target with preserved green, orange, red, and black threads
 
 Current next-best stitch work:
 
-1. Collect real source/color failure examples before changing the source compiler again.
+1. Use the real source/color fixture lane before changing the source compiler again.
 2. Preserve meaningful small accent colors while continuing to drop/absorb noisy fragments under strict source-policy checks; muted lavender/pink coverage is now in place.
 3. Expand color/tone preservation coverage with real generated/uploaded examples, especially same-hue materials that still over-fragment, collapse into the wrong thread family, or create route pressure after the right colors are preserved.
 4. Keep route broadening paused unless a comparison report shows a real stitched-span or same-surface relocation regression; the current route work is narrow and stable.

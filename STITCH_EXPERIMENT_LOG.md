@@ -13,6 +13,41 @@ This is not a full changelog. It is a decision log for approaches that worked, f
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_acceptance_*`
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/regression_*`
 
+## Accepted Guardrail: Real Source/Color Fixture Lane
+
+Date: 2026-06-27
+
+Goal:
+
+- Stop depending on local `tmp/` history for real source/color failures.
+- Add repeatable file-backed fixtures that are known source-complexity targets, while keeping them out of the default generated acceptance suite.
+
+Change:
+
+- Added `fixtures/source_color/real_teapot_card.png` and sidecars.
+- Added `fixtures/source_color/real_strawberry.png` and sidecars.
+- Added `npm run acceptance:source-color`, backed by `generated_acceptance.py --fixture-dir fixtures/source_color --strict`.
+
+Result:
+
+- `real_teapot_card`: `C / 77`, root cause `source_art_complexity`, `25` regions, colors `[#50be46, #f0785a, #965ad2, #ffc88c, #000000]`, `13541` stitches, `84` jumps, `15` trims.
+- `real_strawberry`: `C+ / 84`, root cause `source_art_complexity`, `40` regions, colors `[#64d250, #f0785a, #dc321e, #000000]`, `8323` stitches, `62` jumps, `4` trims.
+- Both strict conversions pass; the lane is meant to preserve visible target failures for triage, not to certify those sources as product-ready.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_acceptance_real_fixtures_20260627`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_acceptance_npm_script_20260627`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_source_color_real_fixtures_20260627/source-triage.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_real_fixture_lane_20260627.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+Verdict:
+
+- Keep. This gives future source/compiler work a real target set.
+- Do not treat the teapot/strawberry grades as a routing problem. The next patch should be source simplification/source scoring for local detail clusters and repeated details.
+
 ## Accepted Guardrail: Muted Accent Source Fixture
 
 Date: 2026-06-27

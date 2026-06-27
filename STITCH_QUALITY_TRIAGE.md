@@ -26,6 +26,7 @@ Recent shipped backend changes:
 - Underpaint route coverage now includes targeted disconnected-island fixtures for plain candidate scoring and structural-safe candidate wins.
 - Source/color triage grading now treats heavy source normalization as informational when diagnostics prove it only removed noise and all stitch/color risk gates are clean.
 - Upload-style muted accent coverage now includes `muted_accent_badge`: low-chroma lavender, soft pink tiny details, blue fill, and black linework must all survive strict source-policy checks.
+- Real source/color fixture coverage now has a separate file-backed lane via `npm run acceptance:source-color`, seeded with teapot and strawberry examples that are known source-complexity targets rather than default acceptance blockers.
 
 The remaining quality problems are mostly in generated icon art:
 
@@ -88,6 +89,8 @@ Current useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_muted_accent_guard_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_muted_accent_guard_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_muted_accent_guard_20260627/source-triage.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_real_fixture_lane_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_source_color_real_fixtures_20260627/source-triage.html`
 
 ## Research Coverage Map
 
@@ -124,6 +127,7 @@ Implemented now:
 - same-hue facet trim reduction: `same_hue_acorn_facets`, `same_hue_mushroom_facets`, and `same_hue_shell_facets` exercise same-hue material fields with internal facets. Inter-component trims now use a `16mm` threshold, which reduced acorn facet trims while keeping long untrimmed jump diagnostics at zero.
 - covered travel extension: `_merge_covered_travel` now considers hidden carries up to `35mm`, but only when a later fill/outline directly covers the route or offers a covered detour. It removes one remaining faceted-acorn relocation without raising the global trim threshold.
 - source/color grading calibration: `grade_stitch_quality.py` now discounts heavy source-normalization pressure only when source cleanup is explicitly noise-removal, quality is high, no meaningful colors were dropped, and there is no stitched/long-span/fill risk.
+- real source/color fixture lane: `fixtures/source_color` plus `npm run acceptance:source-color` runs file-backed generated/uploaded-style troublemakers outside the default generated suite. The first cases are `real_teapot_card` and `real_strawberry`.
 
 Research later:
 
@@ -140,7 +144,44 @@ Out of scope for now:
 - cross-stitch DFS/parity algorithms unless cross-stitch becomes a product mode
 - applique placement/cutting/tackdown workflows until the core generated-icon pipeline is stable
 
-## Current Patch: Muted Accent Source Guard
+## Current Patch: Real Source/Color Fixture Lane
+
+The source/color sprint needed real failure examples before another compiler change. Historical balloon, teapot, ladybug, and strawberry notes were rechecked against the current engine. The current engine now preserves the old teapot color families and the ladybug cream/red/black colors, but teapot and strawberry still expose a repeatable source-complexity class that the default synthetic/uploaded fixtures do not exercise.
+
+What changed:
+
+- Added `fixtures/source_color/real_teapot_card.png` and prompt sidecars.
+- Added `fixtures/source_color/real_strawberry.png` and prompt sidecars.
+- Added `npm run acceptance:source-color`, which runs `generated_acceptance.py` against `fixtures/source_color` with `--strict`.
+- Kept these fixtures out of the default generated acceptance suite because they are deliberately C-grade source-complexity targets.
+- No stitch engine, routing, API, frontend, or file-format behavior changed.
+
+Current outcome:
+
+- `real_teapot_card`: `C / 77`, root cause `source_art_complexity`, colors `[#50be46, #f0785a, #965ad2, #ffc88c, #000000]`, `25` regions, `13541` stitches, `84` jumps, `15` trims.
+- Teapot triage reasons: local detail cluster, too many tones, one source repair opportunity, one fill-coherence hint without stitched-web/broad-route risk, and three preview-only trimmed relocations.
+- `real_strawberry`: `C+ / 84`, root cause `source_art_complexity`, colors `[#64d250, #f0785a, #dc321e, #000000]`, `40` regions, `8323` stitches, `62` jumps, `4` trims.
+- Strawberry triage reasons: too many tones, seven intentional repeated motifs, two source repair opportunities, and three explicitly accounted tiny components.
+- The regression-gated comparison against the local probe passed with no regression.
+
+Validation:
+
+- `python3 scripts/generated_acceptance.py --fixture-dir fixtures/source_color --out tmp/source_color_acceptance_real_fixtures_20260627 --strict`
+- `npm run acceptance:source-color -- --out tmp/source_color_acceptance_npm_script_20260627`
+- `python3 scripts/source_art_triage_report.py --input tmp/source_color_acceptance_real_fixtures_20260627 --out tmp/source_art_triage_source_color_real_fixtures_20260627`
+- `python3 scripts/compare_generated_runs.py tmp/real_source_color_probe_20260627 tmp/source_color_acceptance_real_fixtures_20260627 --case real_teapot_card --case real_strawberry --out tmp/source_color_compare_real_fixture_lane_20260627.html --title "Source Color Real Fixture Lane" --fail-on-regression`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+Key reports:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_source_color_real_fixtures_20260627/source-triage.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_real_fixture_lane_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_acceptance_real_fixtures_20260627/review.md`
+
+Next direction: work from the real fixture lane before touching compiler policy. The highest-value next patch is likely source simplification or fixture-specific preflight/source scoring for teapot-like local detail clusters, not route broadening and not color forcing.
+
+## Previous Patch: Muted Accent Source Guard
 
 The source/color sprint found that the historical accent probes already preserve soft pink and lavender accents, but that behavior was not locked into the default uploaded-art acceptance suite. The new `muted_accent_badge` fixture turns that implicit success into a strict guard for user-upload-like art with low-chroma accent patches and one tiny soft-pink detail component.
 

@@ -257,13 +257,16 @@ Recent backend/frontend progress:
   - protects soft lavender, soft pink, blue fill, and black linework under strict source-policy checks
   - requires muted-accent tiny-detail accounting
   - new source-color triage result is `A: 17`, with the new case at quality `100`
+- Real source/color fixture lane added:
+  - `npm run acceptance:source-color`
+  - `real_teapot_card` and `real_strawberry` preserve key color families but remain C/C+ source-complexity targets for future compiler work
 - Added generated-run HTML comparison tooling:
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/scripts/compare_generated_runs.py`
   - `npm run compare:generated`
 
 Current generator/stitch backlog:
 
-- collect real source/color failure examples before more source-compiler tuning
+- use the real source/color fixture lane before more source-compiler tuning
 - expand tone/color preservation fixtures with real generated/uploaded examples, especially remaining same-hue endpoint, trim, and fragmentation cases
 - preserve meaningful accent colors without preserving noisy fragments, using strict source-policy checks; muted lavender/pink guard coverage is now in the default upload suite
 - keep route broadening paused unless comparison reports show real stitched-span or same-surface relocation regressions
