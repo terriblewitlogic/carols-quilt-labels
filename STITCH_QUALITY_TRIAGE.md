@@ -20,6 +20,7 @@ Recent shipped backend changes:
 - Same-hue facet trim pressure now has explicit acorn, mushroom, and shell stress coverage; modest inter-component carries trim at `16mm` instead of `8mm`, reducing faceted acorn trims without introducing long untrimmed jump diagnostics.
 - Covered-travel routing now considers longer `2-35mm` carries only when later stitch geometry proves the path is hidden; this reduces faceted acorn trims again while leaving exposed long moves as jumps/trims.
 - Structural/no-flip-safe routing now preserves `_StitchChain` metadata only inside candidate-graph evaluation, allowing safe component reordering without changing ordinary nearest routing.
+- Underpaint route coverage now includes targeted disconnected-island fixtures for plain candidate scoring and structural-safe candidate wins.
 
 The remaining quality problems are mostly in generated icon art:
 
@@ -61,6 +62,7 @@ Current useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_structural_route_fixed_full_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_structural_route_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_structural_route_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_route_fixture_coverage_20260627.html`
 
 ## Research Coverage Map
 
@@ -86,6 +88,7 @@ Implemented now:
 - route-decision diagnostics for structural fallbacks: `surface-plan.json` now records candidate-route gates, component counts, spread, raw-component fallback checks, and `structural_no_flip_component` rejections when route reordering would conflict with underlay-sensitive surfaces.
 - exact small-cluster route scoring for 3-7 disconnected components, aligned to the converter's `16mm` inter-component trim threshold. This keeps route scoring honest for tiny facet clusters without changing accepted output unless the candidate is strictly safer.
 - structural/no-flip-safe candidate routing: broad underlay+fill chains now expose safe flip spans, candidate-graph routing preserves `_StitchChain` metadata only while scoring candidates, and equal-travel-only route wins are rejected. This lets small exact routes improve structural same-color clusters without changing unrelated nearest-route output.
+- disconnected-island route fixture coverage: `underpaint_benchmark.py` now includes `synthetic_component_route_ring` for plain candidate scoring/fallback and `synthetic_structural_route_facets` for structural-safe small-exact route wins.
 - source/detail decision diagnostics for upload-style fixtures: `surface-plan.json` records tiny-component decision counts and `uploaded_art_acceptance.py --strict-source-policy` fails on unresolved tiny decisions, bad detail budgets, lost accent colors, or detail-fill risk regressions.
 - same-hue material preservation fixture: `same_hue_acorn` verifies the posterizer/thread snap keeps `#783c14`, `#c3915a`, and `#d2aa6e` instead of collapsing a dark cap, tan body, and light highlight into one family.
 - same-hue faceted stress fixture: `same_hue_acorn_facets` is available by explicit `--case` but excluded from default uploaded acceptance; the current result is quality `100`, `0` broad/detail risk surfaces, and preserved `#783c14`, `#a05a28`, `#c3915a`, and `#d2aa6e`.
@@ -107,7 +110,37 @@ Out of scope for now:
 - cross-stitch DFS/parity algorithms unless cross-stitch becomes a product mode
 - applique placement/cutting/tackdown workflows until the core generated-icon pipeline is stable
 
-## Current Patch: Structural-Safe Component Routing
+## Current Patch: Disconnected-Island Route Fixture Coverage
+
+The structural-safe routing change needed dedicated benchmark fixtures before any broader route optimization. Daisy and sunflower still matter, but they are flower-specific; this patch adds route-specific synthetic fixtures to `underpaint_benchmark.py`.
+
+What changed:
+
+- Added `synthetic_component_route_ring`: eight same-color disconnected islands plus a center field. It asserts a clean candidate-graph decision with nearest/angular/MST candidates, no structural components, no same-surface long spans, no high-risk surfaces, and no broad route risk.
+- Added `synthetic_structural_route_facets`: an acorn-like same-hue faceted source that asserts structural-safe route scoring. It requires a structural candidate route to beat nearest, all structural components to be safely flippable, no orientation locks, trims `<= 8`, and no same-surface long spans/high-risk/broad-route-risk regressions.
+- Added helpers for reading `componentRouteDecisions` and selected/nearest route scores from `surface-plan.json`.
+
+Current outcome:
+
+- targeted fixture benchmark passes.
+- full `npm run benchmark:underpaint` passes with both new fixtures in the default set.
+- comparison against the previous route-diagnostic underpaint benchmark passes with `--fail-on-regression`; the new fixtures appear as added coverage.
+
+Validation:
+
+- `python3 scripts/underpaint_benchmark.py --out tmp/underpaint_benchmark_route_fixtures_assert_20260627 --format jef --case synthetic_component_route_ring --case synthetic_structural_route_facets`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- `npm run benchmark:underpaint`
+- `python3 scripts/compare_generated_runs.py tmp/underpaint_benchmark_route_diag_20260627 tmp/underpaint_benchmark --out tmp/underpaint_compare_route_fixture_coverage_20260627.html --title "Route Fixture Coverage" --fail-on-regression`
+
+Key report:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_route_fixture_coverage_20260627.html`
+
+Next direction: route broadening now has better fixture gates, but the highest-value next pass should return to color/detail preservation unless a comparison report shows a true route regression. Keep metadata-preserving routing limited to candidate scoring.
+
+## Recent Patch: Structural-Safe Component Routing
 
 The previous route diagnostics showed the acorn facet candidates were blocked because broad underlay+fill surfaces were `no_flip`. This patch makes those structural chains safely routable inside candidate-graph scoring only: the route scorer can preserve `_StitchChain` metadata, use safe flips when chunk spans exist, and still leave ordinary nearest routing byte-for-byte stable for unrelated groups.
 
@@ -142,7 +175,7 @@ Key reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_structural_route_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_structural_route_20260627.html`
 
-Next direction: broaden structural route coverage cautiously with non-flower disconnected-island fixtures, then return to color/detail preservation. Do not make metadata-preserving routing the default for nearest routes; an attempted broad version regressed unrelated upload fixtures.
+Next direction completed by the fixture-coverage patch above. Do not make metadata-preserving routing the default for nearest routes; an attempted broad version regressed unrelated upload fixtures.
 
 ## Recent Patch: Route Diagnostics And Small Exact Component Tours
 
@@ -403,8 +436,8 @@ Caveat: the generated acceptance score for sunflower still drops from `100` to `
 1. Expand color/tone preservation fixtures.
    The clean same-hue material guard is live (`same_hue_acorn`, quality `100`) and faceted same-hue stress coverage now includes acorn, mushroom, and shell. The next broad quality pass should add real generated/uploaded examples where same-hue materials still collapse, over-fragment, or create exposed long relocations.
 
-2. Add targeted repeated-island route fixtures before broadening optimization.
-   Daisy and sunflower now prove the selector can reject unsafe tours and preserve radial angular routing. The next route-specific step should add non-flower disconnected-island fixtures before changing acceptance rules.
+2. Keep route broadening behind the new disconnected-island fixtures.
+   `synthetic_component_route_ring` and `synthetic_structural_route_facets` now cover plain candidate scoring, structural-safe route wins, and safe fallback. Future route changes should improve real cases without breaking those guards.
 
 3. Fix color preservation on upload-style art.
    The upload-style badge and thick-outline flower both show dropped source colors. This is the same class of problem the bird beak/feet exposed: visible accent colors should not vanish just because they are small or near another thread color.

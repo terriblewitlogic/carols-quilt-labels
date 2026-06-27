@@ -191,8 +191,35 @@ Useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_structural_route_fixed_full_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_structural_route_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_structural_route_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_route_fixture_coverage_20260627.html`
 
 Rule: every stitch-algorithm change that affects generated fixtures should produce a comparison report and should run `--fail-on-regression` when comparing against the previous accepted run.
+
+### Disconnected-Island Route Fixture Coverage
+
+Status: keep.
+
+Why: after structural-safe component routing shipped, the next risk was broadening route optimization without enough narrow fixture coverage. Daisy and sunflower cover flower motifs, but the engine also needs non-flower disconnected-island guards that assert both candidate scoring and structural-safe component flips.
+
+Change accepted:
+
+- Added `synthetic_component_route_ring` to `underpaint_benchmark.py`.
+- Added `synthetic_structural_route_facets` to `underpaint_benchmark.py`.
+- Added benchmark assertions over `componentRouteDecisions`: candidate modes must be present for the plain ring, and the structural facet fixture must select a non-nearest structural route that reduces trim pressure versus nearest.
+- Asserted no same-surface long spans, no high-risk surfaces, and no broad-route-risk regressions for both fixtures.
+
+Measured result:
+
+- `synthetic_component_route_ring`: quality `100`, `0` high-risk surfaces, `0` same-surface long spans, route candidates include nearest/angular/MST.
+- `synthetic_structural_route_facets`: quality `100`, trims `6`, a structural `small_exact` candidate beats nearest, and all structural components are safely flippable with `0` orientation-locked components.
+- Full `npm run benchmark:underpaint` passed with the new fixtures in the default set.
+- Comparison against `tmp/underpaint_benchmark_route_diag_20260627` passed with `--fail-on-regression`; the new cases are added coverage rows.
+
+Guardrail: fixture coverage is not permission to broaden routing globally. Future route wins still need to improve real cases without increasing same-surface long spans, high-risk surfaces, broad route risk, or structural orientation locks.
+
+Key report:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_route_fixture_coverage_20260627.html`
 
 ### Structural-Safe Component Routing
 

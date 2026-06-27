@@ -239,15 +239,18 @@ Recent backend/frontend progress:
   - explicit `same_hue_acorn_facets` trims `7 -> 6` and cross-surface trimmed long spans `3 -> 1`
   - generated/underpaint `sparrow_flat_app_icon` trims `3 -> 2`
   - default uploaded `thick_outline_flower` trims `7 -> 6`
+- Underpaint benchmark route coverage now includes:
+  - `synthetic_component_route_ring` for plain disconnected-island candidate scoring and safe fallback
+  - `synthetic_structural_route_facets` for structural-safe small-exact route wins
 - Added generated-run HTML comparison tooling:
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/scripts/compare_generated_runs.py`
   - `npm run compare:generated`
 
 Current generator/stitch backlog:
 
-- add targeted disconnected-island fixtures before broadening structural route optimization further
 - expand tone/color preservation fixtures with real generated/uploaded examples, especially remaining same-hue trim/fragmentation cases
 - preserve meaningful accent colors without preserving noisy fragments, using strict source-policy checks
+- keep future route broadening behind the new disconnected-island fixture gates plus daisy/sunflower/elephant/cutout benchmarks
 - keep using generated-run comparison reports before accepting algorithm changes
 
 ---
