@@ -51,6 +51,10 @@ Recent shipped work since the original pro-design comparison:
   - external trim/long-span pressure wins first, then internal structural handoff pressure
   - `same_hue_mushroom_facets` now preserves `#d2aa6e` while reducing trims `7 -> 6` and same-surface trimmed long spans `1 -> 0`
   - `same_hue_acorn_facets` keeps the structural route win and improves trims `6 -> 5`
+- Added unsafe legacy structural safe-flip filtering:
+  - legacy safe flips are suppressed when they introduce an extreme internal underlay-to-cover handoff and the reoriented flip removes internal risk
+  - `same_hue_shell_facets` same-surface trimmed long spans improved `1 -> 0`
+  - jumps/trims stayed stable, quality stayed `100`, and broad uploaded/generated/underpaint comparisons had no top-line metric deltas
 - Added targeted disconnected-island route fixtures to the underpaint benchmark:
   - `synthetic_component_route_ring` covers plain candidate scoring and safe fallback
   - `synthetic_structural_route_facets` covers structural-safe small-exact route wins
@@ -59,14 +63,14 @@ Current next-best stitch work:
 
 1. Preserve meaningful small accent colors while continuing to drop/absorb noisy fragments under strict source-policy checks.
 2. Expand color/tone preservation coverage with real generated/uploaded examples, especially same-hue materials that still over-fragment, collapse into the wrong thread family, or create route pressure after the right colors are preserved.
-3. Study the remaining `same_hue_shell_facets` same-surface trimmed move as a narrow routing follow-up, but keep it behind the current strict generated/uploaded/underpaint comparison gates.
+3. Keep route broadening paused unless a comparison report shows a real stitched-span or same-surface relocation regression; the current route work is narrow and stable.
 4. Use `compare_generated_runs.py ... --fail-on-regression` for every keep/revert decision.
 5. Revisit broad-underpaint/lane routing only when comparison reports show actual stitched-span risk.
 
 Research review status:
 
 - Already covered: role-specific stitch caps, multi-pass layer planning, underlay chains, medial/satin narrow-shape fills, seam ownership, detail heuristics, and gated angular routing.
-- Implemented now: graph-aware route ordering for disconnected same-color fill islands using nearest, angular, MST preorder, small exact tours, and 2-opt candidate tours. It preserves the sunflower angular win, records candidate rejection diagnostics, supports structural/no-flip-safe candidate routing for underlay-sensitive components, and now has non-flower route fixture coverage in `underpaint_benchmark.py`. It improves faceted acorn and sparrow route pressure without reducing daisy trims yet. Source/detail and same-hue material guardrails now make tiny-detail promotion, simplification, unresolved-detail regressions, cap/body/highlight tone collapse, and faceted same-hue dark- or light-endpoint collapse visible in uploaded-art acceptance output. Same-hue facet trim pressure is now covered by acorn, mushroom, shell, and structural route fixture checks, with the accepted trim threshold set at `16mm` because higher thresholds introduced long-carry risk. Covered travel can now search up to `35mm` only when later stitch geometry proves the route is hidden. Structural safe-flip orientation scoring now compares legacy and reoriented structural variants so the route scorer can reduce internal underlay/cover handoff relocations without undoing accepted structural route wins.
+- Implemented now: graph-aware route ordering for disconnected same-color fill islands using nearest, angular, MST preorder, small exact tours, and 2-opt candidate tours. It preserves the sunflower angular win, records candidate rejection diagnostics, supports structural/no-flip-safe candidate routing for underlay-sensitive components, and now has non-flower route fixture coverage in `underpaint_benchmark.py`. It improves faceted acorn and sparrow route pressure without reducing daisy trims yet. Source/detail and same-hue material guardrails now make tiny-detail promotion, simplification, unresolved-detail regressions, cap/body/highlight tone collapse, and faceted same-hue dark- or light-endpoint collapse visible in uploaded-art acceptance output. Same-hue facet trim pressure is now covered by acorn, mushroom, shell, and structural route fixture checks, with the accepted trim threshold set at `16mm` because higher thresholds introduced long-carry risk. Covered travel can now search up to `35mm` only when later stitch geometry proves the route is hidden. Structural safe-flip orientation scoring now compares legacy and reoriented structural variants so the route scorer can reduce internal underlay/cover handoff relocations without undoing accepted structural route wins, and unsafe legacy safe flips are filtered when they alone create extreme internal material relocations.
 - Later: direction-field streamlines, offset-curve/auto-split partitioning, stronger vectorization, stitch-style classification, texture synthesis for preview/style inspiration, and multi-objective optimization once deterministic fixtures are stronger.
 - Out of scope: exact b-matching in this sprint, cross-stitch DFS/parity, and applique workflows.
 
@@ -76,6 +80,10 @@ Latest accepted route report set:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_structural_orientation_dp_full_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_structural_orientation_dp_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_structural_orientation_dp_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_structural_unsafe_legacy_filter_same_hue_strict_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_structural_unsafe_legacy_filter_full_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_structural_unsafe_legacy_filter_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_structural_unsafe_legacy_filter_20260627.html`
 
 ---
 

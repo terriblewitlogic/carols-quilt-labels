@@ -244,6 +244,9 @@ Recent backend/frontend progress:
   - `same_hue_mushroom_facets` preserves the tan material color while improving trims `7 -> 6` and same-surface trimmed long spans `1 -> 0`
   - `same_hue_acorn_facets` keeps the structural route win and improves trims `6 -> 5`
   - full generated, uploaded, and underpaint comparisons pass with `--fail-on-regression`
+- Unsafe legacy structural safe-flip filtering now removes only safe-flip variants that create extreme internal underlay-to-cover handoffs:
+  - `same_hue_shell_facets` same-surface trimmed long spans improved `1 -> 0`
+  - jumps/trims stayed stable and broad generated/uploaded/underpaint comparisons had no top-line metric deltas
 - Underpaint benchmark route coverage now includes:
   - `synthetic_component_route_ring` for plain disconnected-island candidate scoring and safe fallback
   - `synthetic_structural_route_facets` for structural-safe small-exact route wins
@@ -255,7 +258,7 @@ Current generator/stitch backlog:
 
 - expand tone/color preservation fixtures with real generated/uploaded examples, especially remaining same-hue endpoint, trim, and fragmentation cases
 - preserve meaningful accent colors without preserving noisy fragments, using strict source-policy checks
-- study the remaining `same_hue_shell_facets` same-surface trimmed move as a narrow follow-up to structural orientation scoring
+- keep route broadening paused unless comparison reports show real stitched-span or same-surface relocation regressions
 - keep future route broadening behind the new disconnected-island fixture gates plus daisy/sunflower/elephant/cutout benchmarks
 - keep using generated-run comparison reports before accepting algorithm changes
 

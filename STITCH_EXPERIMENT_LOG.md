@@ -200,8 +200,43 @@ Useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_structural_orientation_dp_full_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_structural_orientation_dp_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_structural_orientation_dp_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_structural_unsafe_legacy_filter_same_hue_strict_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_structural_unsafe_legacy_filter_full_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_structural_unsafe_legacy_filter_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_structural_unsafe_legacy_filter_20260627.html`
 
 Rule: every stitch-algorithm change that affects generated fixtures should produce a comparison report and should run `--fail-on-regression` when comparing against the previous accepted run.
+
+### Unsafe Structural Safe-Flip Filter
+
+Status: keep.
+
+Why: the structural safe-flip orientation DP still left one `same_hue_shell_facets` same-surface trimmed relocation. The raw shell chain was safe, but the legacy structural `safe_flip()` candidate created an internal underlay-to-cover handoff of roughly `58mm`. The reoriented variant removed that internal risk. Keeping both variants let the external route scorer pick a candidate that was "safe" only on paper.
+
+Change accepted:
+
+- Structural flip variant generation now compares internal handoff keys for the legacy and reoriented safe flips.
+- If the legacy safe flip creates an extreme internal long handoff (`>=45mm`) and the reoriented flip removes internal trim/long-span risk, the legacy variant is suppressed.
+- Structural original components now contribute internal handoff cost during orientation scoring, so no-flip/original chains compete fairly with structural variants.
+- `same_hue_shell_facets` strict source policy now requires preserved dark/mid/light warm shell tones, no same-surface material relocations, and `trimCount <= 5`.
+
+Measured result:
+
+- `same_hue_shell_facets`: same-surface trimmed long spans `1 -> 0`.
+- `same_hue_shell_facets`: stitches `7814 -> 7810`, jumps stayed `37`, trims stayed `5`, quality stayed `100`.
+- `same_hue_acorn_facets` and `same_hue_mushroom_facets` stayed metric-stable versus the accepted orientation-DP baseline.
+- Full uploaded, generated, and underpaint comparisons passed with `--fail-on-regression` and no top-line metric deltas.
+
+Guardrail: this is not a new permission for structural flipping. It only removes a legacy structural flip when the variant itself creates an extreme internal material relocation and the reoriented option proves safer.
+
+Key reports:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_structural_unsafe_legacy_filter_same_hue_strict_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_structural_unsafe_legacy_filter_full_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_structural_unsafe_legacy_filter_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_structural_unsafe_legacy_filter_20260627.html`
+
+Next direction: pause route broadening. The next useful experiments should come from real source-art/color failures: meaningful accent preservation, same-hue material preservation, and fragment absorption under strict source-policy checks.
 
 ### Structural Safe-Flip Orientation DP
 

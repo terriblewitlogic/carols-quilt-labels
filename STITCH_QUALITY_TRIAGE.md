@@ -22,6 +22,7 @@ Recent shipped backend changes:
 - Covered-travel routing now considers longer `2-35mm` carries only when later stitch geometry proves the path is hidden; this reduces faceted acorn trims again while leaving exposed long moves as jumps/trims.
 - Structural/no-flip-safe routing now preserves `_StitchChain` metadata only inside candidate-graph evaluation, allowing safe component reordering without changing ordinary nearest routing.
 - Structural safe-flip orientation now compares legacy and reoriented underlay/cover-safe reversals during candidate scoring, reducing internal handoff risk while keeping the acorn structural route win.
+- Structural safe-flip filtering now rejects the legacy "safe" reversal only when it creates an extreme internal underlay-to-cover handoff that a reoriented variant removes; this clears the remaining shell same-surface material relocation without broad-suite metric churn.
 - Underpaint route coverage now includes targeted disconnected-island fixtures for plain candidate scoring and structural-safe candidate wins.
 
 The remaining quality problems are mostly in generated icon art:
@@ -73,6 +74,10 @@ Current useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_structural_orientation_dp_full_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_structural_orientation_dp_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_structural_orientation_dp_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_structural_unsafe_legacy_filter_same_hue_strict_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_structural_unsafe_legacy_filter_full_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_structural_unsafe_legacy_filter_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_structural_unsafe_legacy_filter_20260627.html`
 
 ## Research Coverage Map
 
@@ -99,6 +104,7 @@ Implemented now:
 - exact small-cluster route scoring for 3-7 disconnected components, aligned to the converter's `16mm` inter-component trim threshold. This keeps route scoring honest for tiny facet clusters without changing accepted output unless the candidate is strictly safer.
 - structural/no-flip-safe candidate routing: broad underlay+fill chains now expose safe flip spans, candidate-graph routing preserves `_StitchChain` metadata only while scoring candidates, and equal-travel-only route wins are rejected. This lets small exact routes improve structural same-color clusters without changing unrelated nearest-route output.
 - structural safe-flip orientation DP: candidate scoring now considers both legacy and internally reoriented safe flips for structural `_StitchChain` components, choosing by external trim/long-span pressure first and internal handoff trim/long-span pressure second. This keeps the acorn structural improvement while removing the same-hue mushroom material relocation.
+- unsafe legacy structural flip filter: structural candidate scoring suppresses the legacy safe-flip variant when it creates an extreme internal underlay-to-cover handoff (`>=45mm`) and the reoriented variant removes internal trim/long-span risk. This keeps accepted structural route wins while eliminating the remaining shell same-surface material relocation.
 - disconnected-island route fixture coverage: `underpaint_benchmark.py` now includes `synthetic_component_route_ring` for plain candidate scoring/fallback and `synthetic_structural_route_facets` for structural-safe small-exact route wins.
 - source/detail decision diagnostics for upload-style fixtures: `surface-plan.json` records tiny-component decision counts and `uploaded_art_acceptance.py --strict-source-policy` fails on unresolved tiny decisions, bad detail budgets, lost accent colors, or detail-fill risk regressions.
 - same-hue material preservation fixture: `same_hue_acorn` verifies the posterizer/thread snap keeps `#783c14`, `#c3915a`, and `#d2aa6e` instead of collapsing a dark cap, tan body, and light highlight into one family.
@@ -122,7 +128,46 @@ Out of scope for now:
 - cross-stitch DFS/parity algorithms unless cross-stitch becomes a product mode
 - applique placement/cutting/tackdown workflows until the core generated-icon pipeline is stable
 
-## Current Patch: Structural Safe-Flip Orientation DP
+## Current Patch: Unsafe Structural Safe-Flip Filter
+
+The structural safe-flip orientation DP fixed the mushroom same-surface relocation and preserved the acorn route win, but `same_hue_shell_facets` still had one same-surface trimmed relocation. Investigation showed the shell raw chain was fine; the legacy structural `safe_flip()` variant created a bad internal underlay-to-cover handoff of roughly `58mm`, while the reoriented variant kept that internal handoff short.
+
+What changed:
+
+- Structural flip variant generation now measures each chain's internal long-gap key.
+- If the legacy safe flip introduces an extreme internal long handoff and the reoriented flip removes internal trim/long-span risk, candidate scoring keeps only the reoriented variant.
+- Structural original components now carry their own internal handoff cost into orientation scoring, so the DP can compare "do nothing" against structural variants honestly.
+- `same_hue_shell_facets` strict source policy now requires preserved dark/mid/light warm shell tones, no same-surface material relocations, and `trimCount <= 5`.
+
+Current outcome:
+
+- `same_hue_shell_facets`: same-surface trimmed long spans `1 -> 0`, stitches `7814 -> 7810`, jumps stable at `37`, trims stable at `5`.
+- The one remaining long relocation is cross-surface and preview-only, not a same-surface material relocation.
+- `same_hue_acorn_facets` and `same_hue_mushroom_facets` stayed metric-stable against the accepted orientation-DP run.
+- Full uploaded, generated, and underpaint comparisons passed with `--fail-on-regression` and no top-line metric changes.
+
+Validation:
+
+- `python3 scripts/uploaded_art_acceptance.py --out tmp/uploaded_art_acceptance_structural_unsafe_legacy_filter_same_hue_strict_20260627 --case same_hue_acorn_facets --case same_hue_mushroom_facets --case same_hue_shell_facets --strict-no-500 --strict-source-policy`
+- `python3 scripts/compare_generated_runs.py tmp/uploaded_art_acceptance_structural_orientation_dp_same_hue_strict_20260627 tmp/uploaded_art_acceptance_structural_unsafe_legacy_filter_same_hue_strict_20260627 --out tmp/uploaded_compare_structural_unsafe_legacy_filter_same_hue_strict_20260627.html --title "Structural Unsafe Legacy Filter Same-Hue Strict" --fail-on-regression`
+- `python3 scripts/uploaded_art_acceptance.py --out tmp/uploaded_art_acceptance_structural_unsafe_legacy_filter_full_20260627 --strict-no-500 --strict-source-policy`
+- `python3 scripts/generated_acceptance.py --out tmp/generated_acceptance_structural_unsafe_legacy_filter_20260627 --strict`
+- `python3 scripts/underpaint_benchmark.py --out tmp/underpaint_benchmark_structural_unsafe_legacy_filter_20260627 --format jef`
+- full uploaded/generated/underpaint comparisons with `--fail-on-regression`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- `npm run benchmark:underpaint`
+
+Key reports:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_structural_unsafe_legacy_filter_same_hue_strict_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_structural_unsafe_legacy_filter_full_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_structural_unsafe_legacy_filter_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_structural_unsafe_legacy_filter_20260627.html`
+
+Next direction: route work is now at a good stopping point. The next highest-value pass should return to source-art/color triage with real generated/uploaded examples, especially meaningful accents and same-hue material preservation under strict source-policy checks.
+
+## Recent Patch: Structural Safe-Flip Orientation DP
 
 The light-endpoint patch correctly preserved the mushroom's tan material color, but the added real material region exposed a same-surface trimmed relocation inside a structural underlay+cover chain. Disabling structural safe flips fixed the mushroom but lost the acorn routing win, so the accepted fix keeps structural candidate routing and gives it safer orientation choices.
 
@@ -162,7 +207,7 @@ Key reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_structural_orientation_dp_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_structural_orientation_dp_20260627.html`
 
-Next direction: use the same reporting loop to study the remaining `same_hue_shell_facets` same-surface trimmed move, but keep the route change narrow unless it helps real generated/uploaded examples without adding long-span or color-preservation regressions.
+Next direction completed by the unsafe legacy structural flip filter above.
 
 ## Recent Patch: Same-Hue Light Endpoint Preservation
 
