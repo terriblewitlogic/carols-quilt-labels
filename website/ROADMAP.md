@@ -107,7 +107,7 @@ src/pages/GeneratorPage.jsx   ← wire each step of the flow
 
 **Credit deduction:** Call `useCredits().spend(creditsNeeded)` before triggering the export. If `spend()` returns false (insufficient balance), show the credit purchase prompt instead.
 
-**Backend quality checkpoint — 2026-06-27:** the stitch backend now has source-color acceptance lanes for real generated art before this is exposed to users. `real_strawberry` is accounted as intentional compact repeated detail, `real_teapot_card` is kept as a source-complexity guard with `4` retained multi-component colors / `22` disconnected retained pieces, and `thick_outline_flower` now treats pruned gray outline antialiasing as sparse halo residue instead of semantic color loss. The latest visible output win reduces broad dark outline density without guarded risk regressions: `real_teapot_card` stitches `13541 -> 11761`, `thick_outline_flower` `6952 -> 6122`, and `cartoon_elephant` `5725 -> 5191`. Current validation artifacts:
+**Backend quality checkpoint — 2026-06-27:** the stitch backend now has source-color acceptance lanes for real generated art before this is exposed to users. `real_strawberry` is accounted as intentional compact repeated detail, `real_teapot_card` is kept as a source-complexity guard with `4` retained multi-component colors / `22` disconnected retained pieces, and `thick_outline_flower` now treats pruned gray outline antialiasing as sparse halo residue instead of semantic color loss. Recent visible output wins reduced broad dark outline density and then cleaned simple local material fills without guarded risk regressions: `real_teapot_card` stitches `13541 -> 11761 -> 11711`, `thick_outline_flower` `6952 -> 6122 -> 6113`, `cartoon_elephant` `5725 -> 5191`, and `sparrow_flat_app_icon` `5488 -> 5483`. Current validation artifacts:
 
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_local_detail_cluster_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_local_detail_cluster_20260627/source-triage.html`
@@ -120,6 +120,11 @@ src/pages/GeneratorPage.jsx   ← wire each step of the flow
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_large_stroke_spacing_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_large_stroke_spacing_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_large_stroke_spacing_20260627/source-triage.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_local_patch_serpentine_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_local_patch_serpentine_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_local_patch_serpentine_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_local_patch_serpentine_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_local_patch_serpentine_20260627/source-triage.html`
 
 Do not treat Generator wiring as real-user-ready until source/color triage has more accepted behavior wins, not just diagnostics.
 

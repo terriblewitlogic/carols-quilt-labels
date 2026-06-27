@@ -13,6 +13,53 @@ This is not a full changelog. It is a decision log for approaches that worked, f
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_acceptance_*`
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/regression_*`
 
+## Accepted Stitch Output: Local Patch Serpentine Fill
+
+Date: 2026-06-27
+
+Goal:
+
+- Reduce small fill clutter inside simple local material patches.
+- Keep route, structural, silhouette, satin, and underlay-sensitive surfaces protected.
+- Avoid public API, frontend, file-format, and broad routing changes.
+
+Change:
+
+- Added a narrow local-patch serpentine fallback for simple connected fill regions:
+  - area gate: `90-220mm^2`
+  - excludes silhouettes, forced silhouettes, center disks, stems, satin zones, hole-bearing regions, and structural/no-flip-sensitive groups
+  - accepts only when candidate gap scoring shows `0` long gaps and `0` trim gaps
+- Added deterministic angle retries around the planned angle, PCA angle, and cardinal/diagonal fallbacks.
+- Added `localPatchSerpentine` diagnostics to `surface-plan.json`.
+
+Result:
+
+- `real_teapot_card`: stitches `11761 -> 11711`; jumps/trims unchanged at `86 / 14`; quality `100`.
+- `thick_outline_flower`: stitches `6122 -> 6113`; jumps/trims unchanged at `53 / 7`; quality `100`.
+- `sparrow_flat_app_icon`: stitches `5488 -> 5483`; jumps/trims unchanged at `17 / 2`; quality `100`.
+- `synthetic_structural_route_facets`: stitches `5883 -> 5792`; jump/trim and guarded route-risk metrics unchanged.
+- `flower_daisy_simple` stayed unchanged after the `90mm^2` gate, avoiding an earlier jump-count warning from the looser experiment.
+- Full source-color, uploaded, generated, and underpaint regression-gated comparisons passed. No status, acceptance issue, quality score, same-surface stitched long-span, same-surface untrimmed long-span, high-risk-surface, or broad-route-risk regression appeared.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_local_patch_serpentine_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_local_patch_serpentine_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_local_patch_serpentine_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_local_patch_serpentine_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_local_patch_serpentine_20260627/source-triage.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- full uploaded strict source policy
+- full generated acceptance `--strict`
+- full source-color acceptance `--strict`
+- full underpaint benchmark
+
+Verdict:
+
+- Keep. This is a small visible stitch-output improvement with no guarded regression and no broad routing churn.
+- Next work should continue source/color behavior: reduce teapot-like over-fragmentation or find another real semantic color/detail improvement under strict source-policy checks.
+
 ## Accepted Stitch Output: Large Dark Stroke Satin Spacing
 
 Date: 2026-06-27

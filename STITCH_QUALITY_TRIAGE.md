@@ -32,6 +32,7 @@ Recent shipped backend changes:
 - Sparse low-chroma outline halos are now accounted as pruned source residue instead of visible color loss: `thick_outline_flower` now has source suitability `100 / clean`, repair count `0`, and unchanged stitch output.
 - Stitched near-white foreground shapes are now explicitly accounted instead of reported as repair opportunities: `bee_simple`, `flower_daisy_simple`, and `low_contrast_bird` keep their pale stitched regions with repair count `0` and unchanged stitch output.
 - Large dark stroke-satin outline networks now use a wider density multiplier when the source stroke area is broad, reducing thread buildup on generated/uploaded icon line art while keeping risk gates clean.
+- Simple medium local material patches can now use a proved-safe serpentine fill when they have no holes, structural sensitivity, silhouette role, stem/center-disk role, or satin-zone role. This trims small fill clutter in teapot, flower, sparrow, and structural-facet fixtures while keeping jump/trim and long-span risk gates clean.
 
 The remaining quality problems are mostly in generated icon art:
 
@@ -121,6 +122,11 @@ Current useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_large_stroke_spacing_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_large_stroke_spacing_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_large_stroke_spacing_20260627/source-triage.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_local_patch_serpentine_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_local_patch_serpentine_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_local_patch_serpentine_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_local_patch_serpentine_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_local_patch_serpentine_20260627/source-triage.html`
 
 ## Research Coverage Map
 
@@ -175,7 +181,52 @@ Out of scope for now:
 - cross-stitch DFS/parity algorithms unless cross-stitch becomes a product mode
 - applique placement/cutting/tackdown workflows until the core generated-icon pipeline is stable
 
-## Current Patch: Large Dark Stroke Satin Spacing
+## Current Patch: Local Patch Serpentine Fill
+
+The next source/color sprint win reduces clutter inside simple local material patches while keeping route and risk gates narrow.
+
+What changed:
+
+- Simple outlined local material patches from `90-220mm^2` can use a single serpentine fill when gap scoring proves the candidate has no long gaps and no trim gaps.
+- The gate excludes source silhouettes, forced silhouettes, center disks, stems, satin zones, hole-bearing regions, and underlay-sensitive structural/no-flip groups.
+- The selector tries deterministic angle nudges around the planned angle, PCA angle, and cardinal/diagonal fallbacks, then accepts only a no-risk candidate.
+- `surface-plan.json` records `localPatchSerpentine` diagnostics with angle, area, and gap-score evidence.
+- No API, frontend, file-format, route-threshold, or public behavior changes were made.
+
+Current outcome:
+
+- `real_teapot_card`: stitches `11761 -> 11711`; three local patch serpentine fills; jumps/trims unchanged at `86 / 14`; quality `100`.
+- `thick_outline_flower`: stitches `6122 -> 6113`; jumps/trims unchanged at `53 / 7`; quality `100`.
+- `sparrow_flat_app_icon`: stitches `5488 -> 5483`; jumps/trims unchanged at `17 / 2`; quality `100` in generated and underpaint suites.
+- `synthetic_structural_route_facets`: stitches `5883 -> 5792`; jump/trim and guarded route-risk metrics unchanged.
+- `flower_daisy_simple` stayed unchanged after the `90mm^2` lower gate, avoiding earlier warn-level jump churn.
+- Across source-color, uploaded, generated, and underpaint full suites, regression-gated comparisons passed with no status, acceptance issue, quality score, same-surface stitched long-span, same-surface untrimmed jump long-span, high-risk-surface, or broad-route-risk regression.
+
+Validation:
+
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run acceptance:source-color -- --out tmp/source_color_acceptance_local_patch_serpentine_20260627`
+- `PYTHONPYCACHEPREFIX=tmp/pycache python3 scripts/generated_acceptance.py --out tmp/generated_acceptance_local_patch_serpentine_20260627 --strict`
+- `PYTHONPYCACHEPREFIX=tmp/pycache python3 scripts/uploaded_art_acceptance.py --out tmp/uploaded_art_acceptance_local_patch_serpentine_20260627 --strict-no-500 --strict-source-policy`
+- `PYTHONPYCACHEPREFIX=tmp/pycache python3 scripts/underpaint_benchmark.py --out tmp/underpaint_benchmark_local_patch_serpentine_20260627 --format jef`
+- Regression-gated source-color, uploaded, generated, and underpaint comparisons all passed.
+
+Key reports:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_local_patch_serpentine_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_local_patch_serpentine_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_local_patch_serpentine_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_local_patch_serpentine_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_local_patch_serpentine_20260627/source-triage.html`
+
+Next recommended direction:
+
+- Continue source/color behavior work, with `real_teapot_card` still the main source-art complexity target after the local-fill improvement.
+- Prefer conservative source simplification or over-fragmentation fixes that preserve intended colors, rather than broad repeated-petal or routing changes.
+- Keep broad routing paused unless comparison reports show actual stitched-span or same-surface relocation risk.
+
+## Previous Patch: Large Dark Stroke Satin Spacing
 
 The first visible source/color sprint win reduces over-dense generated/uploaded icon outlines without changing public APIs, source policy, routing thresholds, or file formats.
 

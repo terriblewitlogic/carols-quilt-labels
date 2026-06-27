@@ -93,10 +93,17 @@ Recent shipped work since the original pro-design comparison:
   - `thick_outline_flower` stitches improved `6952 -> 6122`
   - `cartoon_elephant` stitches improved `5725 -> 5191`
   - full uploaded/generated/source-color/underpaint comparisons passed without guarded quality, acceptance, stitched-span, high-risk, or broad-route regressions
+- Added local patch serpentine fill:
+  - simple local material patches from `90-220mm^2` can switch to a proved-safe serpentine fill when the candidate has no long gaps or trim gaps
+  - `real_teapot_card` stitches improved `11761 -> 11711`
+  - `thick_outline_flower` stitches improved `6122 -> 6113`
+  - `sparrow_flat_app_icon` stitches improved `5488 -> 5483`
+  - `synthetic_structural_route_facets` stitches improved `5883 -> 5792`
+  - full source-color/uploaded/generated/underpaint comparisons passed without guarded quality, acceptance, stitched-span, high-risk, or broad-route regressions
 
 Current next-best stitch work:
 
-1. Continue source/color behavior work after the large-outline density win; `real_teapot_card` should remain a source-complexity guard unless a future source simplifier can reduce disconnected color pieces without losing intent.
+1. Continue source/color behavior work after the large-outline density and local-patch fill wins; `real_teapot_card` should remain a source-complexity guard unless a future source simplifier can reduce disconnected color pieces without losing intent.
 2. Preserve meaningful small accent colors while continuing to drop/absorb noisy fragments under strict source-policy checks; muted lavender/pink, compact repeated-detail, teapot local-detail-cluster accounting, sparse outline-halo accounting, and stitched near-white foreground accounting are now in place.
 3. Expand color/tone preservation coverage with real generated/uploaded examples, especially same-hue materials that still over-fragment, collapse into the wrong thread family, or create route pressure after the right colors are preserved.
 4. Keep route broadening paused unless a comparison report shows a real stitched-span or same-surface relocation regression; the current route work is narrow and stable.
@@ -144,6 +151,11 @@ Latest accepted route report set:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_large_stroke_spacing_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_large_stroke_spacing_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_large_stroke_spacing_20260627/source-triage.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_local_patch_serpentine_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_local_patch_serpentine_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_local_patch_serpentine_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_local_patch_serpentine_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_local_patch_serpentine_20260627/source-triage.html`
 
 ---
 
