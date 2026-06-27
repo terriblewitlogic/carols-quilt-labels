@@ -204,8 +204,43 @@ Useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_structural_unsafe_legacy_filter_full_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_structural_unsafe_legacy_filter_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_structural_unsafe_legacy_filter_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_source_color_grading_20260627/source-triage.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_source_color_baseline_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_source_color_baseline_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_source_color_grading_20260627.html`
 
 Rule: every stitch-algorithm change that affects generated fixtures should produce a comparison report and should run `--fail-on-regression` when comparing against the previous accepted run.
+
+### Source/Color Triage Grading Calibration
+
+Status: keep.
+
+Why: the source/color sprint produced clean uploaded and generated baselines. `source_art_triage_report.py` found no metric-level source/color blocker, but `grade_stitch_quality.py` still graded `leaf_single_smooth` as `B` solely because source normalization heavily changed raw antialias/noise fragments before stitching. The conversion output was clean, no meaningful color was lost, and diagnostics already labeled the cleanup as tiny-source noise removal.
+
+Change accepted:
+
+- Added a benign source-normalization check to `grade_stitch_quality.py`.
+- Heavy cleanup is now informational when quality is high, there are no source repair opportunities, no meaningful dropped colors, no surface connector/fill risks, and `source-normalization.json` says the compiler cleaned fragment noise.
+- No stitch-engine or product-output behavior changed.
+
+Measured result:
+
+- `leaf_single_smooth`: quality gate `B / 94 -> A / 100`.
+- Combined uploaded/generated quality gate now reports `A: 16`.
+- Combined source-art triage reports `mostly_ok: 16`.
+- Uploaded/generated/underpaint comparisons passed with `--fail-on-regression`; conversion metrics stayed unchanged.
+
+Guardrail: do not use this to hide real source failures. The discount requires clean stitch/color diagnostics and explicit noise-cleanup evidence.
+
+Key reports:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_source_color_grading_20260627/source-triage.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/quality_gate_source_color_grading_20260627/quality-gate.md`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_source_color_baseline_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_source_color_baseline_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_source_color_grading_20260627.html`
+
+Next direction: collect or add a real source/color failure before changing source compilation. Good targets are visible accent loss, same-hue material collapse, or tiny/detail clutter that remains after current strict source-policy handling.
 
 ### Unsafe Structural Safe-Flip Filter
 

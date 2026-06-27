@@ -24,6 +24,7 @@ Recent shipped backend changes:
 - Structural safe-flip orientation now compares legacy and reoriented underlay/cover-safe reversals during candidate scoring, reducing internal handoff risk while keeping the acorn structural route win.
 - Structural safe-flip filtering now rejects the legacy "safe" reversal only when it creates an extreme internal underlay-to-cover handoff that a reoriented variant removes; this clears the remaining shell same-surface material relocation without broad-suite metric churn.
 - Underpaint route coverage now includes targeted disconnected-island fixtures for plain candidate scoring and structural-safe candidate wins.
+- Source/color triage grading now treats heavy source normalization as informational when diagnostics prove it only removed noise and all stitch/color risk gates are clean.
 
 The remaining quality problems are mostly in generated icon art:
 
@@ -78,6 +79,10 @@ Current useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_structural_unsafe_legacy_filter_full_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_structural_unsafe_legacy_filter_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_structural_unsafe_legacy_filter_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_source_color_grading_20260627/source-triage.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_source_color_baseline_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_source_color_baseline_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_source_color_grading_20260627.html`
 
 ## Research Coverage Map
 
@@ -112,6 +117,7 @@ Implemented now:
 - same-hue light endpoint guard: `same_hue_mushroom_facets` now preserves `#d2aa6e` as a substantial light material region instead of flattening the stem/highlight into `#f0785a`.
 - same-hue facet trim reduction: `same_hue_acorn_facets`, `same_hue_mushroom_facets`, and `same_hue_shell_facets` exercise same-hue material fields with internal facets. Inter-component trims now use a `16mm` threshold, which reduced acorn facet trims while keeping long untrimmed jump diagnostics at zero.
 - covered travel extension: `_merge_covered_travel` now considers hidden carries up to `35mm`, but only when a later fill/outline directly covers the route or offers a covered detour. It removes one remaining faceted-acorn relocation without raising the global trim threshold.
+- source/color grading calibration: `grade_stitch_quality.py` now discounts heavy source-normalization pressure only when source cleanup is explicitly noise-removal, quality is high, no meaningful colors were dropped, and there is no stitched/long-span/fill risk.
 
 Research later:
 
@@ -128,7 +134,44 @@ Out of scope for now:
 - cross-stitch DFS/parity algorithms unless cross-stitch becomes a product mode
 - applique placement/cutting/tackdown workflows until the core generated-icon pipeline is stable
 
-## Current Patch: Unsafe Structural Safe-Flip Filter
+## Current Patch: Source/Color Triage Grading Calibration
+
+The fresh source/color sprint established uploaded and generated baselines, then ran `source_art_triage_report.py`. The report found no current source/color case that justified a risky stitch-engine change: all rows were `mostly_ok`, and the only non-A grade was `leaf_single_smooth`, where heavy local cleanup removed raw antialias/noise fragments and produced clean stitch output.
+
+What changed:
+
+- `grade_stitch_quality.py` now recognizes benign source normalization when diagnostics show clean output, no source repair opportunities, no meaningful dropped colors, no surface connector/fill risk, and explicit `source_tiny_regions_cleaned` noise cleanup.
+- In that case the finding becomes informational (`source_normalization_cleaned_noise`) instead of the old `source_normalization_pressure` penalty.
+- No stitch engine, API, frontend, routing, file-format, or fixture behavior changed.
+
+Current outcome:
+
+- `leaf_single_smooth` product grade improved `B / 94 -> A / 100` in the quality gate.
+- The combined uploaded/generated source-color triage now reports `A: 16` and `mostly_ok: 16`.
+- Uploaded/generated/underpaint conversion comparisons passed with `--fail-on-regression`; there were no conversion metric changes.
+
+Validation:
+
+- `python3 scripts/uploaded_art_acceptance.py --out tmp/uploaded_art_acceptance_source_color_baseline_20260627 --strict-no-500 --strict-source-policy`
+- `python3 scripts/generated_acceptance.py --out tmp/generated_acceptance_source_color_baseline_20260627 --strict`
+- `python3 scripts/source_art_triage_report.py --input tmp/uploaded_art_acceptance_source_color_baseline_20260627 --input tmp/generated_acceptance_source_color_baseline_20260627 --out tmp/source_art_triage_source_color_grading_20260627`
+- `python3 scripts/grade_stitch_quality.py --input tmp/uploaded_art_acceptance_source_color_baseline_20260627 --input tmp/generated_acceptance_source_color_baseline_20260627 --out tmp/quality_gate_source_color_grading_20260627`
+- uploaded/generated/underpaint comparisons with `--fail-on-regression`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- `python3 scripts/underpaint_benchmark.py --out tmp/underpaint_benchmark_source_color_grading_20260627 --format jef`
+
+Key reports:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_source_color_grading_20260627/source-triage.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/quality_gate_source_color_grading_20260627/quality-gate.md`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_source_color_baseline_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_source_color_baseline_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_source_color_grading_20260627.html`
+
+Next direction: do not force a source/compiler patch against the current fixtures. Add or collect real source-color failures first: visible accent loss, same-hue material collapse, or tiny/detail clutter that survives strict source-policy checks.
+
+## Recent Patch: Unsafe Structural Safe-Flip Filter
 
 The structural safe-flip orientation DP fixed the mushroom same-surface relocation and preserved the acorn route win, but `same_hue_shell_facets` still had one same-surface trimmed relocation. Investigation showed the shell raw chain was fine; the legacy structural `safe_flip()` variant created a bad internal underlay-to-cover handoff of roughly `58mm`, while the reoriented variant kept that internal handoff short.
 

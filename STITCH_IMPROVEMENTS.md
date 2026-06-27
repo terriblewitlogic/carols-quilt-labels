@@ -58,14 +58,19 @@ Recent shipped work since the original pro-design comparison:
 - Added targeted disconnected-island route fixtures to the underpaint benchmark:
   - `synthetic_component_route_ring` covers plain candidate scoring and safe fallback
   - `synthetic_structural_route_facets` covers structural-safe small-exact route wins
+- Calibrated source/color quality grading:
+  - heavy source normalization now grades as informational when it only removed noise and all stitch/color risk gates are clean
+  - `leaf_single_smooth` quality-gate grade improved `B / 94 -> A / 100`
+  - fresh uploaded/generated source-color baselines now grade `A: 16`, with no conversion metric changes
 
 Current next-best stitch work:
 
-1. Preserve meaningful small accent colors while continuing to drop/absorb noisy fragments under strict source-policy checks.
-2. Expand color/tone preservation coverage with real generated/uploaded examples, especially same-hue materials that still over-fragment, collapse into the wrong thread family, or create route pressure after the right colors are preserved.
-3. Keep route broadening paused unless a comparison report shows a real stitched-span or same-surface relocation regression; the current route work is narrow and stable.
-4. Use `compare_generated_runs.py ... --fail-on-regression` for every keep/revert decision.
-5. Revisit broad-underpaint/lane routing only when comparison reports show actual stitched-span risk.
+1. Collect or add real source/color failure examples before changing the source compiler again.
+2. Preserve meaningful small accent colors while continuing to drop/absorb noisy fragments under strict source-policy checks.
+3. Expand color/tone preservation coverage with real generated/uploaded examples, especially same-hue materials that still over-fragment, collapse into the wrong thread family, or create route pressure after the right colors are preserved.
+4. Keep route broadening paused unless a comparison report shows a real stitched-span or same-surface relocation regression; the current route work is narrow and stable.
+5. Use `compare_generated_runs.py ... --fail-on-regression` for every keep/revert decision.
+6. Revisit broad-underpaint/lane routing only when comparison reports show actual stitched-span risk.
 
 Research review status:
 
@@ -84,6 +89,10 @@ Latest accepted route report set:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_structural_unsafe_legacy_filter_full_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_structural_unsafe_legacy_filter_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_structural_unsafe_legacy_filter_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_source_color_grading_20260627/source-triage.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_source_color_baseline_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_source_color_baseline_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_source_color_grading_20260627.html`
 
 ---
 

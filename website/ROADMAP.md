@@ -250,12 +250,16 @@ Recent backend/frontend progress:
 - Underpaint benchmark route coverage now includes:
   - `synthetic_component_route_ring` for plain disconnected-island candidate scoring and safe fallback
   - `synthetic_structural_route_facets` for structural-safe small-exact route wins
+- Source/color quality grading now treats heavy source normalization as informational when it only removes noise and stitch/color diagnostics remain clean:
+  - fresh uploaded/generated source-color baselines grade `A: 16`
+  - `leaf_single_smooth` no longer appears as a false source-quality blocker after successful cleanup
 - Added generated-run HTML comparison tooling:
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/scripts/compare_generated_runs.py`
   - `npm run compare:generated`
 
 Current generator/stitch backlog:
 
+- collect or add real source/color failure examples before more source-compiler tuning
 - expand tone/color preservation fixtures with real generated/uploaded examples, especially remaining same-hue endpoint, trim, and fragmentation cases
 - preserve meaningful accent colors without preserving noisy fragments, using strict source-policy checks
 - keep route broadening paused unless comparison reports show real stitched-span or same-surface relocation regressions
