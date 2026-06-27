@@ -13,6 +13,52 @@ This is not a full changelog. It is a decision log for approaches that worked, f
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_acceptance_*`
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/regression_*`
 
+## Accepted Source Policy: Sparse Outline Halo Accounting
+
+Date: 2026-06-27
+
+Goal:
+
+- Stop treating a pruned antialias halo around thick black outlines as semantic color loss.
+- Keep the flower fixture useful as a color-preservation guard for green stem, brown center, yellow petals, and black linework.
+
+Change:
+
+- Added `prunedSparseHaloColorCount` to source-design diagnostics.
+- Low-chroma, sparse, broad-bounding-box, already-pruned source labels now count as outline halo residue instead of `foreground_color_dropped`.
+- Added uploaded strict-source-policy checks requiring `thick_outline_flower` to preserve its four semantic colors while accounting for the sparse halo and avoiding `visible_color_loss`.
+
+Result:
+
+- `thick_outline_flower` source suitability improved `76 / candidate -> 100 / clean`.
+- Source repair opportunities improved `1 -> 0`.
+- The gray `#c0c0c0` halo is counted as `prunedSparseHaloColorCount: 1`.
+- Stitch output stayed unchanged: `6952` stitches, `54` jumps, `6` trims, colors `[#3ca03c, #a05a28, #ffdc1e, #000000]`.
+- No same-surface stitched long spans, high-risk surfaces, or broad route risks were introduced.
+- `real_teapot_card` and `real_strawberry` stayed in their intended source-complexity buckets.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_art_acceptance_sparse_halo_flower_20260627`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_art_acceptance_sparse_halo_policy_20260627`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_sparse_halo_flower_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_sparse_halo_policy_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_sparse_halo_policy_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_sparse_halo_policy_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_sparse_halo_policy_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_sparse_halo_policy_20260627/source-triage.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- full uploaded strict source policy
+- full generated acceptance `--strict`
+- full source-color acceptance `--strict`
+- full underpaint benchmark
+
+Verdict:
+
+- Keep. This removes source/color triage noise without stitch-output churn.
+- Next target should be a real semantic color/detail loss or an over-fragmented source case that can be safely simplified.
+
 ## Accepted Source Policy: Local Detail Cluster Accounting
 
 Date: 2026-06-27

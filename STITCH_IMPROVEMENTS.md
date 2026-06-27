@@ -79,10 +79,14 @@ Recent shipped work since the original pro-design comparison:
   - `real_teapot_card` now reports `4` retained multi-component colors / `22` disconnected retained components
   - source suitability records `local_detail_cluster` alongside `many_regions` and `high_color_count`
   - stitch output stayed unchanged at `13541` stitches, `84` jumps, `15` trims, with zero stitched-span, high-risk, or broad-route regressions
+- Added sparse outline-halo source accounting:
+  - `thick_outline_flower` no longer treats the pruned gray outline antialias halo as semantic color loss
+  - source suitability improved `76 / candidate -> 100 / clean`, repair opportunities `1 -> 0`
+  - stitch output stayed unchanged at `6952` stitches, `54` jumps, `6` trims
 
 Current next-best stitch work:
 
-1. Preserve meaningful small accent colors while continuing to drop/absorb noisy fragments under strict source-policy checks; muted lavender/pink, compact repeated-detail, and teapot local-detail-cluster accounting are now in place.
+1. Preserve meaningful small accent colors while continuing to drop/absorb noisy fragments under strict source-policy checks; muted lavender/pink, compact repeated-detail, teapot local-detail-cluster accounting, and sparse outline-halo accounting are now in place.
 2. Find a real source/color case where a safe compiler change improves visible output, not just diagnostics; `real_teapot_card` should remain a source-complexity guard unless a future source simplifier can reduce disconnected color pieces without losing intent.
 3. Expand color/tone preservation coverage with real generated/uploaded examples, especially same-hue materials that still over-fragment, collapse into the wrong thread family, or create route pressure after the right colors are preserved.
 4. Keep route broadening paused unless a comparison report shows a real stitched-span or same-surface relocation regression; the current route work is narrow and stable.
@@ -115,6 +119,11 @@ Latest accepted route report set:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_local_detail_cluster_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_local_detail_cluster_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_local_detail_cluster_20260627/source-triage.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_sparse_halo_policy_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_sparse_halo_policy_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_sparse_halo_policy_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_sparse_halo_policy_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_sparse_halo_policy_20260627/source-triage.html`
 
 ---
 
