@@ -73,6 +73,13 @@ Recent shipped work since the original pro-design comparison:
   - source/tiny accounting reports `preserve_compact_pastel_accent_label:detail_component: 3` and `preserve_vivid_accent_label:detail_component: 1`
   - existing `tiny_detail_icon` and `muted_accent_badge` metrics stayed unchanged after narrowing the pastel lane
   - full uploaded/generated/source-color/underpaint comparisons passed without guarded quality, acceptance, stitched-span, high-risk, or broad-route regressions
+- Added bookended same-hue material preservation:
+  - new `same_hue_purple_shell_facets` uploaded stress fixture protects cool-hue dark/mid/light material facets
+  - `_bookended_same_hue_material_labels` keeps substantial ordered dark/mid/light same-hue families through low-value partition absorption and tonal-family collapse
+  - no-guard baseline dropped dark purple and had one same-surface relocation; accepted run preserves `#7846c8`, `#965ad2`, `#b496dc`, and `#000000`
+  - target metrics improved trims `6 -> 4`, jumps `20 -> 19`, same-surface trimmed spans `1 -> 0`, and quality stayed `100`
+  - `gradient_elephant_simple` remains on the accepted collapsed-gradient path (`5062` stitches, `8` jumps, `4` trims, no same-surface spans)
+  - full uploaded/generated/source-color/underpaint comparisons passed without guarded quality, acceptance, stitched-span, high-risk, or broad-route regressions
 - Added a real source/color fixture lane:
   - `npm run acceptance:source-color` runs `generated_acceptance.py --fixture-dir fixtures/source_color --strict`
   - `real_teapot_card` is a repeatable `C / 77` source-complexity target with preserved green, coral, purple, peach, and black threads
@@ -186,15 +193,28 @@ Recent shipped work since the original pro-design comparison:
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_satin_local_patch_20260628.html`
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_satin_local_patch_20260628.html`
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_satin_local_patch_20260628/source-triage.html`
+- Added bookended same-hue material preservation:
+  - `same_hue_purple_shell_facets` is a new strict uploaded stress fixture for cool-hue material families
+  - no-guard baseline dropped dark purple: `['#965ad2', '#b496dc', '#000000']`
+  - accepted run preserves dark/mid/light purple plus black: `['#7846c8', '#965ad2', '#b496dc', '#000000']`
+  - trims improved `6 -> 4`, jumps improved `20 -> 19`, same-surface trimmed spans improved `1 -> 0`, and quality stayed `100`
+  - warm same-hue canaries and `gradient_elephant_simple` stayed stable, preserving the accepted gradient cleanup behavior
+  - validation included `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`, `npm run typecheck`, targeted purple strict guard, full uploaded strict source policy, full generated acceptance `--strict`, full source-color acceptance, full underpaint benchmark, and regression-gated compare reports:
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_purple_shell_bookend_fix_20260628.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_bookend_material_fix_20260628.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_bookend_material_fix_20260628.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_bookend_material_fix_20260628.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_bookend_material_fix_20260628.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_bookend_material_fix_20260628/source-triage.html`
 
 Current next-best stitch work:
 
-1. Continue source/color behavior work after the large-outline density, local-patch fill, cross-color tiny-detail accounting, repeated-detail density, local-cluster material panel, repeated-motif repair-accounting, material-panel accounting, black-stroke retention, satin-width material-panel, and compact-pastel accent wins; `real_teapot_card` now has its fill-coherence risk cleared, so the next accepted win should improve a different visible output problem or add a new real semantic color/detail-loss fixture.
-2. Preserve meaningful small accent colors while continuing to drop/absorb noisy fragments under strict source-policy checks; muted lavender/pink, compact low-chroma pastel accents, cross-color compact dots, compact repeated-detail, teapot local-detail-cluster accounting, sparse outline-halo accounting, and stitched near-white foreground accounting are now in place.
-3. Expand color/tone preservation coverage with real generated/uploaded examples, especially same-hue materials that still over-fragment, collapse into the wrong thread family, or create route pressure after the right colors are preserved.
+1. Continue source/color behavior work after the large-outline density, local-patch fill, cross-color tiny-detail accounting, repeated-detail density, local-cluster material panel, repeated-motif repair-accounting, material-panel accounting, black-stroke retention, satin-width material-panel, compact-pastel accent, and bookended same-hue material wins; `real_teapot_card` now has its fill-coherence risk cleared, so the next accepted win should improve a different visible output problem or add a new real semantic color/detail-loss fixture.
+2. Preserve meaningful small accent and material colors while continuing to drop/absorb noisy fragments under strict source-policy checks; muted lavender/pink, compact low-chroma pastel accents, cool same-hue material facets, cross-color compact dots, compact repeated-detail, teapot local-detail-cluster accounting, sparse outline-halo accounting, and stitched near-white foreground accounting are now in place.
+3. Expand color/tone preservation coverage with real generated/uploaded examples, especially same-hue materials that still over-fragment, collapse into the wrong thread family, or create route pressure after the right colors are preserved. Keep `gradient_elephant_simple` as the canary that mild disposable gradients must still collapse.
 4. Keep route broadening paused unless a comparison report shows a real stitched-span or same-surface relocation regression; the current route work is narrow and stable.
 5. Use `compare_generated_runs.py ... --fail-on-regression` for every keep/revert decision.
-6. Do not spend more time on strawberry diagnostics unless output behavior can improve; the current false source-repair pressure is resolved while the remaining many-region warning is real.
+6. Do not spend more time on strawberry diagnostics unless output behavior can improve; the current false source-repair pressure is resolved while the remaining many-region warning is real. The refreshed triage still leaves `real_strawberry` as the only source-complexity target.
 7. Do not spend more time on teapot diagnostics unless output behavior can improve beyond the cleared fill-coherence risk; material-panel accounting and satin-width local-patch fill now remove the false source-repair blocker and clean the remaining flagged panel clutter.
 8. Do not broaden the local-patch-serpentine gate based only on teapot stitch-count micro-wins; the generic `70mm^2` experiment churned daisy jumps and was rejected. Future teapot wins need source/material semantics or source simplification, not a wider generic fill path.
 9. Revisit broad-underpaint/lane routing only when comparison reports show actual stitched-span risk.

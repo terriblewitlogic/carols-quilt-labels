@@ -13,6 +13,56 @@ This is not a full changelog. It is a decision log for approaches that worked, f
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_acceptance_*`
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/regression_*`
 
+## Accepted Source/Color Policy: Bookended Same-Hue Material Preservation
+
+Date: 2026-06-28
+
+Goal:
+
+- Preserve real dark/mid/light same-hue material facets when source evidence is broad and ordered.
+- Keep mild generated gradients, especially `gradient_elephant_simple`, on the accepted collapsed-gradient path.
+- Avoid routing, public API, frontend, and file-format changes.
+
+Change:
+
+- Added uploaded stress fixture `same_hue_purple_shell_facets`, a compact cool-purple material sample with dark, mid, and light purple facets.
+- Added `_bookended_same_hue_material_labels` to protect substantial connected same-hue families with ordered dark/mid/light members.
+- The helper is used only by source cleanup passes that were flattening the material colors: low-value partition absorption and oversegmented tonal-family collapse.
+- Strict uploaded source policy now requires `same_hue_purple_shell_facets` to preserve `#7846c8`, `#965ad2`, `#b496dc`, and `#000000`, keep separated purple luminance bands, and avoid same-surface material relocations.
+
+Result:
+
+- No-guard baseline dropped dark purple: `colors ['#965ad2', '#b496dc', '#000000']`.
+- Accepted run preserves all material tones: `colors ['#7846c8', '#965ad2', '#b496dc', '#000000']`.
+- Target metrics improved trims `6 -> 4`, jumps `20 -> 19`, and same-surface trimmed spans `1 -> 0`; quality stayed `100`.
+- Same-hue warm canaries passed: `same_hue_shell_facets`, `same_hue_mushroom_facets`, `same_hue_acorn_facets`, and the new purple guard all quality `100` with no same-surface trimmed/untrimmed long spans.
+- `gradient_elephant_simple` stayed on the accepted two-tone cleanup path: `5062` stitches, `8` jumps, `4` trims, quality `100`, and no same-surface spans.
+
+Rejected/narrowed variants:
+
+- A tall faceted purple shell preserved color but created fill-coherence quality pressure. Replaced it with a smaller compact material fixture so the guard tests color preservation, not broad-shell routing.
+- A first detector only protected families where the middle tone was dominant; after cleanup, endpoint tones can become larger. The accepted detector protects any substantial ordered dark/mid/light family with enough same-hue adjacency and area.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_purple_shell_bookend_fix_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_bookend_material_fix_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_bookend_material_fix_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_bookend_material_fix_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_bookend_material_fix_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_bookend_material_fix_20260628/source-triage.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- full uploaded strict source policy plus targeted purple strict guard
+- full generated acceptance `--strict`
+- full source-color acceptance
+- full underpaint benchmark
+
+Verdict:
+
+- Keep. This is a narrow semantic color-preservation win with deterministic coverage and no guarded regression.
+- Next source/color work should either improve `real_strawberry` output behavior visibly or add a new real generated/uploaded fixture with semantic color/detail loss. The refreshed triage still leaves teapot as `B / mostly_ok`.
+
 ## Accepted Source/Color Policy: Compact Pastel Accent Preservation
 
 Date: 2026-06-28

@@ -39,12 +39,14 @@ Recent shipped backend changes:
 - Repeated compact motif fields no longer double-count as generic fragmented line-art repair pressure: `real_strawberry` source repair opportunities improve `1 -> 0` with stitch output unchanged.
 - Teapot-like satin-width local material panels can now still try the proved-safe local serpentine path when they are not stems/holes/silhouettes: `real_teapot_card` fill-coherence risk improves `1 -> 0`, local-patch-serpentine panels improve `5 -> 8`, stitches improve `11664 -> 11612`, and trims/jumps/risk gates stay unchanged.
 - Compact low-chroma pastel accents now have a narrow preservation lane. New uploaded fixture `muted_flower_pin` keeps lavender `#b496dc`, yellow `#ffaf46`, blue fill, and black details with quality `100`, detail budget `ok`, and explicit `preserve_compact_pastel_accent_label:detail_component` accounting, while existing `tiny_detail_icon` and `muted_accent_badge` metrics stay unchanged.
+- Bookended same-hue material families now protect substantial dark/mid/light tones during source cleanup. New strict uploaded fixture `same_hue_purple_shell_facets` keeps `#7846c8`, `#965ad2`, `#b496dc`, and black; the no-guard baseline dropped dark purple and had one same-surface relocation, while the accepted run keeps all tones with quality `100`, trims `6 -> 4`, jumps `20 -> 19`, and same-surface trimmed spans `1 -> 0`.
 
 The remaining quality problems are mostly in generated icon art:
 
 - repeated-island designs still have too many jumps/trims, especially `flower_daisy_simple`
 - source-generation detail overload: too many small regions, low-contrast tones, or embroidery-like source imagery
 - meaningful small accent colors must be preserved without preserving noisy fragments
+- same-hue material colors must stay preserved when source evidence is broad and ordered, but gradient cleanup must still collapse mild disposable bands
 - some residual preview clutter from jumps that are not actually stitched
 - broad-underpaint/lane routing should only be revisited when reports show actual stitched-span risk
 
@@ -172,6 +174,12 @@ Current useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_pastel_accent_fix_20260628.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_pastel_accent_fix_20260628.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_pastel_accent_fix_20260628/source-triage.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_purple_shell_bookend_fix_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_bookend_material_fix_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_bookend_material_fix_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_bookend_material_fix_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_bookend_material_fix_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_bookend_material_fix_20260628/source-triage.html`
 
 ## Research Coverage Map
 
@@ -215,6 +223,7 @@ Implemented now:
 - repeated compact motif repair accounting: source-design diagnostics now suppress `fragmented_line_art` repair opportunities when the same label is already recognized as a same-color compact detail repeat. `real_strawberry` keeps the same stitches/colors/risks while source repair opportunities improve `1 -> 0`.
 - local material-panel accounting: acceptance summaries and source triage now expose teapot-like material-panel handling (`9` panels, `5` serpentine) and discount the `22` retained local-cluster regions only when colors are preserved and blocking stitch-risk gates are clean. `real_teapot_card` moves from `C / source_art_complexity` to `B / mostly_ok` with stitch output unchanged.
 - compact pastel accent preservation: a narrow low-chroma pastel label lane preserves small sewable lavender/pastel accents through source regularization, low-value partition absorption, and repeated compact-detail promotion without changing vivid repeated-dot simplification or the older muted-accent guard.
+- bookended same-hue material preservation: substantial connected same-hue families with dark/mid/light members now protect all three labels during low-value partition absorption and tonal-family collapse. `same_hue_purple_shell_facets` is the new cool-hue guard, while `gradient_elephant_simple` remains collapsed to the accepted two-tone result (`5062` stitches, `4` trims, `8` jumps, no same-surface spans).
 
 Research later:
 
@@ -231,9 +240,46 @@ Out of scope for now:
 - cross-stitch DFS/parity algorithms unless cross-stitch becomes a product mode
 - applique placement/cutting/tackdown workflows until the core generated-icon pipeline is stable
 
-## Current Patch: Local Material-Panel Accounting
+## Current Patch: Bookended Same-Hue Material Preservation
 
-The latest source/color sprint win makes the report stack recognize teapot-like local material clusters that are already handled by the stitch planner. This is a diagnostic/source-policy change only; stitch output is intentionally unchanged.
+The latest source/color sprint win preserves cool same-hue material facets without reopening gradient cleanup or route behavior.
+
+What changed:
+
+- Added uploaded stress fixture `same_hue_purple_shell_facets`, a compact purple material sample with dark, mid, and light same-hue facets.
+- Added `_bookended_same_hue_material_labels` to protect substantial ordered dark/mid/light same-hue families during low-value partition absorption and oversegmented tonal-family collapse.
+- Strict uploaded source policy now requires the purple guard to preserve `#7846c8`, `#965ad2`, `#b496dc`, and `#000000`, maintain separated purple luminance bands, and avoid same-surface material relocations.
+
+Current outcome:
+
+- No-guard baseline: `colors ['#965ad2', '#b496dc', '#000000']`, trims `6`, jumps `20`, stitches `3714`, same-surface trimmed spans `1`.
+- Accepted run: `colors ['#7846c8', '#965ad2', '#b496dc', '#000000']`, trims `4`, jumps `19`, stitches `4620`, same-surface trimmed spans `0`, quality `100`.
+- Same-hue warm canaries pass: acorn, mushroom, shell, and purple all quality `100` with no same-surface trimmed/untrimmed long spans.
+- Gradient elephant remains stable and still collapses disposable gradient bands: `5062` stitches, `8` jumps, `4` trims, quality `100`, no same-surface spans.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_purple_shell_bookend_fix_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_bookend_material_fix_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_bookend_material_fix_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_bookend_material_fix_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_bookend_material_fix_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_bookend_material_fix_20260628/source-triage.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- full uploaded strict source policy plus targeted purple strict guard
+- full generated acceptance `--strict`
+- full source-color acceptance
+- full underpaint benchmark
+
+Verdict:
+
+- Keep. This is a narrow semantic material-color win with deterministic cool-hue coverage and no guarded regression.
+- Next work should target visible strawberry output behavior or add a new real generated/uploaded fixture with semantic color/detail loss. The refreshed triage still has `real_strawberry` as the only source-complexity target; teapot remains `B / mostly_ok`.
+
+## Previous Patch: Local Material-Panel Accounting
+
+This source/color sprint win makes the report stack recognize teapot-like local material clusters that are already handled by the stitch planner. This is a diagnostic/source-policy change only; stitch output is intentionally unchanged.
 
 What changed:
 
