@@ -1666,3 +1666,34 @@ Checkpoint recommendation:
 - The current engine/backend state is stable enough to checkpoint after repo hygiene.
 - Do not stage the whole worktree blindly: `website/embroidery-stitch-backend/`, `website/embroidery-mom/`, tests, example files, tmp artifacts, and a Cloudflare security CSV are all currently untracked.
 - Next best action is to split a clean commit set: stitch engine/backend code and docs first; generated tmp artifacts and sensitive/account CSVs should stay out of version control.
+
+## 2026-06-28 — Uploaded Source/Color Reporting Guard
+
+Target: upload-style source/color acceptance coverage.
+
+Change accepted:
+
+- `scripts/uploaded_art_acceptance.py` now records `sourceColorLayers`, `segmentationColors`, `droppedColors`, `segmentationComponentCount`, and `segmentationTinyComponents`, matching the generated acceptance evidence used by comparison and triage tooling.
+- Strict uploaded source policy now includes a generic source-color-family preservation guard, so broad visible red/green/blue/yellow source families must survive into stitched thread families.
+
+Validation and reports:
+
+- Uploaded strict source policy: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_art_acceptance_source_color_layers_20260628`
+- Uploaded regression comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_source_color_layers_20260628.html`
+- Generated strict acceptance: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_acceptance_source_color_layers_reporting_20260628`
+- Generated regression comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_source_color_layers_reporting_20260628.html`
+- Underpaint benchmark: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_benchmark_source_color_layers_reporting_20260628`
+- Underpaint regression comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_source_color_layers_reporting_20260628.html`
+- Combined source triage: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_source_color_layers_reporting_20260628/source-triage.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+Before/after:
+
+- Stitch geometry is unchanged; this is acceptance/reporting coverage only.
+- Uploaded strict suite remains all status `200`, quality `100`, no unresolved tiny decisions, no detail-fill risk.
+- New source-layer evidence exposes meaningful dropped/noise colors in uploaded reports, for example JPEG badge residue and thick-outline halo pruning.
+
+Next recommended direction:
+
+- Use the richer uploaded report fields to add a real uploaded/generated fixture where a meaningful semantic color is lost or over-fragmented, then fix source normalization or color preservation around that case.

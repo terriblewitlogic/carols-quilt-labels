@@ -4971,3 +4971,41 @@ Validation:
 NEXT: keep adding real generated/uploaded same-hue material examples. The next
 problem is no longer "can this acorn convert"; it is reducing avoidable trims on
 multi-facet material fields without flattening meaningful color structure.
+
+================================================================================
+2026-06-28 — UPLOADED SOURCE/COLOR LAYER REPORTING GUARD
+================================================================================
+
+Target: uploaded-art source/color acceptance coverage.
+
+Accepted change:
+
+- Added uploaded summary fields for source and segmentation evidence:
+  `sourceColorLayers`, `segmentationColors`, `droppedColors`,
+  `segmentationComponentCount`, and `segmentationTinyComponents`.
+- Added a generic strict-source-policy color-family guard for uploaded fixtures,
+  matching the generated acceptance family-preservation check.
+
+Result:
+
+- No stitch geometry change.
+- Full uploaded strict source policy remains passing.
+- Uploaded comparison and source triage reports now have enough evidence to show
+  source color layers and dropped/noise colors without relying on generated-only
+  summary fields.
+
+Validation:
+
+- `tmp/uploaded_art_acceptance_source_color_layers_20260628`
+- `tmp/uploaded_compare_source_color_layers_20260628.html`
+- `tmp/generated_acceptance_source_color_layers_reporting_20260628`
+- `tmp/generated_compare_source_color_layers_reporting_20260628.html`
+- `tmp/underpaint_benchmark_source_color_layers_reporting_20260628`
+- `tmp/underpaint_compare_source_color_layers_reporting_20260628.html`
+- `tmp/source_art_triage_source_color_layers_reporting_20260628/source-triage.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+NEXT: add or identify a real uploaded/generated source-art fixture where a
+semantic color family is dropped or over-fragmented, then make a narrow source
+normalization/color-preservation fix against that fixture.

@@ -789,6 +789,30 @@ The stitch algorithm and product polish are now at parity with hand-digitized pr
 
 ---
 
+## Source/Color Acceptance Reporting — Uploaded Fixtures
+
+The uploaded-art acceptance harness now records the same source/color evidence as generated acceptance:
+
+- `sourceColorLayers`
+- `segmentationColors`
+- `droppedColors`
+- `segmentationComponentCount`
+- `segmentationTinyComponents`
+
+Strict uploaded source policy also has a generic source-color-family preservation guard. This does not change stitch geometry; it makes uploaded source/color regressions visible in comparison reports and source triage before a fixture becomes a user-facing failure.
+
+Validation passed on 2026-06-28:
+
+- full uploaded strict source policy
+- full generated strict acceptance
+- full underpaint benchmark
+- regression-gated uploaded, generated, and underpaint comparisons
+- Python compile/check and TypeScript typecheck
+
+Next source/color work should use this reporting to add or identify a real semantic color-loss fixture, then fix the compiler behavior narrowly.
+
+---
+
 ## Out of scope for this plan
 
 - **Photo-realistic embroidery** (>10 colors with subtle blends) — the auto-conversion pipeline cannot match a hand-digitized photo realistic design. Stay focused on the 4–8 color stylized designs that match the example library.

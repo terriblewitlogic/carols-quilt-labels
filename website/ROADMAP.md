@@ -585,3 +585,17 @@ Phase 4 (Growth)              ← requires all of Phase 3
 ```
 
 The cleanest Phase 2 order: **2C (auth) → 2D (payments) → 2A (label wiring) → 2B (generator wiring) → 2E (ads)**. Auth and payments first because they're the dependency for everything else.
+
+---
+
+## Stitch Backend Checkpoint — 2026-06-28
+
+Recent backend-only source/color tooling improvement:
+
+- Uploaded-art acceptance now includes source color layers, segmentation colors, dropped colors, and segmentation component counts in `summary.json`.
+- Uploaded strict source policy now checks generic source color-family preservation, not only named fixture colors.
+- No public API, frontend, or stitch file-format change.
+
+Validated with full uploaded strict source policy, generated strict acceptance, underpaint benchmark, regression-gated comparisons, Python checks, and TypeScript typecheck.
+
+Next stitch work: add or identify a real generated/uploaded fixture with semantic color loss or over-fragmentation, then make a narrow source compiler fix.
