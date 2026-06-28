@@ -36,6 +36,7 @@ Recent shipped backend changes:
 - Cross-color compact tiny detail motifs are now recognized in source suitability before stitching: `tiny_detail_icon` keeps the same colored dots and stitch output, but source repair opportunities improve `1 -> 0` and suitability improves `candidate 88 -> clean 100`.
 - Repeated compact dark detail fields now use a slightly looser detail-fill density than isolated compact details: `real_strawberry` keeps its seed field readable while reducing stitches `7549 -> 7369`, trims `4 -> 3`, and trimmed preview relocations `2 -> 1`.
 - Teapot-like local material panels inside multi-color detail clusters now use a guarded local serpentine density path: `real_teapot_card` stitches improve `11711 -> 11664`, local-patch-serpentine surfaces improve `3 -> 5`, and jumps/trims/risk gates stay unchanged.
+- Repeated compact motif fields no longer double-count as generic fragmented line-art repair pressure: `real_strawberry` source repair opportunities improve `1 -> 0` with stitch output unchanged.
 
 The remaining quality problems are mostly in generated icon art:
 
@@ -147,6 +148,12 @@ Current useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_local_cluster_density106_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_local_cluster_density106_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_local_cluster_density106_20260627/source-triage.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_strawberry_motif_repair_guard_target_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_strawberry_motif_repair_guard_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_strawberry_motif_repair_guard_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_strawberry_motif_repair_guard_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_strawberry_motif_repair_guard_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_strawberry_motif_repair_guard_20260627/source-triage.html`
 
 ## Research Coverage Map
 
@@ -187,6 +194,7 @@ Implemented now:
 - compact repeated-detail motif accounting: source-design diagnostics now recognize small uniform repeated fields, such as strawberry seed dots, as intentional motif groups. `generated_acceptance.py` exposes motif counts and guards `real_strawberry` so future source policy changes do not reclassify the seed field as generic source complexity.
 - repeated compact-detail density: compact dark detail fields with at least `12` repeated islands now use a guarded `0.68` detail-density multiplier while isolated compact details keep the denser `0.55` multiplier. `real_strawberry` uses this to reduce seed overpacking without dropping colors, changing strategies, or widening routing gates.
 - local cluster material panel density: non-repeated multi-color local detail clusters can mark simple `70-220mm^2` foundation panels as local material panels. Only those panels get the lower local-patch area floor and `1.06` local serpentine density multiplier, improving `real_teapot_card` without broadening the generic local-patch gate or route behavior.
+- repeated compact motif repair accounting: source-design diagnostics now suppress `fragmented_line_art` repair opportunities when the same label is already recognized as a same-color compact detail repeat. `real_strawberry` keeps the same stitches/colors/risks while source repair opportunities improve `1 -> 0`.
 
 Research later:
 
@@ -203,7 +211,49 @@ Out of scope for now:
 - cross-stitch DFS/parity algorithms unless cross-stitch becomes a product mode
 - applique placement/cutting/tackdown workflows until the core generated-icon pipeline is stable
 
-## Current Patch: Local Cluster Material Panel Density
+## Current Patch: Repeated Compact Motif Repair Accounting
+
+The latest source/color sprint win removes a false source-repair warning for intentional repeated compact motif fields. This is a diagnostic/source-policy change only; stitch output is intentionally unchanged.
+
+What changed:
+
+- Source-design diagnostics now find repeated motif groups before final repair-opportunity accounting.
+- When a stitched color label is already classified as `same_color_compact_detail_repeat`, a generic `fragmented_line_art` repair opportunity for that same label is suppressed.
+- `generated_acceptance.py --strict` now guards `real_strawberry` so the compact seed field must keep repeated motif accounting and must not create generic source repair pressure.
+- Pixel cleanup, palette selection, stitch geometry, routing, public APIs, frontend behavior, and file formats are unchanged.
+
+Current outcome:
+
+- `real_strawberry`: source repair opportunities `1 -> 0`.
+- `real_strawberry`: stitch output unchanged at `7369` stitches, `65` jumps, `3` trims, quality `100`.
+- `real_strawberry`: colors stayed `#64d250`, `#f0785a`, `#dc321e`, and `#000000`.
+- `real_strawberry`: repeated motif accounting stayed `2` groups / `26` components, adjusted source component count stayed `20`, and source suitability stayed `candidate 88` with `many_regions`.
+- `real_teapot_card`, uploaded acceptance, generated acceptance, and underpaint benchmark stayed unchanged in full comparisons.
+- Full uploaded, generated, source-color, and underpaint comparisons passed with no guarded status, acceptance issue, quality score, same-surface stitched long-span, same-surface untrimmed jump long-span, high-risk-surface, or broad-route-risk regression.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_strawberry_motif_repair_guard_target_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_strawberry_motif_repair_guard_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_strawberry_motif_repair_guard_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_strawberry_motif_repair_guard_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_strawberry_motif_repair_guard_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_strawberry_motif_repair_guard_20260627/source-triage.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- targeted strawberry and teapot source-color canaries
+- targeted daisy, sunflower, sparrow, tiny-detail, and thick-outline canaries
+- full uploaded strict source policy
+- full generated acceptance `--strict`
+- full source-color acceptance
+- full underpaint benchmark
+
+Verdict:
+
+- Keep. This makes source diagnostics agree with the repeated motif classifier without hiding remaining real source complexity.
+- Next work should not spend more time on strawberry diagnostics unless output changes are possible. The best source/color target remains teapot-like over-fragmented material art or adding a new real generated/uploaded fixture with visible semantic color loss.
+
+## Previous Patch: Local Cluster Material Panel Density
 
 The latest source/color sprint win reduces stitch clutter in teapot-like local material panels while keeping repeated motifs, isolated details, routing, and source cleanup stable.
 
@@ -253,7 +303,7 @@ Verdict:
 - Keep. This is a narrow teapot/source-complexity output-density win with no route broadening and no broad-suite metric churn.
 - Next work should keep source/color focus. The next likely win is source simplification or semantic material grouping for over-fragmented real generated art, not more generic routing or local-patch gate widening.
 
-## Previous Patch: Repeated Compact Detail Density
+## Earlier Patch: Repeated Compact Detail Density
 
 The latest source/color sprint win reduces overpacking in intentional repeated dark detail fields while keeping isolated icon details dense enough to read.
 

@@ -13,6 +13,53 @@ This is not a full changelog. It is a decision log for approaches that worked, f
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_acceptance_*`
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/regression_*`
 
+## Accepted Source Policy: Repeated Compact Motif Repair Accounting
+
+Date: 2026-06-27
+
+Goal:
+
+- Stop double-counting the strawberry seed field as both an intentional repeated compact motif and generic fragmented line-art repair pressure.
+- Keep the remaining strawberry source-complexity signal honest: many broad regions should still be visible in triage.
+- Avoid stitch-output, palette, routing, source-cleanup, public API, frontend, and file-format changes.
+
+Change:
+
+- Source diagnostics now compute repeated motif groups before final repair-opportunity accounting.
+- `fragmented_line_art` repair opportunities are suppressed when the same stitched label is already classified as `same_color_compact_detail_repeat`.
+- `generated_acceptance.py --strict` now guards `real_strawberry` so repeated motif accounting remains present and source repair opportunities stay `0`.
+
+Result:
+
+- `real_strawberry` source repair opportunities improved `1 -> 0`.
+- `real_strawberry` stitch output stayed unchanged: `7369` stitches, `65` jumps, `3` trims, quality `100`.
+- Colors stayed `#64d250`, `#f0785a`, `#dc321e`, and `#000000`.
+- Repeated motif accounting stayed `2` groups / `26` components.
+- Adjusted source component count stayed `20`; source suitability stayed `candidate 88` with `many_regions`, preserving the real complexity warning.
+- Full uploaded, generated, source-color, and underpaint regression-gated comparisons passed with no guarded regression; only source-color `real_strawberry` changed.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_strawberry_motif_repair_guard_target_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_strawberry_motif_repair_guard_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_strawberry_motif_repair_guard_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_strawberry_motif_repair_guard_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_strawberry_motif_repair_guard_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_strawberry_motif_repair_guard_20260627/source-triage.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- targeted strawberry and teapot source-color canaries
+- targeted daisy, sunflower, sparrow, tiny-detail, and thick-outline canaries
+- full uploaded strict source policy
+- full generated acceptance `--strict`
+- full source-color acceptance
+- full underpaint benchmark
+
+Verdict:
+
+- Keep. This is a source-policy correctness fix that removes false repair pressure without laundering real source complexity.
+- Next work should seek either a visible source/color behavior win on teapot-like over-fragmented material art, or add a new real fixture where semantic color loss is visible and actionable.
+
 ## Accepted Stitch Output: Local Cluster Material Panel Density
 
 Date: 2026-06-27

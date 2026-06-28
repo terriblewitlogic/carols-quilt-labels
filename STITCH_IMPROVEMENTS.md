@@ -130,16 +130,30 @@ Recent shipped work since the original pro-design comparison:
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_local_cluster_density106_20260627.html`
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_local_cluster_density106_20260627.html`
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_local_cluster_density106_20260627/source-triage.html`
+- Added repeated compact motif repair accounting:
+  - source diagnostics suppress generic `fragmented_line_art` repair opportunities when the same stitched label is already classified as a same-color compact detail repeat
+  - `real_strawberry` source repair opportunities improved `1 -> 0`
+  - stitch output stayed unchanged at `7369` stitches, `65` jumps, `3` trims, quality `100`, with preserved green/red/orange/black colors
+  - repeated motif accounting stayed `2` groups / `26` components, while source suitability intentionally stayed `candidate 88` with `many_regions`
+  - full source-color/uploaded/generated/underpaint comparisons passed without guarded quality, acceptance, stitched-span, high-risk, or broad-route regressions
+  - validation included `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`, `npm run typecheck`, full uploaded strict source policy, full generated acceptance `--strict`, full source-color acceptance, full underpaint benchmark, and regression-gated compare reports:
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_strawberry_motif_repair_guard_target_20260627.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_strawberry_motif_repair_guard_20260627.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_strawberry_motif_repair_guard_20260627.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_strawberry_motif_repair_guard_20260627.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_strawberry_motif_repair_guard_20260627.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_strawberry_motif_repair_guard_20260627/source-triage.html`
 
 Current next-best stitch work:
 
-1. Continue source/color behavior work after the large-outline density, local-patch fill, cross-color tiny-detail accounting, repeated-detail density, and local-cluster material panel wins; `real_teapot_card` should remain a source-complexity guard unless a future source simplifier can reduce disconnected color pieces without losing intent.
+1. Continue source/color behavior work after the large-outline density, local-patch fill, cross-color tiny-detail accounting, repeated-detail density, local-cluster material panel, and repeated-motif repair-accounting wins; `real_teapot_card` should remain a source-complexity guard unless a future source simplifier can reduce disconnected color pieces without losing intent.
 2. Preserve meaningful small accent colors while continuing to drop/absorb noisy fragments under strict source-policy checks; muted lavender/pink, cross-color compact dots, compact repeated-detail, teapot local-detail-cluster accounting, sparse outline-halo accounting, and stitched near-white foreground accounting are now in place.
 3. Expand color/tone preservation coverage with real generated/uploaded examples, especially same-hue materials that still over-fragment, collapse into the wrong thread family, or create route pressure after the right colors are preserved.
 4. Keep route broadening paused unless a comparison report shows a real stitched-span or same-surface relocation regression; the current route work is narrow and stable.
 5. Use `compare_generated_runs.py ... --fail-on-regression` for every keep/revert decision.
-6. Do not broaden the local-patch-serpentine gate based only on teapot stitch-count micro-wins; the generic `70mm^2` experiment churned daisy jumps and was rejected. Future teapot wins need source/material semantics or source simplification, not a wider generic fill path.
-7. Revisit broad-underpaint/lane routing only when comparison reports show actual stitched-span risk.
+6. Do not spend more time on strawberry diagnostics unless output behavior can improve; the current false source-repair pressure is resolved while the remaining many-region warning is real.
+7. Do not broaden the local-patch-serpentine gate based only on teapot stitch-count micro-wins; the generic `70mm^2` experiment churned daisy jumps and was rejected. Future teapot wins need source/material semantics or source simplification, not a wider generic fill path.
+8. Revisit broad-underpaint/lane routing only when comparison reports show actual stitched-span risk.
 
 Research review status:
 
