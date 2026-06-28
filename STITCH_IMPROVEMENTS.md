@@ -1,6 +1,6 @@
 # Stitch Algorithm Improvement Plan
 
-## Current status — 2026-06-27
+## Current status — 2026-06-28
 
 This document is the long-range pro-quality plan. The active day-to-day backlog now lives in:
 
@@ -167,16 +167,29 @@ Recent shipped work since the original pro-design comparison:
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_black_stroke_fix_20260628.html`
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_black_stroke_fix_20260628.html`
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_black_stroke_fix_20260628.html`
+- Improved satin-width local material panels:
+  - local material panels in teapot-like multi-color detail clusters can now attempt the existing proved-safe local serpentine path even when geometry is satin-width
+  - `surface-plan.json` records local-patch rejection reasons for material panels, while stem-like, holed, silhouette, center-disk, and untagged satin-zone surfaces stay blocked
+  - `real_teapot_card` fill-coherence risk improved `1 -> 0`
+  - local-patch-serpentine material panels improved `5 -> 8`, scan/solid-scan material panels reduced `4 -> 1`, and stitches improved `11664 -> 11612`
+  - jumps stayed `86`, trims stayed `14`, quality stayed `100`, and same-surface stitched/untrimmed long-span, high-risk, and broad-route-risk gates stayed `0`
+  - full source-color/uploaded/generated/underpaint comparisons passed without guarded quality, acceptance, stitched-span, high-risk, or broad-route regressions
+  - validation included `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`, `npm run typecheck`, full uploaded strict source policy, full generated acceptance `--strict`, full source-color acceptance, full underpaint benchmark, and regression-gated compare reports:
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_satin_local_patch_20260628.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_satin_local_patch_20260628.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_satin_local_patch_20260628.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_satin_local_patch_20260628.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_satin_local_patch_20260628/source-triage.html`
 
 Current next-best stitch work:
 
-1. Continue source/color behavior work after the large-outline density, local-patch fill, cross-color tiny-detail accounting, repeated-detail density, local-cluster material panel, repeated-motif repair-accounting, material-panel accounting, and black-stroke retention wins; `real_teapot_card` is now mostly-ok when material panels are accounted, so the next accepted win should improve visible output or add a new real semantic color/detail-loss fixture.
+1. Continue source/color behavior work after the large-outline density, local-patch fill, cross-color tiny-detail accounting, repeated-detail density, local-cluster material panel, repeated-motif repair-accounting, material-panel accounting, black-stroke retention, and satin-width material-panel wins; `real_teapot_card` now has its fill-coherence risk cleared, so the next accepted win should improve a different visible output problem or add a new real semantic color/detail-loss fixture.
 2. Preserve meaningful small accent colors while continuing to drop/absorb noisy fragments under strict source-policy checks; muted lavender/pink, cross-color compact dots, compact repeated-detail, teapot local-detail-cluster accounting, sparse outline-halo accounting, and stitched near-white foreground accounting are now in place.
 3. Expand color/tone preservation coverage with real generated/uploaded examples, especially same-hue materials that still over-fragment, collapse into the wrong thread family, or create route pressure after the right colors are preserved.
 4. Keep route broadening paused unless a comparison report shows a real stitched-span or same-surface relocation regression; the current route work is narrow and stable.
 5. Use `compare_generated_runs.py ... --fail-on-regression` for every keep/revert decision.
 6. Do not spend more time on strawberry diagnostics unless output behavior can improve; the current false source-repair pressure is resolved while the remaining many-region warning is real.
-7. Do not spend more time on teapot diagnostics unless output behavior can improve; material-panel accounting now removes the false source-repair blocker while leaving visual-review evidence visible.
+7. Do not spend more time on teapot diagnostics unless output behavior can improve beyond the cleared fill-coherence risk; material-panel accounting and satin-width local-patch fill now remove the false source-repair blocker and clean the remaining flagged panel clutter.
 8. Do not broaden the local-patch-serpentine gate based only on teapot stitch-count micro-wins; the generic `70mm^2` experiment churned daisy jumps and was rejected. Future teapot wins need source/material semantics or source simplification, not a wider generic fill path.
 9. Revisit broad-underpaint/lane routing only when comparison reports show actual stitched-span risk.
 
@@ -820,6 +833,31 @@ Validation passed on 2026-06-28:
 - Python compile/check and TypeScript typecheck
 
 Next source/color work should use this reporting to add or identify a real semantic color-loss fixture, then fix the compiler behavior narrowly.
+
+---
+
+## Satin-Width Local Material Panels
+
+The teapot source-color fixture now clears its remaining fill-coherence risk without changing public interfaces or broad route behavior. Local material panels inside multi-color detail clusters may try the already scored local serpentine path even when the geometry is satin-width; non-material satin zones and stem-like panels stay blocked.
+
+Accepted 2026-06-28 result:
+
+- `real_teapot_card` fill-coherence risk `1 -> 0`
+- local material-panel serpentine count `5 -> 8`
+- scan/solid-scan material panels `4 -> 1`
+- stitches `11664 -> 11612`
+- jumps `86 -> 86`, trims `14 -> 14`, quality `100`
+- same-surface stitched/untrimmed long-span, high-risk, and broad-route-risk gates stayed `0`
+
+Validation passed with full source-color, uploaded strict source policy, generated strict acceptance, underpaint benchmark, Python checks, TypeScript typecheck, and regression-gated comparisons:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_satin_local_patch_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_satin_local_patch_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_satin_local_patch_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_satin_local_patch_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_satin_local_patch_20260628/source-triage.html`
+
+Next source/color work should move beyond teapot unless there is a new visible output failure; the better target is a real uploaded/generated semantic color-loss, same-hue material-collapse, or over-fragmented detail fixture.
 
 ---
 

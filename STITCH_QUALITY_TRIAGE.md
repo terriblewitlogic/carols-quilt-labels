@@ -1,6 +1,6 @@
 # Stitch Quality Triage
 
-Last updated: 2026-06-27
+Last updated: 2026-06-28
 
 ## Current Read
 
@@ -37,6 +37,7 @@ Recent shipped backend changes:
 - Repeated compact dark detail fields now use a slightly looser detail-fill density than isolated compact details: `real_strawberry` keeps its seed field readable while reducing stitches `7549 -> 7369`, trims `4 -> 3`, and trimmed preview relocations `2 -> 1`.
 - Teapot-like local material panels inside multi-color detail clusters now use a guarded local serpentine density path: `real_teapot_card` stitches improve `11711 -> 11664`, local-patch-serpentine surfaces improve `3 -> 5`, and jumps/trims/risk gates stay unchanged.
 - Repeated compact motif fields no longer double-count as generic fragmented line-art repair pressure: `real_strawberry` source repair opportunities improve `1 -> 0` with stitch output unchanged.
+- Teapot-like satin-width local material panels can now still try the proved-safe local serpentine path when they are not stems/holes/silhouettes: `real_teapot_card` fill-coherence risk improves `1 -> 0`, local-patch-serpentine panels improve `5 -> 8`, stitches improve `11664 -> 11612`, and trims/jumps/risk gates stay unchanged.
 
 The remaining quality problems are mostly in generated icon art:
 
@@ -160,6 +161,10 @@ Current useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_material_panel_accounting_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_material_panel_accounting_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_material_panel_accounting_20260627/source-triage.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_satin_local_patch_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_satin_local_patch_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_satin_local_patch_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_satin_local_patch_20260628.html`
 
 ## Research Coverage Map
 
@@ -1737,3 +1742,42 @@ Validation and reports:
 Next recommended direction:
 
 - Continue source/color behavior work with real generated or uploaded examples. The next useful target should be semantic color/detail loss or over-fragmentation in a user-like source, not another diagnostic-only accounting change.
+
+## 2026-06-28 — Satin-Width Local Material Panel Fill
+
+Target: `real_teapot_card`.
+
+Change accepted:
+
+- Added local-patch serpentine rejection diagnostics to `surface-plan.json` so local material panels explain why a continuous patch path was not selected.
+- Allowed local material panels inside teapot-like multi-color detail clusters to attempt the existing proved-safe local serpentine path even when the geometry is satin-width.
+- Kept stem-like, holed, silhouette, center-disk, and non-material satin-zone surfaces blocked from this exception.
+
+Before/after:
+
+- `sourceLocalMaterialPanelSerpentineSurfaceCount`: `5 -> 8`
+- `sourceLocalMaterialPanelScanSurfaceCount`: `4 -> 1`
+- `fillCoherenceRiskSurfaces`: `1 -> 0`
+- `stitchCount`: `11664 -> 11612`
+- `jumpCount`: `86 -> 86`
+- `trimCount`: `14 -> 14`
+- quality stayed `100`
+- same-surface long spans, stitched long spans, untrimmed jump long spans, high-risk surfaces, and broad-route-risk surfaces stayed `0`
+
+Validation and reports:
+
+- Targeted diagnostic comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_teapot_satin_local_patch_20260628.html`
+- Full source-color comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_satin_local_patch_20260628.html`
+- Uploaded strict source policy: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_art_acceptance_satin_local_patch_20260628`
+- Uploaded comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_satin_local_patch_20260628.html`
+- Generated strict acceptance: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_acceptance_satin_local_patch_20260628`
+- Generated comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_satin_local_patch_20260628.html`
+- Full underpaint benchmark: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_benchmark_satin_local_patch_20260628`
+- Underpaint comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_satin_local_patch_20260628.html`
+- Combined source triage: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_satin_local_patch_20260628/source-triage.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+Next recommended direction:
+
+- Continue source/color behavior work, but stop mining teapot unless the next change visibly improves output beyond the now-cleared fill-coherence issue. Best next target is a real uploaded/generated fixture with semantic color loss, same-hue material collapse, or stubborn over-fragmented detail that survives current guards.
