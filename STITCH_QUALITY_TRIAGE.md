@@ -1835,3 +1835,48 @@ Validation and reports:
 Next recommended direction:
 
 - Continue source/color behavior work, but stop mining teapot unless the next change visibly improves output beyond the now-cleared fill-coherence issue. Best next target is a real uploaded/generated fixture with semantic color loss, same-hue material collapse, or stubborn over-fragmented detail that survives current guards.
+
+## 2026-06-28 — Dark Repeated Detail Policy Diagnostics
+
+Target: `real_strawberry`.
+
+Change accepted:
+
+- Generated acceptance now includes tiny/detail policy fields, matching uploaded-art acceptance.
+- The strawberry source-color guard now requires the black seed field to be planner-accounted as compact repeated detail.
+- The planner can classify compact dark detail islands inside the accent/outline label without promoting the broad black outline.
+- Uniform repeated fields no longer take an extra detail-budget penalty just because their compact details are explicitly promoted.
+
+Before/after:
+
+- `real_strawberry` `tinyPolicyPromotedCompactCount`: absent in old generated summary fields -> `30`
+- `tinySourceDetailDecisionCounts`: now includes `repeated_compact_detail: 30`
+- `stitchCount`: `7369 -> 7369`
+- `jumpCount`: `65 -> 65`
+- `trimCount`: `3 -> 3`
+- quality stayed `100`
+- same-surface stitched/untrimmed long-span, high-risk, and broad-route-risk gates stayed `0`
+
+Validation and reports:
+
+- Source-color strict acceptance: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_acceptance_dark_repeat_policy_20260628`
+- Source-color comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_dark_repeat_policy_20260628.html`
+- Uploaded strict source policy: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_art_acceptance_dark_repeat_policy_20260628`
+- Uploaded comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_dark_repeat_policy_20260628.html`
+- Generated strict acceptance: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_acceptance_dark_repeat_policy_20260628`
+- Generated comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_dark_repeat_policy_20260628.html`
+- Full underpaint benchmark: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_benchmark_dark_repeat_policy_20260628`
+- Underpaint comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_dark_repeat_policy_20260628.html`
+- Triage review: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_next_source_color_20260628/source-triage.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+Rejected next targets:
+
+- `real_teapot_card`: dropped pale green is a low-value tonal highlight; preserving it would likely add thread/color complexity without improving the preview.
+- `leaf_single_smooth`: dropped gray/near-white layers are halo/fabric texture.
+- `tiny_detail_icon`: excess-dot simplification is intentional and guarded.
+
+Next recommended direction:
+
+- Find or add a realistic generated/uploaded source fixture with visible semantic color/detail loss. The next source/color backend change should improve output, not only diagnostics.

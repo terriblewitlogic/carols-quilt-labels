@@ -612,6 +612,7 @@ Recent backend-only source/color tooling improvement:
 - Uploaded strict source policy now checks generic source color-family preservation, not only named fixture colors.
 - Neutral grayscale alias pruning now preserves long black source strokes against white/near-white cutout labels. `synthetic_underpaint_cutout_lane_trap` now stitches black (`['#2850c8', '#ffffff'] -> ['#2850c8', '#ffffff', '#000000']`), removes the black dropped-color diagnostic, improves trims `7 -> 3`, improves jumps `15 -> 12`, and removes the same-surface long span `1 -> 0` while keeping quality `100` and high-risk/broad-route-risk surfaces at `0`.
 - Teapot-like satin-width local material panels now use the guarded local serpentine path when safe. `real_teapot_card` clears fill-coherence risk `1 -> 0`, local material-panel serpentine count improves `5 -> 8`, stitches improve `11664 -> 11612`, and jumps/trims stay `86 / 14` with quality `100`.
+- Generated/source-color acceptance now reports tiny/detail policy fields and guards the strawberry seed fixture directly. `real_strawberry` now records the black seed field as `tinyPolicyPromotedCompactCount = 30` / `repeated_compact_detail: 30` while stitches, jumps, trims, quality, and long-span risk stay unchanged.
 - No public API, frontend, or stitch file-format change.
 
 Validated with full uploaded strict source policy, generated strict acceptance, underpaint benchmark, regression-gated comparisons, Python checks, and TypeScript typecheck.
@@ -626,5 +627,9 @@ Current 2026-06-28 behavior-win reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_satin_local_patch_20260628.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_satin_local_patch_20260628.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_satin_local_patch_20260628/source-triage.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_dark_repeat_policy_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_dark_repeat_policy_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_dark_repeat_policy_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_dark_repeat_policy_20260628.html`
 
-Next stitch work: add or identify a real generated/uploaded fixture with semantic color loss, same-hue material collapse, or over-fragmentation, then make another narrow source compiler fix.
+Next stitch work: add or identify a real generated/uploaded fixture with visible semantic color loss, same-hue material collapse, or over-fragmentation, then make another narrow source compiler fix. Avoid further teapot/leaf/tiny-dot mining unless a new visual regression appears.

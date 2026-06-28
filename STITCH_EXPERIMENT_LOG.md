@@ -5227,3 +5227,81 @@ NEXT: keep source/color behavior work focused on real generated/uploaded source
 examples. The reporting is now good enough to catch semantic dropped colors; the
 next accepted win should improve visible output or add a realistic fixture that
 exposes a user-like source/color failure.
+
+================================================================================
+2026-06-28 — DARK REPEATED DETAIL POLICY DIAGNOSTICS
+================================================================================
+
+Target: `real_strawberry`.
+
+Finding:
+
+- Source diagnostics already recognized the strawberry seed field as a compact
+  repeated motif, but surface planning did not record those black seed islands
+  as `repeated_compact_detail` because the black label is also the accent/outline
+  label.
+- Stitches were already stable: the existing repeated accent density rule kept
+  the seed output unchanged and risk-free. This pass is therefore an internal
+  diagnostic/guard improvement, not a visible stitch-output win.
+
+Change:
+
+- Generated acceptance now reports the same tiny/detail policy fields used by
+  uploaded acceptance.
+- `real_strawberry` generated/source-color acceptance now requires the compact
+  seed field to appear in planner policy (`tinyPolicyPromotedCompactCount >= 16`).
+- The repeated compact detail planner now lets dark accent labels through a
+  component-level seed/dot filter, so a broad black outline remains untouched
+  while compact black seed islands are annotated as repeated detail.
+- Detail-budget scoring no longer penalizes promoted compact details when the
+  field is already classified as uniform.
+
+Accepted result:
+
+- `real_strawberry` `tinyPolicyPromotedCompactCount`: absent in old generated
+  summary fields -> `30`
+- `tinySourceDetailDecisionCounts`: now includes `repeated_compact_detail: 30`
+- `stitchCount`: `7369 -> 7369`
+- `jumpCount`: `65 -> 65`
+- `trimCount`: `3 -> 3`
+- quality stayed `100`
+- same-surface long spans, same-surface stitched long spans, same-surface
+  untrimmed jump long spans, high-risk surfaces, and broad-route-risk surfaces
+  stayed `0`
+
+Rejected visual/source experiments:
+
+- `real_teapot_card`: preserving dropped pale green `#96dc82` would add a color
+  stop for a subtle tonal highlight; visual preview already carries the green
+  material cleanly.
+- `leaf_single_smooth`: dropped gray/near-white layers are fabric/halo texture,
+  not meaningful leaf material.
+- `tiny_detail_icon`: simplification of excess dots remains intentional and
+  guarded by uploaded strict source policy.
+
+Validation:
+
+- full source-color strict acceptance:
+  `tmp/source_color_acceptance_dark_repeat_policy_20260628`
+- source-color comparison:
+  `tmp/source_color_compare_dark_repeat_policy_20260628.html`
+- full uploaded strict source policy:
+  `tmp/uploaded_art_acceptance_dark_repeat_policy_20260628`
+- uploaded comparison:
+  `tmp/uploaded_compare_dark_repeat_policy_20260628.html`
+- full generated strict acceptance:
+  `tmp/generated_acceptance_dark_repeat_policy_20260628`
+- generated comparison:
+  `tmp/generated_compare_dark_repeat_policy_20260628.html`
+- full underpaint benchmark:
+  `tmp/underpaint_benchmark_dark_repeat_policy_20260628`
+- underpaint comparison:
+  `tmp/underpaint_compare_dark_repeat_policy_20260628.html`
+- triage review:
+  `tmp/source_art_triage_next_source_color_20260628/source-triage.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+NEXT: find a real generated/uploaded source-art case with visible semantic
+color/detail loss or over-fragmentation. Do not mine teapot, leaf, or
+tiny-detail-icon further unless a new visual regression appears.

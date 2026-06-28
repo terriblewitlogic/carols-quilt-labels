@@ -887,6 +887,39 @@ Next source/color work should move beyond teapot unless there is a new visible o
 
 ---
 
+## Dark Repeated Detail Policy Diagnostics
+
+Generated/source-color acceptance now exposes tiny/detail planner policy fields
+and guards the strawberry seed fixture more directly.
+
+Accepted 2026-06-28 result:
+
+- `real_strawberry` black seed field is planner-accounted as repeated compact detail:
+  `tinyPolicyPromotedCompactCount = 30`
+- `tinySourceDetailDecisionCounts` includes `repeated_compact_detail: 30`
+- broad black outline remains an accent outline and is not promoted
+- stitches `7369 -> 7369`, jumps `65 -> 65`, trims `3 -> 3`
+- quality stayed `100`
+- same-surface stitched/untrimmed long-span, high-risk, and broad-route-risk gates stayed `0`
+
+This is intentionally a diagnostic/guard improvement. Visual inspection rejected
+preserving the teapot's pale green tonal highlight, the leaf's gray/near-white
+halo, and reversing tiny-detail-icon simplification.
+
+Validation passed with full source-color strict acceptance, uploaded strict source
+policy, generated strict acceptance, underpaint benchmark, Python checks,
+TypeScript typecheck, and regression-gated comparisons:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_dark_repeat_policy_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_dark_repeat_policy_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_dark_repeat_policy_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_dark_repeat_policy_20260628.html`
+
+Next source/color work should add or identify a realistic fixture with visible
+semantic color/detail loss, then make a narrow compiler behavior fix.
+
+---
+
 ## Out of scope for this plan
 
 - **Photo-realistic embroidery** (>10 colors with subtle blends) — the auto-conversion pipeline cannot match a hand-digitized photo realistic design. Stay focused on the 4–8 color stylized designs that match the example library.
