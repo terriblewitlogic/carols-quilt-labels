@@ -13,6 +13,59 @@ This is not a full changelog. It is a decision log for approaches that worked, f
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_acceptance_*`
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/regression_*`
 
+## Accepted Stitch Output: Repeated Compact Detail Density
+
+Date: 2026-06-27
+
+Goal:
+
+- Reduce overpacking in intentional repeated dark detail fields, starting with the strawberry seed fixture.
+- Keep isolated compact details, pupils, and strict tiny-dot source guards unchanged.
+- Avoid routing, source-cleanup, public API, frontend, and file-format changes.
+
+Change:
+
+- `_process_polygon` now accepts a `repeated_detail_field` signal for forced compact detail fills.
+- The signal is gated to accent details with forced detail fill and at least `12` repeated same-color islands.
+- Repeated compact detail fields use a `0.68` density multiplier; isolated compact details keep the existing `0.55` multiplier.
+- `surface-plan.json` records `repeatedDetailDensityMult` / `repeatedDetailDensityMults` when the repeated-detail density path is active.
+
+Result:
+
+- `real_strawberry` stitches improved `7549 -> 7369`.
+- `real_strawberry` trims improved `4 -> 3`; jumps stayed `65`.
+- `real_strawberry` cross-surface trimmed preview relocations improved `2 -> 1`.
+- `real_strawberry` quality stayed `100`, colors stayed `#64d250`, `#f0785a`, `#dc321e`, and `#000000`, and fill strategy counts stayed unchanged.
+- `real_teapot_card` stayed unchanged at `11711` stitches, `86` jumps, `14` trims, quality `100`, and `3` local-patch-serpentine surfaces.
+- `tiny_detail_icon`, `bee_simple`, and `sparrow_flat_app_icon` stayed unchanged in targeted canaries.
+- Full uploaded, generated, source-color, and underpaint regression-gated comparisons passed with no guarded regression.
+
+Rejected variant:
+
+- Lowering the local-patch-serpentine area gate from `90mm^2` to `70mm^2` gave negligible teapot improvement (`11711 -> 11709` stitches) but changed `flower_daisy_simple` from `2444` to `2435` stitches and raised jumps `26 -> 27`. Rejected and reverted.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_repeated_detail_density_target_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_repeated_detail_density_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_repeated_detail_density_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_repeated_detail_density_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_repeated_detail_density_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_repeated_detail_density_20260627/source-triage.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- targeted strawberry source-color acceptance
+- targeted `tiny_detail_icon`, `bee_simple`, and `sparrow_flat_app_icon` canaries
+- full uploaded strict source policy
+- full generated acceptance `--strict`
+- full source-color acceptance `--strict`
+- full underpaint benchmark
+
+Verdict:
+
+- Keep. This is a narrow visible output-density win for repeated source details without moving isolated details or route behavior.
+- Next work should continue source/color behavior from the refreshed triage report. Treat `real_teapot_card` as the main source-complexity guard, and only revisit local-patch routing if the target can be gated by stronger repeated-motif/source semantics.
+
 ## Accepted Source Policy: Cross-Color Compact Tiny Detail Accounting
 
 Date: 2026-06-27

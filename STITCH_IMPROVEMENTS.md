@@ -106,15 +106,24 @@ Recent shipped work since the original pro-design comparison:
   - source suitability improved `candidate 88 -> clean 100`
   - repeated source motif components improved `0 -> 9`, while stitch output stayed unchanged at `3520` stitches, `23` jumps, and `2` trims
   - full source-color/uploaded/generated/underpaint comparisons passed without guarded quality, acceptance, stitched-span, high-risk, or broad-route regressions
+- Reduced repeated compact-detail overpacking:
+  - same-color compact dark detail fields with at least `12` repeated islands now use a `0.68` detail-density multiplier, while isolated compact details keep the denser `0.55` multiplier
+  - `real_strawberry` stitches improved `7549 -> 7369`
+  - trims improved `4 -> 3`, jumps stayed `65`, and cross-surface trimmed preview relocations improved `2 -> 1`
+  - colors and fill strategy counts stayed unchanged, including `compact_accent_fill: 30` and `compact_satin_column: 30`
+  - `real_teapot_card`, `tiny_detail_icon`, `bee_simple`, and `sparrow_flat_app_icon` stayed unchanged under targeted guards
+  - full source-color/uploaded/generated/underpaint comparisons passed without guarded quality, acceptance, stitched-span, high-risk, or broad-route regressions
+  - validation included `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`, `npm run typecheck`, targeted strawberry/tiny-detail/bee/sparrow canaries, full uploaded strict source policy, full generated acceptance `--strict`, full source-color acceptance, full underpaint benchmark, and regression-gated compare reports
 
 Current next-best stitch work:
 
-1. Continue source/color behavior work after the large-outline density, local-patch fill, and cross-color tiny-detail accounting wins; `real_teapot_card` should remain a source-complexity guard unless a future source simplifier can reduce disconnected color pieces without losing intent.
+1. Continue source/color behavior work after the large-outline density, local-patch fill, cross-color tiny-detail accounting, and repeated-detail density wins; `real_teapot_card` should remain a source-complexity guard unless a future source simplifier can reduce disconnected color pieces without losing intent.
 2. Preserve meaningful small accent colors while continuing to drop/absorb noisy fragments under strict source-policy checks; muted lavender/pink, cross-color compact dots, compact repeated-detail, teapot local-detail-cluster accounting, sparse outline-halo accounting, and stitched near-white foreground accounting are now in place.
 3. Expand color/tone preservation coverage with real generated/uploaded examples, especially same-hue materials that still over-fragment, collapse into the wrong thread family, or create route pressure after the right colors are preserved.
 4. Keep route broadening paused unless a comparison report shows a real stitched-span or same-surface relocation regression; the current route work is narrow and stable.
 5. Use `compare_generated_runs.py ... --fail-on-regression` for every keep/revert decision.
-6. Revisit broad-underpaint/lane routing only when comparison reports show actual stitched-span risk.
+6. Do not broaden the local-patch-serpentine gate based only on teapot stitch-count micro-wins; the `70mm^2` experiment churned daisy jumps and was rejected.
+7. Revisit broad-underpaint/lane routing only when comparison reports show actual stitched-span risk.
 
 Research review status:
 
@@ -167,6 +176,12 @@ Latest accepted route report set:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_cross_color_tiny_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_cross_color_tiny_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_cross_color_tiny_20260627/source-triage.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_repeated_detail_density_target_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_repeated_detail_density_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_repeated_detail_density_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_repeated_detail_density_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_repeated_detail_density_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_repeated_detail_density_20260627/source-triage.html`
 
 ---
 

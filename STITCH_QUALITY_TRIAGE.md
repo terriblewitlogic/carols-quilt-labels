@@ -34,6 +34,7 @@ Recent shipped backend changes:
 - Large dark stroke-satin outline networks now use a wider density multiplier when the source stroke area is broad, reducing thread buildup on generated/uploaded icon line art while keeping risk gates clean.
 - Simple medium local material patches can now use a proved-safe serpentine fill when they have no holes, structural sensitivity, silhouette role, stem/center-disk role, or satin-zone role. This trims small fill clutter in teapot, flower, sparrow, and structural-facet fixtures while keeping jump/trim and long-span risk gates clean.
 - Cross-color compact tiny detail motifs are now recognized in source suitability before stitching: `tiny_detail_icon` keeps the same colored dots and stitch output, but source repair opportunities improve `1 -> 0` and suitability improves `candidate 88 -> clean 100`.
+- Repeated compact dark detail fields now use a slightly looser detail-fill density than isolated compact details: `real_strawberry` keeps its seed field readable while reducing stitches `7549 -> 7369`, trims `4 -> 3`, and trimmed preview relocations `2 -> 1`.
 
 The remaining quality problems are mostly in generated icon art:
 
@@ -133,6 +134,12 @@ Current useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_cross_color_tiny_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_cross_color_tiny_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_cross_color_tiny_20260627/source-triage.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_repeated_detail_density_target_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_repeated_detail_density_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_repeated_detail_density_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_repeated_detail_density_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_repeated_detail_density_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_repeated_detail_density_20260627/source-triage.html`
 
 ## Research Coverage Map
 
@@ -171,6 +178,7 @@ Implemented now:
 - source/color grading calibration: `grade_stitch_quality.py` now discounts heavy source-normalization pressure only when source cleanup is explicitly noise-removal, quality is high, no meaningful colors were dropped, and there is no stitched/long-span/fill risk.
 - real source/color fixture lane: `fixtures/source_color` plus `npm run acceptance:source-color` runs file-backed generated/uploaded-style troublemakers outside the default generated suite. The first cases are `real_teapot_card` and `real_strawberry`.
 - compact repeated-detail motif accounting: source-design diagnostics now recognize small uniform repeated fields, such as strawberry seed dots, as intentional motif groups. `generated_acceptance.py` exposes motif counts and guards `real_strawberry` so future source policy changes do not reclassify the seed field as generic source complexity.
+- repeated compact-detail density: compact dark detail fields with at least `12` repeated islands now use a guarded `0.68` detail-density multiplier while isolated compact details keep the denser `0.55` multiplier. `real_strawberry` uses this to reduce seed overpacking without dropping colors, changing strategies, or widening routing gates.
 
 Research later:
 
@@ -187,7 +195,49 @@ Out of scope for now:
 - cross-stitch DFS/parity algorithms unless cross-stitch becomes a product mode
 - applique placement/cutting/tackdown workflows until the core generated-icon pipeline is stable
 
-## Current Patch: Cross-Color Compact Tiny Detail Accounting
+## Current Patch: Repeated Compact Detail Density
+
+The latest source/color sprint win reduces overpacking in intentional repeated dark detail fields while keeping isolated icon details dense enough to read.
+
+What changed:
+
+- Compact forced-detail fills now receive a `repeated_detail_field` signal only when they are accent details, use forced detail fill, and belong to a same-color repeated island field with at least `12` islands.
+- Repeated compact detail fields use a `0.68` density multiplier instead of the isolated-detail `0.55` multiplier.
+- Isolated pupils, eyes, and the strict `tiny_detail_icon` dots keep the previous denser behavior.
+- `surface-plan.json` exposes `repeatedDetailDensityMult` / `repeatedDetailDensityMults` for affected surfaces.
+- Routing, source cleanup, public APIs, frontend behavior, and file formats are unchanged.
+
+Current outcome:
+
+- `real_strawberry`: stitches `7549 -> 7369`.
+- `real_strawberry`: trims `4 -> 3`; jumps stayed `65`.
+- `real_strawberry`: cross-surface trimmed preview relocations `2 -> 1`.
+- `real_strawberry`: quality stayed `100`; colors stayed `#64d250/#f0785a/#dc321e/#000000`.
+- `real_strawberry`: fill strategy counts stayed unchanged, including `compact_accent_fill: 30` and `compact_satin_column: 30`.
+- `real_teapot_card` stayed unchanged at `11711` stitches, `86` jumps, `14` trims, quality `100`, and `3` local-patch-serpentine surfaces.
+- `tiny_detail_icon`, `bee_simple`, and `sparrow_flat_app_icon` stayed unchanged in targeted canaries.
+- Full uploaded, generated, source-color, and underpaint comparisons passed with no guarded status, acceptance issue, quality score, same-surface stitched long-span, same-surface untrimmed jump long-span, high-risk-surface, or broad-route-risk regression.
+
+Validation:
+
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run acceptance:source-color -- --case real_strawberry --out tmp/source_color_acceptance_repeated_detail_density_strawberry2_20260627`
+- `python3 scripts/compare_generated_runs.py tmp/source_color_acceptance_cross_color_tiny_20260627 tmp/source_color_acceptance_repeated_detail_density_strawberry2_20260627 --case real_strawberry --out tmp/source_color_compare_repeated_detail_density_target_20260627.html --title "Repeated compact detail density - strawberry target" --fail-on-regression`
+- `PYTHONPYCACHEPREFIX=tmp/pycache python3 scripts/uploaded_art_acceptance.py --case tiny_detail_icon --out tmp/uploaded_art_acceptance_repeated_detail_density_tiny_20260627 --strict-no-500 --strict-source-policy`
+- `PYTHONPYCACHEPREFIX=tmp/pycache python3 scripts/generated_acceptance.py --case bee_simple --out tmp/generated_acceptance_repeated_detail_density_bee_20260627 --strict`
+- `PYTHONPYCACHEPREFIX=tmp/pycache python3 scripts/generated_acceptance.py --case sparrow_flat_app_icon --out tmp/generated_acceptance_repeated_detail_density_sparrow_20260627 --strict`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- `PYTHONPYCACHEPREFIX=tmp/pycache python3 scripts/uploaded_art_acceptance.py --out tmp/uploaded_art_acceptance_repeated_detail_density_20260627 --strict-no-500 --strict-source-policy`
+- `PYTHONPYCACHEPREFIX=tmp/pycache python3 scripts/generated_acceptance.py --out tmp/generated_acceptance_repeated_detail_density_20260627 --strict`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run acceptance:source-color -- --out tmp/source_color_acceptance_repeated_detail_density_20260627`
+- `PYTHONPYCACHEPREFIX=tmp/pycache python3 scripts/underpaint_benchmark.py --out tmp/underpaint_benchmark_repeated_detail_density_20260627 --format jef`
+- Regression-gated uploaded, generated, source-color, and underpaint comparisons all passed.
+
+Next recommended direction:
+
+- Continue source/color behavior work using the refreshed triage report. `real_teapot_card` remains the top source-complexity guard; avoid broadening local-patch gates unless repeated-motif metadata can make the target narrower than the rejected sub-`90mm^2` experiment.
+
+## Previous Patch: Cross-Color Compact Tiny Detail Accounting
 
 The latest source/color sprint win makes source suitability agree with the planner for intentional multi-color tiny dot details.
 
