@@ -13,6 +13,54 @@ This is not a full changelog. It is a decision log for approaches that worked, f
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_acceptance_*`
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/regression_*`
 
+## Accepted Source Policy: Cross-Color Compact Tiny Detail Accounting
+
+Date: 2026-06-27
+
+Goal:
+
+- Stop reporting intentional multi-color tiny dot details as source repair pressure when the stitch planner already accounts and stitches them safely.
+- Keep `tiny_detail_icon` useful as a strict source-policy guard for preserved vivid tiny colors.
+- Avoid stitch-output, routing, public API, frontend, and file-format changes.
+
+Change:
+
+- Source repeated-motif detection now recognizes compact similarly sized tiny detail components across multiple stitched colors.
+- The compact-detail source width floor relaxed from `3.0mm` to `2.6mm`, matching the existing sewable dot fixture.
+- Source-design summaries now include repeated-vs-unaccounted tiny component counts, and suitability scoring uses unaccounted tiny components for `many_tiny_regions`.
+- Uploaded strict source-policy now requires `tiny_detail_icon` to become source-suitability clean and report repeated compact-dot source accounting.
+
+Result:
+
+- Before the engine change, the tightened guard failed as expected:
+  - `tiny_detail_icon: intentional compact dots should be source-suitability clean`
+  - `tiny_detail_icon: expected repeated compact-dot source accounting`
+- After the change, `tiny_detail_icon` source repair opportunities improved `1 -> 0`.
+- Source suitability improved `candidate 88 -> clean 100`.
+- Repeated source motif components improved `0 -> 9`; adjusted source components improved `13 -> 7`.
+- Stitch output stayed unchanged: `3520` stitches, `23` jumps, `2` trims, quality `100`, colors `#8cb9eb`, `#64d250`, `#e63c82`, `#fff03c`, and `#000000`.
+- Full uploaded, generated, source-color, and underpaint regression-gated comparisons passed with no guarded regression.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_cross_color_tiny_target_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_cross_color_tiny_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_cross_color_tiny_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_cross_color_tiny_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_cross_color_tiny_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_cross_color_tiny_20260627/source-triage.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- full uploaded strict source policy
+- full generated acceptance `--strict`
+- full source-color acceptance `--strict`
+- full underpaint benchmark
+
+Verdict:
+
+- Keep. This removes a false source-repair warning for intentional stitched tiny details while preserving strict color/detail guards.
+- Next work should seek a behavior improvement on over-fragmented source art, or another source-policy correction only where it unblocks a real source/color decision.
+
 ## Accepted Stitch Output: Local Patch Serpentine Fill
 
 Date: 2026-06-27

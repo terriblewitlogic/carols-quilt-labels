@@ -33,6 +33,7 @@ Recent shipped backend changes:
 - Stitched near-white foreground shapes are now explicitly accounted instead of reported as repair opportunities: `bee_simple`, `flower_daisy_simple`, and `low_contrast_bird` keep their pale stitched regions with repair count `0` and unchanged stitch output.
 - Large dark stroke-satin outline networks now use a wider density multiplier when the source stroke area is broad, reducing thread buildup on generated/uploaded icon line art while keeping risk gates clean.
 - Simple medium local material patches can now use a proved-safe serpentine fill when they have no holes, structural sensitivity, silhouette role, stem/center-disk role, or satin-zone role. This trims small fill clutter in teapot, flower, sparrow, and structural-facet fixtures while keeping jump/trim and long-span risk gates clean.
+- Cross-color compact tiny detail motifs are now recognized in source suitability before stitching: `tiny_detail_icon` keeps the same colored dots and stitch output, but source repair opportunities improve `1 -> 0` and suitability improves `candidate 88 -> clean 100`.
 
 The remaining quality problems are mostly in generated icon art:
 
@@ -127,6 +128,11 @@ Current useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_local_patch_serpentine_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_local_patch_serpentine_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_local_patch_serpentine_20260627/source-triage.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_cross_color_tiny_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_cross_color_tiny_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_cross_color_tiny_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_cross_color_tiny_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_cross_color_tiny_20260627/source-triage.html`
 
 ## Research Coverage Map
 
@@ -181,7 +187,52 @@ Out of scope for now:
 - cross-stitch DFS/parity algorithms unless cross-stitch becomes a product mode
 - applique placement/cutting/tackdown workflows until the core generated-icon pipeline is stable
 
-## Current Patch: Local Patch Serpentine Fill
+## Current Patch: Cross-Color Compact Tiny Detail Accounting
+
+The latest source/color sprint win makes source suitability agree with the planner for intentional multi-color tiny dot details.
+
+What changed:
+
+- Source repeated-motif detection now recognizes compact similarly sized tiny detail components across multiple stitched colors, not only within one color.
+- The compact-detail width floor relaxed from `3.0mm` to `2.6mm`, matching the existing sewable compact-detail planner threshold for tiny dot fixtures.
+- Source-design summaries now distinguish `repeatedMotifTinyComponentCount` from `unaccountedTinyComponentCount`; suitability scoring and `many_tiny_regions` repair pressure use only unaccounted tiny components.
+- Uploaded strict source-policy now guards `tiny_detail_icon` so intentional compact dots must be source-suitability clean and have repeated compact-dot source accounting.
+- Stitch generation is unchanged.
+
+Current outcome:
+
+- `tiny_detail_icon`: source repair opportunities `1 -> 0`.
+- `tiny_detail_icon`: source suitability `candidate 88 -> clean 100`.
+- `tiny_detail_icon`: repeated source motif components `0 -> 9`; adjusted source components `13 -> 7`.
+- `tiny_detail_icon`: stitches, jumps, trims, quality, and colors stayed unchanged at `3520`, `23`, `2`, `100`, and `#8cb9eb/#64d250/#e63c82/#fff03c/#000000`.
+- Full uploaded, generated, source-color, and underpaint comparisons passed with no guarded status, acceptance issue, quality score, same-surface stitched long-span, same-surface untrimmed jump long-span, high-risk-surface, or broad-route-risk regression.
+
+Validation:
+
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- `PYTHONPYCACHEPREFIX=tmp/pycache python3 scripts/uploaded_art_acceptance.py --case tiny_detail_icon --out tmp/uploaded_art_acceptance_cross_color_tiny_target2_20260627 --strict-no-500 --strict-source-policy`
+- `PYTHONPYCACHEPREFIX=tmp/pycache python3 scripts/uploaded_art_acceptance.py --out tmp/uploaded_art_acceptance_cross_color_tiny_20260627 --strict-no-500 --strict-source-policy`
+- `PYTHONPYCACHEPREFIX=tmp/pycache python3 scripts/generated_acceptance.py --out tmp/generated_acceptance_cross_color_tiny_20260627 --strict`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run acceptance:source-color -- --out tmp/source_color_acceptance_cross_color_tiny_20260627`
+- `PYTHONPYCACHEPREFIX=tmp/pycache python3 scripts/underpaint_benchmark.py --out tmp/underpaint_benchmark_cross_color_tiny_20260627 --format jef`
+- Regression-gated uploaded, generated, source-color, and underpaint comparisons all passed.
+
+Key reports:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_cross_color_tiny_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_cross_color_tiny_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_cross_color_tiny_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_cross_color_tiny_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_cross_color_tiny_20260627/source-triage.html`
+
+Next recommended direction:
+
+- Continue looking for actual source/color behavior wins, especially safe simplification of over-fragmented real generated art, but do not merge away meaningful teapot panels.
+- `real_teapot_card` remains the main source-art complexity guard after the local-fill win.
+- Keep broad routing paused unless comparison reports show actual stitched-span or same-surface relocation risk.
+
+## Previous Patch: Local Patch Serpentine Fill
 
 The next source/color sprint win reduces clutter inside simple local material patches while keeping route and risk gates narrow.
 
