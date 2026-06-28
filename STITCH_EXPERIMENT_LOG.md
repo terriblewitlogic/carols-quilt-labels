@@ -13,6 +13,53 @@ This is not a full changelog. It is a decision log for approaches that worked, f
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_acceptance_*`
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/regression_*`
 
+## Accepted Source Policy: Local Material-Panel Accounting
+
+Date: 2026-06-27
+
+Goal:
+
+- Stop triage from treating teapot-like local material clusters as source repair blockers when the stitch planner already accounts them as local material panels.
+- Keep the source-complexity evidence visible without hiding meaningful color loss, stitched webbing, untrimmed long jumps, broad-route risk, or detail-fill risk.
+- Avoid stitch-output, palette, routing, source-cleanup, public API, frontend, and file-format changes.
+
+Change:
+
+- Acceptance summaries now expose `sourceLocalMaterialPanelSurfaceCount`, `sourceLocalMaterialPanelSerpentineSurfaceCount`, and `sourceLocalMaterialPanelScanSurfaceCount`.
+- `real_teapot_card` strict acceptance now requires local-detail-cluster accounting plus material-panel accounting.
+- Product grading discounts local-cluster region pressure only when material panels exist and all blocking color/stitch-risk gates are clean.
+- Source-art triage uses the same gate, so handled material clusters become visual-review candidates instead of "repair source before stitching".
+
+Result:
+
+- `real_teapot_card` grade/root improved `C / source_art_complexity -> B / mostly_ok`.
+- `real_teapot_card` reports `9` material panels: `5` local-patch-serpentine and `4` scan/solid-scan panels.
+- Stitch output stayed unchanged: `11664` stitches, `86` jumps, `14` trims, color stops `6`, quality `100`.
+- Colors stayed `#50be46`, `#f0785a`, `#965ad2`, `#ffc88c`, and `#000000`.
+- Same-surface stitched long spans, same-surface untrimmed jump long spans, high-risk surfaces, and broad-route-risk surfaces stayed `0`.
+- Combined triage now leaves `real_strawberry` as the only non-`mostly_ok` source-color target.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_material_panel_accounting_teapot_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_material_panel_accounting_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_material_panel_accounting_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_material_panel_accounting_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_material_panel_accounting_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_material_panel_accounting_20260627/source-triage.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- targeted teapot source-color acceptance
+- full source-color acceptance
+- full generated acceptance `--strict`
+- full uploaded strict source policy
+- full underpaint benchmark
+
+Verdict:
+
+- Keep. This is report/acceptance correctness: it removes false source-repair pressure without changing output or relaxing stitch-risk gates.
+- Next work should be a behavior win, not another teapot diagnostic cleanup. The best target is either visible strawberry output improvement or a new real fixture with semantic color/detail loss.
+
 ## Accepted Source Policy: Repeated Compact Motif Repair Accounting
 
 Date: 2026-06-27

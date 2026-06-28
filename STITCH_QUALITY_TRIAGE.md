@@ -154,6 +154,12 @@ Current useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_strawberry_motif_repair_guard_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_strawberry_motif_repair_guard_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_strawberry_motif_repair_guard_20260627/source-triage.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_material_panel_accounting_teapot_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_material_panel_accounting_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_material_panel_accounting_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_material_panel_accounting_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_material_panel_accounting_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_material_panel_accounting_20260627/source-triage.html`
 
 ## Research Coverage Map
 
@@ -195,6 +201,7 @@ Implemented now:
 - repeated compact-detail density: compact dark detail fields with at least `12` repeated islands now use a guarded `0.68` detail-density multiplier while isolated compact details keep the denser `0.55` multiplier. `real_strawberry` uses this to reduce seed overpacking without dropping colors, changing strategies, or widening routing gates.
 - local cluster material panel density: non-repeated multi-color local detail clusters can mark simple `70-220mm^2` foundation panels as local material panels. Only those panels get the lower local-patch area floor and `1.06` local serpentine density multiplier, improving `real_teapot_card` without broadening the generic local-patch gate or route behavior.
 - repeated compact motif repair accounting: source-design diagnostics now suppress `fragmented_line_art` repair opportunities when the same label is already recognized as a same-color compact detail repeat. `real_strawberry` keeps the same stitches/colors/risks while source repair opportunities improve `1 -> 0`.
+- local material-panel accounting: acceptance summaries and source triage now expose teapot-like material-panel handling (`9` panels, `5` serpentine) and discount the `22` retained local-cluster regions only when colors are preserved and blocking stitch-risk gates are clean. `real_teapot_card` moves from `C / source_art_complexity` to `B / mostly_ok` with stitch output unchanged.
 
 Research later:
 
@@ -211,7 +218,49 @@ Out of scope for now:
 - cross-stitch DFS/parity algorithms unless cross-stitch becomes a product mode
 - applique placement/cutting/tackdown workflows until the core generated-icon pipeline is stable
 
-## Current Patch: Repeated Compact Motif Repair Accounting
+## Current Patch: Local Material-Panel Accounting
+
+The latest source/color sprint win makes the report stack recognize teapot-like local material clusters that are already handled by the stitch planner. This is a diagnostic/source-policy change only; stitch output is intentionally unchanged.
+
+What changed:
+
+- Acceptance summaries now expose local material-panel counts from `surface-plan.json`: `sourceLocalMaterialPanelSurfaceCount`, `sourceLocalMaterialPanelSerpentineSurfaceCount`, and `sourceLocalMaterialPanelScanSurfaceCount`.
+- `generated_acceptance.py --strict` now guards `real_teapot_card` so local-detail-cluster source accounting and material-panel stitch accounting remain present.
+- `grade_stitch_quality.py` discounts local-cluster region pressure only when the case has enough material panels, no meaningful dropped colors, no stitched long spans, no untrimmed long jumps, no broad-route risk, and no detail-fill risk.
+- `source_art_triage_report.py` uses the same gate, so handled material clusters show as visual-review candidates instead of "repair source before stitching".
+- Pixel cleanup, palette selection, stitch geometry, routing, public APIs, frontend behavior, and file formats are unchanged.
+
+Current outcome:
+
+- `real_teapot_card`: grade/root improves `C / source_art_complexity -> B / mostly_ok`.
+- `real_teapot_card`: material-panel accounting reports `9` local material panels: `5` local-patch-serpentine and `4` scan/solid-scan panels.
+- `real_teapot_card`: stitch output stayed unchanged at `11664` stitches, `86` jumps, `14` trims, color stops `6`, quality `100`.
+- `real_teapot_card`: colors stayed `#50be46`, `#f0785a`, `#965ad2`, `#ffc88c`, and `#000000`.
+- `real_teapot_card`: same-surface stitched long spans, same-surface untrimmed jump long spans, high-risk surfaces, and broad-route-risk surfaces stayed `0`.
+- Combined triage now ranks `real_strawberry` as the only non-`mostly_ok` source-color target; teapot remains visible as `B` with a visual-review recommendation.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_material_panel_accounting_teapot_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_material_panel_accounting_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_material_panel_accounting_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_material_panel_accounting_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_material_panel_accounting_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_material_panel_accounting_20260627/source-triage.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- targeted teapot source-color acceptance
+- full source-color acceptance
+- full generated acceptance `--strict`
+- full uploaded strict source policy
+- full underpaint benchmark
+
+Verdict:
+
+- Keep. This removes false "repair source first" pressure for a handled material cluster without hiding stitch-risk gates or changing output.
+- Next work should prioritize a real behavior win. The refreshed queue leaves `real_strawberry` as the only source-complexity target, but its remaining warning is real; either improve strawberry output behavior visibly or add another real fixture with semantic color/detail loss.
+
+## Previous Patch: Repeated Compact Motif Repair Accounting
 
 The latest source/color sprint win removes a false source-repair warning for intentional repeated compact motif fields. This is a diagnostic/source-policy change only; stitch output is intentionally unchanged.
 
