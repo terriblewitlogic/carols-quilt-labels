@@ -35,6 +35,7 @@ Recent shipped backend changes:
 - Simple medium local material patches can now use a proved-safe serpentine fill when they have no holes, structural sensitivity, silhouette role, stem/center-disk role, or satin-zone role. This trims small fill clutter in teapot, flower, sparrow, and structural-facet fixtures while keeping jump/trim and long-span risk gates clean.
 - Cross-color compact tiny detail motifs are now recognized in source suitability before stitching: `tiny_detail_icon` keeps the same colored dots and stitch output, but source repair opportunities improve `1 -> 0` and suitability improves `candidate 88 -> clean 100`.
 - Repeated compact dark detail fields now use a slightly looser detail-fill density than isolated compact details: `real_strawberry` keeps its seed field readable while reducing stitches `7549 -> 7369`, trims `4 -> 3`, and trimmed preview relocations `2 -> 1`.
+- Teapot-like local material panels inside multi-color detail clusters now use a guarded local serpentine density path: `real_teapot_card` stitches improve `11711 -> 11664`, local-patch-serpentine surfaces improve `3 -> 5`, and jumps/trims/risk gates stay unchanged.
 
 The remaining quality problems are mostly in generated icon art:
 
@@ -140,6 +141,12 @@ Current useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_repeated_detail_density_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_repeated_detail_density_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_repeated_detail_density_20260627/source-triage.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_local_cluster_density106_teapot_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_local_cluster_density106_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_local_cluster_density106_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_local_cluster_density106_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_local_cluster_density106_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_local_cluster_density106_20260627/source-triage.html`
 
 ## Research Coverage Map
 
@@ -179,6 +186,7 @@ Implemented now:
 - real source/color fixture lane: `fixtures/source_color` plus `npm run acceptance:source-color` runs file-backed generated/uploaded-style troublemakers outside the default generated suite. The first cases are `real_teapot_card` and `real_strawberry`.
 - compact repeated-detail motif accounting: source-design diagnostics now recognize small uniform repeated fields, such as strawberry seed dots, as intentional motif groups. `generated_acceptance.py` exposes motif counts and guards `real_strawberry` so future source policy changes do not reclassify the seed field as generic source complexity.
 - repeated compact-detail density: compact dark detail fields with at least `12` repeated islands now use a guarded `0.68` detail-density multiplier while isolated compact details keep the denser `0.55` multiplier. `real_strawberry` uses this to reduce seed overpacking without dropping colors, changing strategies, or widening routing gates.
+- local cluster material panel density: non-repeated multi-color local detail clusters can mark simple `70-220mm^2` foundation panels as local material panels. Only those panels get the lower local-patch area floor and `1.06` local serpentine density multiplier, improving `real_teapot_card` without broadening the generic local-patch gate or route behavior.
 
 Research later:
 
@@ -195,7 +203,57 @@ Out of scope for now:
 - cross-stitch DFS/parity algorithms unless cross-stitch becomes a product mode
 - applique placement/cutting/tackdown workflows until the core generated-icon pipeline is stable
 
-## Current Patch: Repeated Compact Detail Density
+## Current Patch: Local Cluster Material Panel Density
+
+The latest source/color sprint win reduces stitch clutter in teapot-like local material panels while keeping repeated motifs, isolated details, routing, and source cleanup stable.
+
+What changed:
+
+- Source surface planning now identifies repeated motif families separately from non-repeated multi-color local detail clusters.
+- Repeated motif families are guarded out of this path so seed/dot fields do not get treated as material panels.
+- Non-repeated local detail clusters with at least `3` retained colors and `14` broad disconnected components can mark eligible foundation surfaces as `local_material_panel_candidate`.
+- Eligible panels must be foundation surfaces owned by an accent outline band, use `surface_stable_scan`, have no holes, avoid reconstructed/repeated surfaces, and stay within `65-220mm^2` with conservative width, extent, and compactness gates.
+- Local material panels lower the local-patch serpentine area floor from `90mm^2` to `70mm^2` only for that tagged path and use a `1.06` local density multiplier.
+- `surface-plan.json` exposes `repeatedMotifFamily`, `localDetailClusterFamily`, `localMaterialPanelCandidate`, `localMaterialPanel`, and `densityMult`.
+- Public APIs, frontend behavior, file formats, routing gates, source cleanup, and the generic local-patch gate are unchanged.
+
+Current outcome:
+
+- `real_teapot_card`: stitches `11711 -> 11664`.
+- `real_teapot_card`: local-patch-serpentine surfaces `3 -> 5`; `solid_scan` surfaces `5 -> 3`.
+- `real_teapot_card`: jumps stayed `86`; trims stayed `14`; quality stayed `100`.
+- `real_teapot_card`: colors stayed preserved, color stops stayed `6`, and local detail-cluster accounting stayed `4` colors / `22` components.
+- `real_teapot_card`: same-surface long spans, same-surface stitched long spans, same-surface untrimmed jump long spans, high-risk surfaces, and broad-route-risk surfaces all stayed `0`.
+- Full uploaded, generated, source-color, and underpaint comparisons passed with no guarded status, acceptance issue, quality score, same-surface stitched long-span, same-surface untrimmed jump long-span, high-risk-surface, or broad-route-risk regression.
+- `flower_daisy_simple`, `flower_sunflower_simple`, `real_strawberry`, `tiny_detail_icon`, `sparrow_flat_app_icon`, and `thick_outline_flower` stayed unchanged in targeted canaries.
+
+Rejected variants:
+
+- Lowering the generic local-patch-serpentine area gate from `90mm^2` to `70mm^2` caused `flower_daisy_simple` churn: stitches `2444 -> 2435`, jumps `26 -> 27`. Rejected.
+- Using a `1.12` local-cluster density multiplier improved teapot stitches more (`11711 -> 11625`) but worsened trims `14 -> 15` and added trimmed preview risk on a purple panel. Rejected.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_local_cluster_density106_teapot_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_local_cluster_density106_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_local_cluster_density106_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_local_cluster_density106_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_local_cluster_density106_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_local_cluster_density106_20260627/source-triage.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- targeted teapot, daisy, sunflower, strawberry, tiny-detail, sparrow, and thick-outline canaries
+- full uploaded strict source policy
+- full generated acceptance `--strict`
+- full source-color acceptance
+- full underpaint benchmark
+
+Verdict:
+
+- Keep. This is a narrow teapot/source-complexity output-density win with no route broadening and no broad-suite metric churn.
+- Next work should keep source/color focus. The next likely win is source simplification or semantic material grouping for over-fragmented real generated art, not more generic routing or local-patch gate widening.
+
+## Previous Patch: Repeated Compact Detail Density
 
 The latest source/color sprint win reduces overpacking in intentional repeated dark detail fields while keeping isolated icon details dense enough to read.
 

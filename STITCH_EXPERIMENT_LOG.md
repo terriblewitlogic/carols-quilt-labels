@@ -13,6 +13,58 @@ This is not a full changelog. It is a decision log for approaches that worked, f
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_acceptance_*`
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/regression_*`
 
+## Accepted Stitch Output: Local Cluster Material Panel Density
+
+Date: 2026-06-27
+
+Goal:
+
+- Improve teapot-like local material panels where many disconnected retained color pieces create extra fill clutter.
+- Keep repeated motifs, isolated details, generic local-patch fill, route behavior, public API, frontend, and file formats unchanged.
+- Avoid any daisy/sunflower churn or added stitched-span/risk diagnostics.
+
+Change:
+
+- Added local surface-family tagging that separates repeated motif families from non-repeated multi-color local detail clusters.
+- Local detail clusters require at least `3` retained labels and `14` broad, non-repeated disconnected components.
+- Foundation surfaces owned by accent outline bands can become `local_material_panel_candidate` only when they are `65-220mm^2`, hole-free, non-reconstructed, non-repeated, compact enough, and already using `surface_stable_scan`.
+- The existing local-patch serpentine path now lowers its area floor from `90mm^2` to `70mm^2` only for tagged local material panels and uses a conservative `1.06` density multiplier.
+- `surface-plan.json` records `repeatedMotifFamily`, `localDetailClusterFamily`, `localMaterialPanelCandidate`, `localMaterialPanel`, and `densityMult`.
+
+Result:
+
+- `real_teapot_card` stitches improved `11711 -> 11664`.
+- `real_teapot_card` local-patch-serpentine surfaces improved `3 -> 5`; `solid_scan` surfaces reduced `5 -> 3`.
+- `real_teapot_card` jumps stayed `86`, trims stayed `14`, color stops stayed `6`, and quality stayed `100`.
+- `real_teapot_card` same-surface long spans, same-surface stitched long spans, same-surface untrimmed jump long spans, high-risk surfaces, and broad-route-risk surfaces stayed `0`.
+- `flower_daisy_simple`, `flower_sunflower_simple`, `real_strawberry`, `tiny_detail_icon`, `sparrow_flat_app_icon`, and `thick_outline_flower` stayed unchanged in targeted canaries.
+- Full uploaded, generated, source-color, and underpaint regression-gated comparisons passed with no guarded regression.
+
+Rejected variants:
+
+- Generic `70mm^2` local-patch area floor: tiny teapot change, but `flower_daisy_simple` changed stitches `2444 -> 2435` and jumps `26 -> 27`. Rejected.
+- Local-cluster density multiplier `1.12`: improved teapot stitches `11711 -> 11625`, but trims worsened `14 -> 15` and preview risk appeared on a purple panel. Rejected.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_local_cluster_density106_teapot_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_local_cluster_density106_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_local_cluster_density106_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_local_cluster_density106_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_local_cluster_density106_20260627.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_local_cluster_density106_20260627/source-triage.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- full uploaded strict source policy
+- full generated acceptance `--strict`
+- full source-color acceptance
+- full underpaint benchmark
+
+Verdict:
+
+- Keep. This is a narrow source/color output-density win that improves the teapot fixture without moving broad acceptance metrics or reopening routing.
+- Next work should look for semantic source simplification or material grouping in over-fragmented real generated art, with teapot as the guard and daisy/sunflower as route-churn canaries.
+
 ## Accepted Stitch Output: Repeated Compact Detail Density
 
 Date: 2026-06-27
