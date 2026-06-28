@@ -80,6 +80,12 @@ Recent shipped work since the original pro-design comparison:
   - target metrics improved trims `6 -> 4`, jumps `20 -> 19`, same-surface trimmed spans `1 -> 0`, and quality stayed `100`
   - `gradient_elephant_simple` remains on the accepted collapsed-gradient path (`5062` stitches, `8` jumps, `4` trims, no same-surface spans)
   - full uploaded/generated/source-color/underpaint comparisons passed without guarded quality, acceptance, stitched-span, high-risk, or broad-route regressions
+- Added muted chromatic thread-snap preservation:
+  - new `muted_sage_detail_badge` uploaded fixture protects a small sage semantic detail that ordinary nearest-thread snapping converted to neutral grey
+  - `_posterize` requests hue-preserving thread matching only for small mid-tone low-chroma labels, keeping dark outline/halo residue on the old neutral cleanup path
+  - probe baseline produced `#808080`; accepted run preserves the mark as Madeira `#1ea096`
+  - target fixture quality is `100`, with `4147` stitches, `26` jumps, `2` trims, and no same-surface stitched/untrimmed long-span, high-risk, or broad-route-risk surfaces
+  - existing uploaded fixtures, generated strict acceptance, source-color fixtures, and underpaint benchmark all stayed unchanged under regression-gated comparisons
 - Added a real source/color fixture lane:
   - `npm run acceptance:source-color` runs `generated_acceptance.py --fixture-dir fixtures/source_color --strict`
   - `real_teapot_card` is a repeatable `C / 77` source-complexity target with preserved green, coral, purple, peach, and black threads
@@ -209,9 +215,9 @@ Recent shipped work since the original pro-design comparison:
 
 Current next-best stitch work:
 
-1. Continue source/color behavior work after the large-outline density, local-patch fill, cross-color tiny-detail accounting, repeated-detail density, local-cluster material panel, repeated-motif repair-accounting, material-panel accounting, black-stroke retention, satin-width material-panel, compact-pastel accent, and bookended same-hue material wins; `real_teapot_card` now has its fill-coherence risk cleared, so the next accepted win should improve a different visible output problem or add a new real semantic color/detail-loss fixture.
-2. Preserve meaningful small accent and material colors while continuing to drop/absorb noisy fragments under strict source-policy checks; muted lavender/pink, compact low-chroma pastel accents, cool same-hue material facets, cross-color compact dots, compact repeated-detail, teapot local-detail-cluster accounting, sparse outline-halo accounting, and stitched near-white foreground accounting are now in place.
-3. Expand color/tone preservation coverage with real generated/uploaded examples, especially same-hue materials that still over-fragment, collapse into the wrong thread family, or create route pressure after the right colors are preserved. Keep `gradient_elephant_simple` as the canary that mild disposable gradients must still collapse.
+1. Continue source/color behavior work after the large-outline density, local-patch fill, cross-color tiny-detail accounting, repeated-detail density, local-cluster material panel, repeated-motif repair-accounting, material-panel accounting, black-stroke retention, satin-width material-panel, compact-pastel accent, bookended same-hue material, and muted sage thread-snap wins; the next accepted win should improve another visible output problem rather than only diagnostics.
+2. Preserve meaningful small accent and material colors while continuing to drop/absorb noisy fragments under strict source-policy checks; muted lavender/pink, compact low-chroma pastel accents, muted sage chromatic snap, cool same-hue material facets, cross-color compact dots, compact repeated-detail, teapot local-detail-cluster accounting, sparse outline-halo accounting, and stitched near-white foreground accounting are now in place.
+3. Expand color/tone preservation coverage with real generated/uploaded examples, especially same-hue materials that still over-fragment, collapse into the wrong thread family outside the new sage lane, or create route pressure after the right colors are preserved. Keep `gradient_elephant_simple` as the canary that mild disposable gradients must still collapse.
 4. Keep route broadening paused unless a comparison report shows a real stitched-span or same-surface relocation regression; the current route work is narrow and stable.
 5. Use `compare_generated_runs.py ... --fail-on-regression` for every keep/revert decision.
 6. Do not spend more time on strawberry diagnostics unless output behavior can improve; the current false source-repair pressure is resolved while the remaining many-region warning is real. The refreshed triage still leaves `real_strawberry` as the only source-complexity target.

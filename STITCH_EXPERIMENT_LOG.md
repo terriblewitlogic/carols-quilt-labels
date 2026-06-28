@@ -13,6 +13,56 @@ This is not a full changelog. It is a decision log for approaches that worked, f
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_acceptance_*`
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/regression_*`
 
+## Accepted Source/Color Policy: Muted Chromatic Thread Snap
+
+Date: 2026-06-28
+
+Goal:
+
+- Preserve small, meaningful muted chromatic marks when ordinary thread snapping would choose neutral grey.
+- Keep dark outline/antialias residue on the existing neutral cleanup path.
+- Add deterministic uploaded-art coverage before changing generated fixtures.
+
+Change:
+
+- Added uploaded fixture `muted_sage_detail_badge`, a tan face badge with a small sage detail mark.
+- Added an optional `prefer_chromatic` mode to `nearest_thread`.
+- `_posterize` now requests that mode only for small mid-tone low-chroma labels (`0.25%-1.2%` of source pixels, luminance `95-220`, chroma `30-57`, saturation at least `0.22`).
+- Strict uploaded source policy now requires `muted_sage_detail_badge` to preserve `#ffc88c`, `#1ea096`, and `#000000`, reject neutral `#808080`, and account the tiny/detail policy decision.
+
+Result:
+
+- Probe baseline converted the sage mark to neutral grey: `colors ['#808080', '#ffc88c', '#000000']`.
+- Accepted run preserves it as chromatic Madeira medium teal: `colors ['#ffc88c', '#1ea096', '#000000']`.
+- Target metrics: quality `100`, stitches `4147`, jumps `26`, trims `2`, no same-surface long-span/risk surfaces.
+- Existing uploaded fixtures stayed stable after narrowing the gate; `thick_outline_flower` remained `6113` stitches / `53` jumps / `7` trims with only the grey halo dropped.
+- Full generated, source-color, and underpaint comparisons had no existing-case metric/color changes.
+
+Rejected/narrowed variants:
+
+- The first `prefer_chromatic` implementation used a low luminance floor and converted a dark outline/halo label in `thick_outline_flower` into dark brown before cleanup, changing metrics. Raised the luminance floor to `95` so only mid-tone muted marks qualify.
+- A direct nearest-thread hue fix initially computed source hue only at chroma `40+`; the semantic path allows chroma `30+`, so the helper now computes hue for the lower semantic band too.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_muted_sage_snap_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_muted_sage_snap_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_muted_sage_snap_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_muted_sage_snap_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_muted_sage_snap_20260628/source-triage.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- targeted sage/thick-outline canaries
+- full uploaded strict source policy
+- full generated acceptance `--strict`
+- full source-color acceptance
+- full underpaint benchmark
+
+Verdict:
+
+- Keep. This adds a narrow thread-snap identity guard for muted small details without moving existing generated/source-color/underpaint fixtures.
+- Next source/color work should look for another real visible behavior gap: same-hue over-fragmentation, semantic color loss outside the new sage lane, or source simplification that improves output rather than diagnostics only.
+
 ## Accepted Source/Color Policy: Bookended Same-Hue Material Preservation
 
 Date: 2026-06-28

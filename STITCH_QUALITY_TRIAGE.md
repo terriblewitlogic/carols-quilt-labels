@@ -40,6 +40,7 @@ Recent shipped backend changes:
 - Teapot-like satin-width local material panels can now still try the proved-safe local serpentine path when they are not stems/holes/silhouettes: `real_teapot_card` fill-coherence risk improves `1 -> 0`, local-patch-serpentine panels improve `5 -> 8`, stitches improve `11664 -> 11612`, and trims/jumps/risk gates stay unchanged.
 - Compact low-chroma pastel accents now have a narrow preservation lane. New uploaded fixture `muted_flower_pin` keeps lavender `#b496dc`, yellow `#ffaf46`, blue fill, and black details with quality `100`, detail budget `ok`, and explicit `preserve_compact_pastel_accent_label:detail_component` accounting, while existing `tiny_detail_icon` and `muted_accent_badge` metrics stay unchanged.
 - Bookended same-hue material families now protect substantial dark/mid/light tones during source cleanup. New strict uploaded fixture `same_hue_purple_shell_facets` keeps `#7846c8`, `#965ad2`, `#b496dc`, and black; the no-guard baseline dropped dark purple and had one same-surface relocation, while the accepted run keeps all tones with quality `100`, trims `6 -> 4`, jumps `20 -> 19`, and same-surface trimmed spans `1 -> 0`.
+- Small mid-tone muted chromatic details now use a narrow hue-preserving thread snap before cleanup. New uploaded fixture `muted_sage_detail_badge` keeps the sage mark as chromatic Madeira `#1ea096` instead of neutral `#808080`; quality stays `100`, stitches/jumps/trims are `4147 / 26 / 2`, and existing uploaded/generated/source-color/underpaint fixtures stay unchanged under regression-gated comparisons.
 
 The remaining quality problems are mostly in generated icon art:
 
@@ -1837,6 +1838,48 @@ Next recommended direction:
 - Continue source/color behavior work, but stop mining teapot unless the next change visibly improves output beyond the now-cleared fill-coherence issue. Best next target is a real uploaded/generated fixture with semantic color loss, same-hue material collapse, or stubborn over-fragmented detail that survives current guards.
 
 ## 2026-06-28 — Dark Repeated Detail Policy Diagnostics
+
+Target: `muted_sage_detail_badge`.
+
+Change accepted:
+
+- Added uploaded fixture coverage for a small sage semantic detail that ordinary thread snapping converted to neutral grey.
+- Added optional `prefer_chromatic` thread matching and gated it from `_posterize` only for small mid-tone low-chroma labels.
+- Strict uploaded source policy now requires `#1ea096` for the sage detail, rejects `#808080`, and requires tiny/detail accounting.
+
+Before/after:
+
+- Probe baseline colors: `['#808080', '#ffc88c', '#000000']`
+- Accepted colors: `['#ffc88c', '#1ea096', '#000000']`
+- `stitchCount`: `4147`
+- `jumpCount`: `26`
+- `trimCount`: `2`
+- quality stayed `100`
+- same-surface stitched/untrimmed long-span, high-risk, and broad-route-risk gates stayed `0`
+- Existing uploaded fixtures stayed stable after narrowing the gate; `thick_outline_flower` stayed `6113 / 53 / 7`.
+- Full generated, source-color, and underpaint comparisons had no existing-case metric/color changes.
+
+Validation and reports:
+
+- Uploaded strict source policy: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_art_acceptance_muted_sage_snap_20260628`
+- Uploaded comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_muted_sage_snap_20260628.html`
+- Generated strict acceptance: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_acceptance_muted_sage_snap_20260628`
+- Generated comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_muted_sage_snap_20260628.html`
+- Source-color strict acceptance: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_acceptance_muted_sage_snap_20260628`
+- Source-color comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_muted_sage_snap_20260628.html`
+- Full underpaint benchmark: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_benchmark_muted_sage_snap_20260628`
+- Underpaint comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_muted_sage_snap_20260628.html`
+- Triage review: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_muted_sage_snap_20260628/source-triage.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+Rejected/narrowed variant:
+
+- The first luminance gate converted a dark outline/halo label in `thick_outline_flower` into brown and changed metrics. Raising the gate to mid-tones restored the accepted baseline.
+
+Next recommended direction:
+
+- Find another visible source/color behavior gap, preferably same-hue over-fragmentation or semantic color loss outside the new sage lane. Keep strawberry/teapot as guards unless output visibly improves.
 
 Target: `real_strawberry`.
 
