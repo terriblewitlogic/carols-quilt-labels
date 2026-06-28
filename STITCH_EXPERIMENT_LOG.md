@@ -13,6 +13,59 @@ This is not a full changelog. It is a decision log for approaches that worked, f
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_acceptance_*`
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/regression_*`
 
+## Accepted Source/Color Policy: Compact Pastel Accent Preservation
+
+Date: 2026-06-28
+
+Goal:
+
+- Preserve visible low-chroma pastel accent details that are too soft for the existing vivid/muted accent lanes.
+- Keep true antialias fragments and older vivid-dot/repeated-detail simplification behavior unchanged.
+- Add deterministic uploaded-art coverage before broadening source/color cleanup.
+
+Change:
+
+- Added uploaded fixture `muted_flower_pin`, a blue icon with a tiny lavender flower pin and yellow center.
+- Added a narrow `preserve_compact_pastel_accent_label` lane for labels with tiny area, moderate luminance, and low/mid chroma.
+- Source regularization, low-value partition absorption, and repeated micro-detail demotion now respect semantic accent labels that have sewable islands.
+- Repeated compact-detail promotion carries the compact-pastel preservation reason forward only for compact pastel labels, leaving vivid repeated-dot motifs on the existing `repeated_compact_detail` path.
+- Strict uploaded source policy now requires `muted_flower_pin` to preserve `#8cb9eb`, `#b496dc`, `#ffaf46`, and `#000000`, and to report compact pastel detail accounting.
+
+Result:
+
+- Target guard before fix dropped lavender: `colors ['#8cb9eb', '#ffaf46', '#000000']`.
+- Target after fix preserves lavender: `colors ['#8cb9eb', '#ffaf46', '#b496dc', '#000000']`.
+- `muted_flower_pin` final metrics: quality `100`, detail budget `ok`, stitches `3666`, jumps `22`, trims `1`.
+- Tiny policy is explicit: `sourceTinyComponentCount 5`, `tinyPolicyAccountedCount 5`, `preserve_compact_pastel_accent_label:detail_component 3`, `preserve_vivid_accent_label:detail_component 1`.
+- Existing guards stayed stable: `tiny_detail_icon` remained `3520` stitches / `23` jumps / `2` trims with `tinyPolicySimplifiedExcessCount 6`; `muted_accent_badge` remained `3864` stitches / `27` jumps / `3` trims with `preserve_muted_accent_label:detail_component 2`.
+- Full uploaded, generated, source-color, and underpaint regression-gated comparisons passed with no guarded regression.
+
+Rejected/narrowed variants:
+
+- Carrying all `preserve_*` reasons through repeated compact-detail promotion changed `tiny_detail_icon` simplification (`6 -> 0`) and worsened jumps/trims. Narrowed to compact pastel only.
+- Letting chroma up to `118` use the pastel lane changed `muted_accent_badge` from the older muted-accent reason to the new pastel reason. Narrowed compact pastel to chroma `<105`.
+- Four-petal flower pin kept the target color but exceeded the strict generic tiny-detail budget. The accepted fixture uses three sewable petals so the guard stays focused on color preservation.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_muted_flower_pin_pastel_fix_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_pastel_accent_fix_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_pastel_accent_fix_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_pastel_accent_fix_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_pastel_accent_fix_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_pastel_accent_fix_20260628/source-triage.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- full uploaded strict source policy
+- full generated acceptance `--strict`
+- full source-color acceptance
+- full underpaint benchmark
+
+Verdict:
+
+- Keep. This is a narrow semantic color-preservation win with deterministic coverage and no existing guard churn.
+- Next source/color work should look for a real generated/uploaded semantic color-loss or same-hue material-collapse case, preferably outside teapot/strawberry unless visual output improves.
+
 ## Accepted Stitch Output: Satin-Width Local Material Panels
 
 Date: 2026-06-28

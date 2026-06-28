@@ -67,6 +67,12 @@ Recent shipped work since the original pro-design comparison:
   - requires tiny muted-accent detail accounting via `preserve_muted_accent_label:detail_component`
   - new fixture result is `A / 100`, `3864` stitches, `27` jumps, `3` trims, with `0` broad/detail route risks
   - fresh uploaded/generated source-color triage now grades `A: 17`
+- Added compact pastel accent preservation:
+  - new `muted_flower_pin` uploaded fixture protects a visible low-chroma lavender flower pin that previously merged into the blue face
+  - final fixture preserves `#b496dc`, `#ffaf46`, `#8cb9eb`, and `#000000` with quality `100`, detail budget `ok`, `3666` stitches, `22` jumps, and `1` trim
+  - source/tiny accounting reports `preserve_compact_pastel_accent_label:detail_component: 3` and `preserve_vivid_accent_label:detail_component: 1`
+  - existing `tiny_detail_icon` and `muted_accent_badge` metrics stayed unchanged after narrowing the pastel lane
+  - full uploaded/generated/source-color/underpaint comparisons passed without guarded quality, acceptance, stitched-span, high-risk, or broad-route regressions
 - Added a real source/color fixture lane:
   - `npm run acceptance:source-color` runs `generated_acceptance.py --fixture-dir fixtures/source_color --strict`
   - `real_teapot_card` is a repeatable `C / 77` source-complexity target with preserved green, coral, purple, peach, and black threads
@@ -183,8 +189,8 @@ Recent shipped work since the original pro-design comparison:
 
 Current next-best stitch work:
 
-1. Continue source/color behavior work after the large-outline density, local-patch fill, cross-color tiny-detail accounting, repeated-detail density, local-cluster material panel, repeated-motif repair-accounting, material-panel accounting, black-stroke retention, and satin-width material-panel wins; `real_teapot_card` now has its fill-coherence risk cleared, so the next accepted win should improve a different visible output problem or add a new real semantic color/detail-loss fixture.
-2. Preserve meaningful small accent colors while continuing to drop/absorb noisy fragments under strict source-policy checks; muted lavender/pink, cross-color compact dots, compact repeated-detail, teapot local-detail-cluster accounting, sparse outline-halo accounting, and stitched near-white foreground accounting are now in place.
+1. Continue source/color behavior work after the large-outline density, local-patch fill, cross-color tiny-detail accounting, repeated-detail density, local-cluster material panel, repeated-motif repair-accounting, material-panel accounting, black-stroke retention, satin-width material-panel, and compact-pastel accent wins; `real_teapot_card` now has its fill-coherence risk cleared, so the next accepted win should improve a different visible output problem or add a new real semantic color/detail-loss fixture.
+2. Preserve meaningful small accent colors while continuing to drop/absorb noisy fragments under strict source-policy checks; muted lavender/pink, compact low-chroma pastel accents, cross-color compact dots, compact repeated-detail, teapot local-detail-cluster accounting, sparse outline-halo accounting, and stitched near-white foreground accounting are now in place.
 3. Expand color/tone preservation coverage with real generated/uploaded examples, especially same-hue materials that still over-fragment, collapse into the wrong thread family, or create route pressure after the right colors are preserved.
 4. Keep route broadening paused unless a comparison report shows a real stitched-span or same-surface relocation regression; the current route work is narrow and stable.
 5. Use `compare_generated_runs.py ... --fail-on-regression` for every keep/revert decision.

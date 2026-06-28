@@ -38,6 +38,7 @@ Recent shipped backend changes:
 - Teapot-like local material panels inside multi-color detail clusters now use a guarded local serpentine density path: `real_teapot_card` stitches improve `11711 -> 11664`, local-patch-serpentine surfaces improve `3 -> 5`, and jumps/trims/risk gates stay unchanged.
 - Repeated compact motif fields no longer double-count as generic fragmented line-art repair pressure: `real_strawberry` source repair opportunities improve `1 -> 0` with stitch output unchanged.
 - Teapot-like satin-width local material panels can now still try the proved-safe local serpentine path when they are not stems/holes/silhouettes: `real_teapot_card` fill-coherence risk improves `1 -> 0`, local-patch-serpentine panels improve `5 -> 8`, stitches improve `11664 -> 11612`, and trims/jumps/risk gates stay unchanged.
+- Compact low-chroma pastel accents now have a narrow preservation lane. New uploaded fixture `muted_flower_pin` keeps lavender `#b496dc`, yellow `#ffaf46`, blue fill, and black details with quality `100`, detail budget `ok`, and explicit `preserve_compact_pastel_accent_label:detail_component` accounting, while existing `tiny_detail_icon` and `muted_accent_badge` metrics stay unchanged.
 
 The remaining quality problems are mostly in generated icon art:
 
@@ -165,6 +166,12 @@ Current useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_satin_local_patch_20260628.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_satin_local_patch_20260628.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_satin_local_patch_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_muted_flower_pin_pastel_fix_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_pastel_accent_fix_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_pastel_accent_fix_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_pastel_accent_fix_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_pastel_accent_fix_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_pastel_accent_fix_20260628/source-triage.html`
 
 ## Research Coverage Map
 
@@ -207,6 +214,7 @@ Implemented now:
 - local cluster material panel density: non-repeated multi-color local detail clusters can mark simple `70-220mm^2` foundation panels as local material panels. Only those panels get the lower local-patch area floor and `1.06` local serpentine density multiplier, improving `real_teapot_card` without broadening the generic local-patch gate or route behavior.
 - repeated compact motif repair accounting: source-design diagnostics now suppress `fragmented_line_art` repair opportunities when the same label is already recognized as a same-color compact detail repeat. `real_strawberry` keeps the same stitches/colors/risks while source repair opportunities improve `1 -> 0`.
 - local material-panel accounting: acceptance summaries and source triage now expose teapot-like material-panel handling (`9` panels, `5` serpentine) and discount the `22` retained local-cluster regions only when colors are preserved and blocking stitch-risk gates are clean. `real_teapot_card` moves from `C / source_art_complexity` to `B / mostly_ok` with stitch output unchanged.
+- compact pastel accent preservation: a narrow low-chroma pastel label lane preserves small sewable lavender/pastel accents through source regularization, low-value partition absorption, and repeated compact-detail promotion without changing vivid repeated-dot simplification or the older muted-accent guard.
 
 Research later:
 
