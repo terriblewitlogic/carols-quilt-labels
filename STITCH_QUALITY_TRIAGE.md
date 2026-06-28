@@ -1697,3 +1697,43 @@ Before/after:
 Next recommended direction:
 
 - Use the richer uploaded report fields to add a real uploaded/generated fixture where a meaningful semantic color is lost or over-fragmented, then fix source normalization or color preservation around that case.
+
+## 2026-06-28 — Neutral Alias Black Stroke Retention
+
+Target: `synthetic_underpaint_cutout_lane_trap`.
+
+Change accepted:
+
+- Fixed neutral low-chroma alias pruning so grayscale labels only collapse as same-hue aliases when their luminance is close. This keeps long black source strokes from being pruned merely because a larger white/near-white cutout label also has undefined hue.
+- Updated the underpaint benchmark to require the fixture's long black stroke to stitch and to fail if black appears in `droppedColors`.
+- The fixture now accepts the safer stable-scan outcome once the black stroke is retained, instead of requiring the older lane-route acceptance detail.
+
+Before/after:
+
+- `colors`: `['#2850c8', '#ffffff'] -> ['#2850c8', '#ffffff', '#000000']`
+- black dropped color: present -> absent
+- `trimCount`: `7 -> 3`
+- `jumpCount`: `15 -> 12`
+- `stitchCount`: `3033 -> 7450`
+- `sameSurfaceLongSpans`: `1 -> 0`
+- `sameSurfaceTrimmedLongSpans`: `1 -> 0`
+- quality stayed `100`; high-risk and broad-route-risk surfaces stayed `0`
+- `scan_lanes` is no longer selected for this fixture because preserving the stroke changes the broad-fill geometry; the guarded outcome is better on trims and same-surface spans.
+
+Validation and reports:
+
+- Targeted guard failure reproduced: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_black_stroke_guard_probe_20260628`
+- Targeted fixed run: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_black_stroke_fix_probe_20260628`
+- Targeted comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_black_stroke_fix_probe_20260628.html`
+- Uploaded strict source policy: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_art_acceptance_black_stroke_fix_20260628`
+- Uploaded comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_black_stroke_fix_20260628.html`
+- Generated strict acceptance: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_acceptance_black_stroke_fix_20260628`
+- Generated comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_black_stroke_fix_20260628.html`
+- Full underpaint benchmark: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_benchmark_black_stroke_fix_20260628`
+- Underpaint comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_black_stroke_fix_20260628.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+Next recommended direction:
+
+- Continue source/color behavior work with real generated or uploaded examples. The next useful target should be semantic color/detail loss or over-fragmentation in a user-like source, not another diagnostic-only accounting change.

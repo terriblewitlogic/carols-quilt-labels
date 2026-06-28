@@ -157,10 +157,20 @@ Recent shipped work since the original pro-design comparison:
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_material_panel_accounting_20260627.html`
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_material_panel_accounting_20260627.html`
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_material_panel_accounting_20260627/source-triage.html`
+- Fixed neutral alias pruning for long black strokes:
+  - grayscale labels now collapse as same-hue aliases only when their luminance is close, so a black source stroke is no longer pruned merely because a larger white/near-white cutout label also has undefined hue
+  - `synthetic_underpaint_cutout_lane_trap` now stitches black: `['#2850c8', '#ffffff'] -> ['#2850c8', '#ffffff', '#000000']`
+  - black dropped-color diagnostics disappeared, trims improved `7 -> 3`, jumps improved `15 -> 12`, and same-surface long spans improved `1 -> 0`
+  - quality stayed `100`; high-risk and broad-route-risk surfaces stayed `0`
+  - full uploaded/generated/underpaint comparisons passed without guarded quality, acceptance, stitched-span, high-risk, or broad-route regressions
+  - validation included `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`, `npm run typecheck`, full uploaded strict source policy, full generated acceptance `--strict`, full underpaint benchmark, and regression-gated compare reports:
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_black_stroke_fix_20260628.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_black_stroke_fix_20260628.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_black_stroke_fix_20260628.html`
 
 Current next-best stitch work:
 
-1. Continue source/color behavior work after the large-outline density, local-patch fill, cross-color tiny-detail accounting, repeated-detail density, local-cluster material panel, repeated-motif repair-accounting, and material-panel accounting wins; `real_teapot_card` is now mostly-ok when material panels are accounted, so the next accepted win should improve visible output or add a new real semantic color/detail-loss fixture.
+1. Continue source/color behavior work after the large-outline density, local-patch fill, cross-color tiny-detail accounting, repeated-detail density, local-cluster material panel, repeated-motif repair-accounting, material-panel accounting, and black-stroke retention wins; `real_teapot_card` is now mostly-ok when material panels are accounted, so the next accepted win should improve visible output or add a new real semantic color/detail-loss fixture.
 2. Preserve meaningful small accent colors while continuing to drop/absorb noisy fragments under strict source-policy checks; muted lavender/pink, cross-color compact dots, compact repeated-detail, teapot local-detail-cluster accounting, sparse outline-halo accounting, and stitched near-white foreground accounting are now in place.
 3. Expand color/tone preservation coverage with real generated/uploaded examples, especially same-hue materials that still over-fragment, collapse into the wrong thread family, or create route pressure after the right colors are preserved.
 4. Keep route broadening paused unless a comparison report shows a real stitched-span or same-surface relocation regression; the current route work is narrow and stable.

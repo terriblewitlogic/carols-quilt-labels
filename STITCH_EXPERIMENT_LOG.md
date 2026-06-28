@@ -5009,3 +5009,72 @@ Validation:
 NEXT: add or identify a real uploaded/generated source-art fixture where a
 semantic color family is dropped or over-fragmented, then make a narrow source
 normalization/color-preservation fix against that fixture.
+
+================================================================================
+2026-06-28 — NEUTRAL ALIAS BLACK STROKE RETENTION
+================================================================================
+
+Target: `synthetic_underpaint_cutout_lane_trap`.
+
+Baseline finding:
+
+- The source contains a long black horizontal stroke over a broad blue field.
+- Segmentation retained the black label at `pixelFraction 0.01215`, but the
+  same-hue alias pruner removed it before surface planning.
+- Root cause: low-chroma black and white both have effectively meaningless hue
+  `0`, so a larger white/near-white cutout label looked like a same-hue alias
+  parent for the black stroke.
+
+Guard added first:
+
+- `underpaint_benchmark.py` now fails if the fixture does not stitch `#000000`.
+- It also fails if `#000000` appears in `droppedColors`.
+- The old assertion that the black guide line should be pruned was removed.
+
+Fix:
+
+- `_prune_alias_stroke_colors` now computes the other label's luminance once and
+  treats low-chroma pairs as same-hue aliases only when their luminance delta is
+  at most `90`.
+- This keeps close gray antialias halos eligible for pruning while preserving
+  black strokes against white/near-white regions.
+
+Accepted result:
+
+- `colors`: `['#2850c8', '#ffffff'] -> ['#2850c8', '#ffffff', '#000000']`
+- black dropped color: present -> absent
+- `trimCount`: `7 -> 3`
+- `jumpCount`: `15 -> 12`
+- `stitchCount`: `3033 -> 7450`
+- `sameSurfaceLongSpans`: `1 -> 0`
+- `sameSurfaceTrimmedLongSpans`: `1 -> 0`
+- quality stayed `100`; high-risk and broad-route-risk surfaces stayed `0`
+- `fillStrategies`: `{'scan': 4, 'scan_lanes': 1} -> {'scan': 4}`
+
+Validation:
+
+- targeted expected-failure guard run:
+  `tmp/underpaint_black_stroke_guard_probe_20260628`
+- targeted fixed run:
+  `tmp/underpaint_black_stroke_fix_probe_20260628`
+- targeted comparison:
+  `tmp/underpaint_compare_black_stroke_fix_probe_20260628.html`
+- full uploaded strict source policy:
+  `tmp/uploaded_art_acceptance_black_stroke_fix_20260628`
+- uploaded comparison:
+  `tmp/uploaded_compare_black_stroke_fix_20260628.html`
+- full generated strict:
+  `tmp/generated_acceptance_black_stroke_fix_20260628`
+- generated comparison:
+  `tmp/generated_compare_black_stroke_fix_20260628.html`
+- full underpaint benchmark:
+  `tmp/underpaint_benchmark_black_stroke_fix_20260628`
+- underpaint comparison:
+  `tmp/underpaint_compare_black_stroke_fix_20260628.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+NEXT: keep source/color behavior work focused on real generated/uploaded source
+examples. The reporting is now good enough to catch semantic dropped colors; the
+next accepted win should improve visible output or add a realistic fixture that
+exposes a user-like source/color failure.

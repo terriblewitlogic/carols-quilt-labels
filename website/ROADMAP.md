@@ -594,8 +594,15 @@ Recent backend-only source/color tooling improvement:
 
 - Uploaded-art acceptance now includes source color layers, segmentation colors, dropped colors, and segmentation component counts in `summary.json`.
 - Uploaded strict source policy now checks generic source color-family preservation, not only named fixture colors.
+- Neutral grayscale alias pruning now preserves long black source strokes against white/near-white cutout labels. `synthetic_underpaint_cutout_lane_trap` now stitches black (`['#2850c8', '#ffffff'] -> ['#2850c8', '#ffffff', '#000000']`), removes the black dropped-color diagnostic, improves trims `7 -> 3`, improves jumps `15 -> 12`, and removes the same-surface long span `1 -> 0` while keeping quality `100` and high-risk/broad-route-risk surfaces at `0`.
 - No public API, frontend, or stitch file-format change.
 
 Validated with full uploaded strict source policy, generated strict acceptance, underpaint benchmark, regression-gated comparisons, Python checks, and TypeScript typecheck.
 
-Next stitch work: add or identify a real generated/uploaded fixture with semantic color loss or over-fragmentation, then make a narrow source compiler fix.
+Current 2026-06-28 behavior-win reports:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_black_stroke_fix_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_black_stroke_fix_20260628.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_black_stroke_fix_20260628.html`
+
+Next stitch work: add or identify a real generated/uploaded fixture with semantic color loss or over-fragmentation, then make another narrow source compiler fix.
