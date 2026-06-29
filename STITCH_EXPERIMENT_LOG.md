@@ -13,6 +13,55 @@ This is not a full changelog. It is a decision log for approaches that worked, f
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_acceptance_*`
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/regression_*`
 
+## Accepted Source/Color Policy: Dark Red Same-Hue Material Preservation
+
+Date: 2026-06-29
+
+Goal:
+
+- Preserve broad saturated dark red material facets instead of treating them as black/neutral line art.
+- Keep neutral dark outline cleanup intact for actual black/gray residue.
+- Add a deterministic uploaded-art stress guard before accepting the behavior change.
+
+Change:
+
+- Added uploaded stress fixture `same_hue_red_shell_facets`, a compact shell with dark/mid/light red material panels plus black linework.
+- `_clean_posterized_source_labels` now treats very dark labels as dark line art at luminance `<=35`, while still protecting low-chroma dark residue up to luminance `95`; this lets saturated dark red material flow through as fill material.
+- `_merge_similar_broad_tone_labels` now applies the existing bookended same-hue material guard before broad same-hue tone merging.
+- Strict uploaded source policy requires `same_hue_red_shell_facets` to preserve three separated red material tones plus black, with no same-surface trimmed or untrimmed long-span relocations.
+
+Result:
+
+- Probe baseline collapsed the dark red facet: `colors ['#f082a0', '#c83264', '#000000']`.
+- Accepted run preserves all material tones: `colors ['#8c000a', '#f082a0', '#c83264', '#000000']`.
+- Target metrics: quality `100`, stitches `4444`, jumps `15`, trims `6`, no same-surface long-span relocations, no high-risk surfaces, and no broad-route risk.
+- Full uploaded, generated, source-color, and underpaint regression-gated comparisons passed.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_red_material_20260629.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_red_material_20260629.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_red_material_20260629.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_red_material_20260629.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_red_material_20260629/source-triage.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- full uploaded strict source policy
+- full generated acceptance `--strict`
+- full source-color acceptance
+- full underpaint benchmark
+
+Rejected variants:
+
+- Strawberry seed thinning preserved readability but worsened jumps (`65 -> 80+`), so it remains rejected until routing/order can improve with it.
+- Raising repeated-detail density to `0.75` reduced stitches slightly but worsened trims (`3 -> 4`) and cross-surface trimmed relocations (`1 -> 2`), so the accepted `0.68` density stays.
+- A faceted red leaf preserved the dark red but introduced broad-route quality pressure (`quality 78`), so the accepted guard uses a compact shell shape that isolates color preservation.
+
+Verdict:
+
+- Keep. This closes another saturated dark same-hue material-loss hole while preserving neutral dark cleanup.
+- Next source/color work should either find a new semantic color-loss family or pair strawberry detail simplification with a routing/order improvement that does not increase jumps or relocations.
+
 ## Accepted Source/Color Policy: Dark Green Same-Hue Material Preservation
 
 Date: 2026-06-29

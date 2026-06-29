@@ -100,6 +100,23 @@ Recent shipped work since the original pro-design comparison:
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_green_leaf_dark_material_20260629.html`
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_green_leaf_dark_material_20260629.html`
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_green_leaf_dark_material_20260629/source-triage.html`
+- Added dark red same-hue material preservation:
+  - new `same_hue_red_shell_facets` uploaded stress fixture protects saturated dark/mid/light red material panels plus black linework
+  - `_clean_posterized_source_labels` now avoids classifying saturated dark red as neutral line art, and early broad-tone merging now respects the existing bookended same-hue material guard
+  - probe baseline collapsed the dark red facet: `['#f082a0', '#c83264', '#000000']`
+  - accepted run preserves `#8c000a`, `#c83264`, `#f082a0`, and `#000000`
+  - target metrics are quality `100`, `4444` stitches, `15` jumps, `6` trims, with no same-surface relocation, high-risk, or broad-route-risk surfaces
+  - full uploaded strict source policy, generated strict acceptance, source-color acceptance, and underpaint benchmark all passed under regression-gated comparisons
+  - validation reports:
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_red_material_20260629.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_red_material_20260629.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_red_material_20260629.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_red_material_20260629.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_red_material_20260629/source-triage.html`
+- Rejected unattended strawberry variants:
+  - seed thinning reduced stitch count but worsened jumps from `65` into the `80+` range
+  - repeated-detail density `0.75` reduced stitches slightly but worsened trims `3 -> 4` and cross-surface trimmed relocations `1 -> 2`
+  - keep strawberry on the backlog only when detail simplification is paired with route/order protection
 - Added a real source/color fixture lane:
   - `npm run acceptance:source-color` runs `generated_acceptance.py --fixture-dir fixtures/source_color --strict`
   - `real_teapot_card` is a repeatable `C / 77` source-complexity target with preserved green, coral, purple, peach, and black threads

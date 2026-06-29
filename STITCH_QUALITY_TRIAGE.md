@@ -42,6 +42,7 @@ Recent shipped backend changes:
 - Bookended same-hue material families now protect substantial dark/mid/light tones during source cleanup. New strict uploaded fixture `same_hue_purple_shell_facets` keeps `#7846c8`, `#965ad2`, `#b496dc`, and black; the no-guard baseline dropped dark purple and had one same-surface relocation, while the accepted run keeps all tones with quality `100`, trims `6 -> 4`, jumps `20 -> 19`, and same-surface trimmed spans `1 -> 0`.
 - Small mid-tone muted chromatic details now use a narrow hue-preserving thread snap before cleanup. New uploaded fixture `muted_sage_detail_badge` keeps the sage mark as chromatic Madeira `#1ea096` instead of neutral `#808080`; quality stays `100`, stitches/jumps/trims are `4147 / 26 / 2`, and existing uploaded/generated/source-color/underpaint fixtures stay unchanged under regression-gated comparisons.
 - Saturated dark same-hue material panels now stay eligible for material preservation instead of being treated like neutral dark residue. New strict uploaded stress fixture `same_hue_green_leaf_facets` keeps dark/mid/light green `#144614`, `#3ca03c`, `#96dc82`, and black; the probe baseline dropped dark green, while the accepted run improves stitches `5370 -> 4873`, jumps `10 -> 8`, trims `2 -> 1`, and same-surface trimmed spans `1 -> 0` with quality `100`.
+- Saturated dark red same-hue material panels now use the same material-preservation path before early broad-tone merging. New strict uploaded stress fixture `same_hue_red_shell_facets` keeps dark/mid/light red `#8c000a`, `#c83264`, `#f082a0`, and black; the probe baseline collapsed dark red into mid red, while the accepted run preserves all tones with quality `100`, stitches `4444`, jumps `15`, trims `6`, no same-surface relocations, and no broad-route risk.
 
 The remaining quality problems are mostly in generated icon art:
 
@@ -52,6 +53,7 @@ The remaining quality problems are mostly in generated icon art:
 - saturated dark chromatic material facets should stay preserved without reopening neutral outline/halo residue as semantic color
 - some residual preview clutter from jumps that are not actually stitched
 - broad-underpaint/lane routing should only be revisited when reports show actual stitched-span risk
+- strawberry seed-field simplification is not accepted unless it also avoids jump/trim relocation regression; thinning and higher repeated-detail density both failed this gate on 2026-06-29
 
 ## Current Tooling: Generated Run Comparison
 
