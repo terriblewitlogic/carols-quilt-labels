@@ -1,6 +1,6 @@
 # Stitch Algorithm Improvement Plan
 
-## Current status — 2026-06-28
+## Current status — 2026-06-29
 
 This document is the long-range pro-quality plan. The active day-to-day backlog now lives in:
 
@@ -86,6 +86,20 @@ Recent shipped work since the original pro-design comparison:
   - probe baseline produced `#808080`; accepted run preserves the mark as Madeira `#1ea096`
   - target fixture quality is `100`, with `4147` stitches, `26` jumps, `2` trims, and no same-surface stitched/untrimmed long-span, high-risk, or broad-route-risk surfaces
   - existing uploaded fixtures, generated strict acceptance, source-color fixtures, and underpaint benchmark all stayed unchanged under regression-gated comparisons
+- Added dark green same-hue material preservation:
+  - new `same_hue_green_leaf_facets` uploaded stress fixture protects saturated dark/mid/light green material panels plus black linework
+  - `_clean_posterized_source_labels` now protects low-luminance labels as neutral dark residue only when chroma is `<=35`, allowing saturated dark green panels to flow through existing same-hue material preservation instead of being collapsed
+  - probe baseline dropped dark green: `['#3ca03c', '#96dc82', '#000000']`
+  - accepted run preserves `#144614`, `#3ca03c`, `#96dc82`, and `#000000`
+  - target metrics improved stitches `5370 -> 4873`, jumps `10 -> 8`, trims `2 -> 1`, and same-surface trimmed spans `1 -> 0`, with quality `100`
+  - same-hue stress canaries, full uploaded strict source policy, generated strict acceptance, source-color acceptance, and underpaint benchmark all passed under regression-gated comparisons
+  - validation reports:
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_green_leaf_dark_material_20260629.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_green_leaf_dark_material_full_20260629.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_green_leaf_dark_material_20260629.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_green_leaf_dark_material_20260629.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_green_leaf_dark_material_20260629.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_green_leaf_dark_material_20260629/source-triage.html`
 - Added a real source/color fixture lane:
   - `npm run acceptance:source-color` runs `generated_acceptance.py --fixture-dir fixtures/source_color --strict`
   - `real_teapot_card` is a repeatable `C / 77` source-complexity target with preserved green, coral, purple, peach, and black threads
@@ -215,8 +229,8 @@ Recent shipped work since the original pro-design comparison:
 
 Current next-best stitch work:
 
-1. Continue source/color behavior work after the large-outline density, local-patch fill, cross-color tiny-detail accounting, repeated-detail density, local-cluster material panel, repeated-motif repair-accounting, material-panel accounting, black-stroke retention, satin-width material-panel, compact-pastel accent, bookended same-hue material, and muted sage thread-snap wins; the next accepted win should improve another visible output problem rather than only diagnostics.
-2. Preserve meaningful small accent and material colors while continuing to drop/absorb noisy fragments under strict source-policy checks; muted lavender/pink, compact low-chroma pastel accents, muted sage chromatic snap, cool same-hue material facets, cross-color compact dots, compact repeated-detail, teapot local-detail-cluster accounting, sparse outline-halo accounting, and stitched near-white foreground accounting are now in place.
+1. Continue source/color behavior work after the large-outline density, local-patch fill, cross-color tiny-detail accounting, repeated-detail density, local-cluster material panel, repeated-motif repair-accounting, material-panel accounting, black-stroke retention, satin-width material-panel, compact-pastel accent, bookended same-hue material, muted sage thread-snap, and dark green material-preservation wins; the next accepted win should improve another visible output problem rather than only diagnostics.
+2. Preserve meaningful small accent and material colors while continuing to drop/absorb noisy fragments under strict source-policy checks; muted lavender/pink, compact low-chroma pastel accents, muted sage chromatic snap, cool and green same-hue material facets, cross-color compact dots, compact repeated-detail, teapot local-detail-cluster accounting, sparse outline-halo accounting, and stitched near-white foreground accounting are now in place.
 3. Expand color/tone preservation coverage with real generated/uploaded examples, especially same-hue materials that still over-fragment, collapse into the wrong thread family outside the new sage lane, or create route pressure after the right colors are preserved. Keep `gradient_elephant_simple` as the canary that mild disposable gradients must still collapse.
 4. Keep route broadening paused unless a comparison report shows a real stitched-span or same-surface relocation regression; the current route work is narrow and stable.
 5. Use `compare_generated_runs.py ... --fail-on-regression` for every keep/revert decision.

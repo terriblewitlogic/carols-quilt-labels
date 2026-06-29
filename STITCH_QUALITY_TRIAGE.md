@@ -1,6 +1,6 @@
 # Stitch Quality Triage
 
-Last updated: 2026-06-28
+Last updated: 2026-06-29
 
 ## Current Read
 
@@ -41,6 +41,7 @@ Recent shipped backend changes:
 - Compact low-chroma pastel accents now have a narrow preservation lane. New uploaded fixture `muted_flower_pin` keeps lavender `#b496dc`, yellow `#ffaf46`, blue fill, and black details with quality `100`, detail budget `ok`, and explicit `preserve_compact_pastel_accent_label:detail_component` accounting, while existing `tiny_detail_icon` and `muted_accent_badge` metrics stay unchanged.
 - Bookended same-hue material families now protect substantial dark/mid/light tones during source cleanup. New strict uploaded fixture `same_hue_purple_shell_facets` keeps `#7846c8`, `#965ad2`, `#b496dc`, and black; the no-guard baseline dropped dark purple and had one same-surface relocation, while the accepted run keeps all tones with quality `100`, trims `6 -> 4`, jumps `20 -> 19`, and same-surface trimmed spans `1 -> 0`.
 - Small mid-tone muted chromatic details now use a narrow hue-preserving thread snap before cleanup. New uploaded fixture `muted_sage_detail_badge` keeps the sage mark as chromatic Madeira `#1ea096` instead of neutral `#808080`; quality stays `100`, stitches/jumps/trims are `4147 / 26 / 2`, and existing uploaded/generated/source-color/underpaint fixtures stay unchanged under regression-gated comparisons.
+- Saturated dark same-hue material panels now stay eligible for material preservation instead of being treated like neutral dark residue. New strict uploaded stress fixture `same_hue_green_leaf_facets` keeps dark/mid/light green `#144614`, `#3ca03c`, `#96dc82`, and black; the probe baseline dropped dark green, while the accepted run improves stitches `5370 -> 4873`, jumps `10 -> 8`, trims `2 -> 1`, and same-surface trimmed spans `1 -> 0` with quality `100`.
 
 The remaining quality problems are mostly in generated icon art:
 
@@ -48,6 +49,7 @@ The remaining quality problems are mostly in generated icon art:
 - source-generation detail overload: too many small regions, low-contrast tones, or embroidery-like source imagery
 - meaningful small accent colors must be preserved without preserving noisy fragments
 - same-hue material colors must stay preserved when source evidence is broad and ordered, but gradient cleanup must still collapse mild disposable bands
+- saturated dark chromatic material facets should stay preserved without reopening neutral outline/halo residue as semantic color
 - some residual preview clutter from jumps that are not actually stitched
 - broad-underpaint/lane routing should only be revisited when reports show actual stitched-span risk
 
@@ -181,6 +183,11 @@ Current useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_bookend_material_fix_20260628.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_bookend_material_fix_20260628.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_bookend_material_fix_20260628/source-triage.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_green_leaf_dark_material_full_20260629.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_green_leaf_dark_material_20260629.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_green_leaf_dark_material_20260629.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_green_leaf_dark_material_20260629.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_green_leaf_dark_material_20260629/source-triage.html`
 
 ## Research Coverage Map
 

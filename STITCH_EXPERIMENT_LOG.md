@@ -13,6 +13,50 @@ This is not a full changelog. It is a decision log for approaches that worked, f
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_acceptance_*`
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/regression_*`
 
+## Accepted Source/Color Policy: Dark Green Same-Hue Material Preservation
+
+Date: 2026-06-29
+
+Goal:
+
+- Preserve broad dark chromatic material panels when they are real same-hue source facets, not disposable dark line/halo residue.
+- Keep dark neutral cleanup conservative for black and low-chroma outline artifacts.
+- Add deterministic uploaded-art stress coverage before accepting the behavior change.
+
+Change:
+
+- Added uploaded stress fixture `same_hue_green_leaf_facets`, a faceted leaf with dark, mid, and light green material panels plus black linework.
+- Narrowed `_clean_posterized_source_labels` dark-protection from low-luminance chroma `<=65` to chroma `<=35`, so saturated dark green panels can participate in the same-hue material preservation path instead of being isolated and later collapsed.
+- Strict uploaded source policy now requires `same_hue_green_leaf_facets` to preserve `#144614`, `#3ca03c`, `#96dc82`, and `#000000`, with no same-surface trimmed or untrimmed long-span relocations.
+
+Result:
+
+- Probe baseline dropped/collapsed the dark green: `colors ['#3ca03c', '#96dc82', '#000000']`.
+- Accepted run preserves all material tones: `colors ['#144614', '#3ca03c', '#96dc82', '#000000']`.
+- Target metrics improved stitches `5370 -> 4873`, jumps `10 -> 8`, trims `2 -> 1`, and same-surface trimmed spans `1 -> 0`; quality stayed `100`.
+- Same-hue stress canaries passed, including acorn, mushroom, shell, purple shell, and the new green leaf.
+- Full uploaded, generated, source-color, and underpaint regression-gated comparisons passed with no guarded regression.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_green_leaf_dark_material_20260629.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_green_leaf_dark_material_full_20260629.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_green_leaf_dark_material_20260629.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_green_leaf_dark_material_20260629.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_green_leaf_dark_material_20260629.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_green_leaf_dark_material_20260629/source-triage.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- full uploaded strict source policy
+- full generated acceptance `--strict`
+- full source-color acceptance
+- full underpaint benchmark
+
+Verdict:
+
+- Keep. This closes a same-hue material-loss hole for saturated dark greens while leaving neutral dark cleanup in place.
+- Next source/color work should look for real generated/uploaded cases where preserved colors still create clutter or where another chromatic family collapses outside the current guard lanes.
+
 ## Accepted Source/Color Policy: Muted Chromatic Thread Snap
 
 Date: 2026-06-28
