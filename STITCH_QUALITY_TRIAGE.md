@@ -1981,3 +1981,32 @@ Validation and reports:
 Next recommended direction:
 
 - Continue hunting for visible source/color output wins. Good candidates remain same-hue material collapse, meaningful accent loss, or over-fragmented generated icons; avoid more diagnostics-only work unless it removes a misleading triage blocker.
+
+Coverage checkpoint: same-hue material stress lane.
+
+Change accepted:
+
+- Added an npm command for the uploaded-art same-hue stress cases:
+  `npm run acceptance:uploaded:same-hue`.
+- The lane runs seven deterministic synthetic fixtures that are already guarded by uploaded strict source policy:
+  `same_hue_acorn_facets`, `same_hue_gold_shell_facets`, `same_hue_green_leaf_facets`, `same_hue_mushroom_facets`, `same_hue_red_shell_facets`, `same_hue_shell_facets`, and `same_hue_purple_shell_facets`.
+- This is coverage/tooling only; no compiler behavior changed.
+
+Stress-lane result:
+
+- All seven cases returned status `200`.
+- Quality stayed `100` for every case.
+- Same-surface trimmed long spans, same-surface untrimmed jump long spans, and broad-route-risk surfaces stayed `0` for every case.
+- The lane covers warm brown/tan, gold, green, red, and purple same-hue material preservation.
+
+Validation and reports:
+
+- Discovery run: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_same_hue_stress_discovery_20260630`
+- Scripted run: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_same_hue_stress_script_20260630`
+- Script comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_same_hue_stress_script_compare_20260630.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+Next recommended direction:
+
+- Use `npm run acceptance:uploaded:same-hue -- --out tmp/<run>` before accepting future same-hue source/color changes. Continue searching for a real visible fixture failure before changing compiler behavior again.

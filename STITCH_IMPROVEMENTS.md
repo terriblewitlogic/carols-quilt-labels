@@ -1015,6 +1015,33 @@ material collapse, or generated-icon over-fragmentation.
 
 ---
 
+## Same-Hue Material Stress Coverage
+
+The backend now has a repeatable uploaded-art acceptance command for same-hue
+material split stress cases:
+
+`npm run acceptance:uploaded:same-hue`
+
+Accepted 2026-06-30 result:
+
+- seven deterministic uploaded-art stress cases run under strict source policy
+- warm brown/tan, gold, green, red, and purple material families are covered
+- all cases return status `200`
+- all cases keep quality `100`
+- same-surface trimmed/untrimmed long-span and broad-route-risk gates stay `0`
+
+This is a coverage/tooling improvement, not a compiler behavior change. It
+exists so future source/color work can quickly prove it did not regress
+same-hue material preservation.
+
+Validation passed with the scripted stress run, a regression-gated comparison
+against the discovery run, Python checks, and TypeScript typecheck:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_same_hue_stress_script_20260630`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_same_hue_stress_script_compare_20260630.html`
+
+---
+
 ## Out of scope for this plan
 
 - **Photo-realistic embroidery** (>10 colors with subtle blends) — the auto-conversion pipeline cannot match a hand-digitized photo realistic design. Stay focused on the 4–8 color stylized designs that match the example library.

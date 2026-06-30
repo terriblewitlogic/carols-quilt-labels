@@ -5600,3 +5600,54 @@ Validation:
 NEXT: continue source/color behavior work, but prefer a visible output win over
 another diagnostics-only pass. The strongest next targets are same-hue material
 collapse, meaningful accent loss, or noisy generated-icon fragmentation.
+
+================================================================================
+2026-06-30 — SAME-HUE MATERIAL STRESS COVERAGE COMMAND
+================================================================================
+
+Target: uploaded-art same-hue synthetic stress fixtures.
+
+Finding:
+
+- The uploaded harness already contained several same-hue stress fixtures, but
+  they were not easy to run as a named source/color lane.
+- Running the lane showed no behavior failure: all current same-hue material
+  splits preserve their expected thread families and keep route-risk gates clean.
+
+Change:
+
+- Added `npm run acceptance:uploaded:same-hue`.
+- The command runs:
+  `same_hue_acorn_facets`, `same_hue_gold_shell_facets`,
+  `same_hue_green_leaf_facets`, `same_hue_mushroom_facets`,
+  `same_hue_red_shell_facets`, `same_hue_shell_facets`, and
+  `same_hue_purple_shell_facets`.
+- This is a coverage/tooling checkpoint, not an algorithm change.
+
+Accepted result:
+
+- all seven cases returned status `200`
+- all seven cases kept quality `100`
+- same-surface trimmed long spans stayed `0`
+- same-surface untrimmed jump long spans stayed `0`
+- broad-route-risk surfaces stayed `0`
+- representative metrics:
+  - `same_hue_acorn_facets`: stitches/jumps/trims `5792 / 20 / 5`
+  - `same_hue_green_leaf_facets`: `4873 / 8 / 1`
+  - `same_hue_purple_shell_facets`: `4620 / 19 / 4`
+  - `same_hue_shell_facets`: `7248 / 37 / 5`
+
+Validation:
+
+- discovery run:
+  `tmp/uploaded_same_hue_stress_discovery_20260630`
+- scripted run:
+  `tmp/uploaded_same_hue_stress_script_20260630`
+- scripted comparison:
+  `tmp/uploaded_same_hue_stress_script_compare_20260630.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+NEXT: use this lane as a pre-merge guard for future same-hue source/color
+behavior changes. Continue fixture discovery for visible semantic color loss or
+over-fragmented generated icons before touching compiler behavior again.
