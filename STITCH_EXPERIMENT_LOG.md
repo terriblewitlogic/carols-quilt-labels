@@ -88,8 +88,10 @@ Validation:
 
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_cycle2_20260630/source-triage.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_cycle2_classification_20260630/source-visual-fidelity.md`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_cycle2_final_audit_20260630.html`
 - `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
 - `npm run typecheck`
+- full underpaint benchmark with regression-gated comparison
 
 Rejected follow-up:
 
