@@ -13,6 +13,43 @@ This is not a full changelog. It is a decision log for approaches that worked, f
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_acceptance_*`
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/regression_*`
 
+## Accepted Tooling: Pattern Travel Attribution Diagnostics
+
+Date: 2026-06-30
+
+Goal:
+
+- Explain where emitted jumps and trims actually come from after route-candidate scoring has selected a route.
+- Make the next flower/repeated-island pass evidence-driven instead of relying only on total `jumpCount` / `trimCount`.
+
+Change:
+
+- Added backend `travelDiagnostics` to the conversion response and metrics.
+- Diagnostics summarize connector decisions by color/pass/type/role/route mode, including plain stitches, travel stitches, jumps, trim-jumps, thread-start jumps, blocked connectors, max gap, and total gap.
+- Generated and uploaded acceptance summaries now include compact `travelDiagnosticSummary` and `travelDiagnosticTopGroups` fields.
+
+Result:
+
+- No stitch behavior changed; diagnostics reconcile with existing command metrics.
+- `flower_daisy_simple`: `26` jumps / `6` trims; top bucket is black outline/accent nearest routing with `17` jumps, all `6` trims, and `5` blocked connectors.
+- `flower_sunflower_simple`: `20` jumps / `6` trims; top bucket is black outline/accent nearest routing with `16` jumps, all `6` trims, and `4` blocked connectors.
+- `same_hue_shell_facets`: `37` jumps / `5` trims; top bucket is black outline routing with `33` jumps and `4` trims.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_daisy_travel_diag_20260630.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_travel_diag_20260630.html`
+- `python3 scripts/generated_acceptance.py --case flower_daisy_simple --out tmp/generated_daisy_travel_diag_20260630 --strict`
+- `python3 scripts/generated_acceptance.py --case flower_sunflower_simple --out tmp/generated_sunflower_travel_diag_20260630 --strict`
+- `python3 scripts/uploaded_art_acceptance.py --case same_hue_shell_facets --out tmp/uploaded_shell_travel_diag_20260630 --strict-no-500 --strict-source-policy`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- full underpaint benchmark with regression-gated comparison
+
+Verdict:
+
+- Keep. The next routing work should focus on outline/accent ordering and blocked connector treatment before revisiting petal/fill island ordering.
+
 ## Accepted Source/Color Policy: Generated Same-Hue Overlay Underpaint
 
 Date: 2026-06-30

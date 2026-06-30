@@ -49,10 +49,11 @@ Recent shipped backend changes:
 - Generated same-hue material overlays now preserve the `gradient_elephant_simple` mid-pink ear/body tone without reopening broad scan-lane routing. The accepted run restores `#f082a0`, improves source-fidelity score `62.1 -> 72.3`, palette agreement `0.667 -> 1`, and region recall `0.808 -> 0.971`; quality stays `100`, trims stay `4`, same-surface long spans stay `0`, and no high-risk or broad-route-risk surfaces appear. Neutral metric tradeoffs are stitches `5062 -> 6050` and jumps `8 -> 9`.
 - Source visual-fidelity triage now recognizes color-accounted low-detail cases as stitch-style review instead of source/color behavior targets when palette agreement, region recall, source suitability, and tiny/detail accounting are clean. In the fresh cycle-2 report, `gradient_elephant_simple` moves from `likely-visual-target` to `review-stitch-style`; `sparrow_flat_app_icon` and `low_contrast_bird` remain stitch-style review cases.
 - Flower route guardrails now match current stable repeated-island output: `flower_daisy_simple` must stay at or below `6` trims / `26` jumps, and `flower_sunflower_simple` must stay at or below `6` trims / `20` jumps, with no same-surface long spans.
+- Pattern travel attribution diagnostics now explain emitted jumps/trims by color/pass/type/role/route mode. The first read shows flower trims are dominated by black outline/accent routing, not the petal fill route: daisy black outline has `17` jumps / `6` trims / `5` blocked connectors; sunflower black outline has `16` jumps / `6` trims / `4` blocked connectors.
 
 The remaining quality problems are mostly in generated icon art:
 
-- repeated-island designs still have too many jumps/trims, especially `flower_daisy_simple`
+- repeated-island designs still have too many jumps/trims, especially `flower_daisy_simple`, but current travel attribution points first to outline/accent ordering and blocked connector treatment rather than petal fill ordering
 - current flower route candidate diagnostics show daisy nearest routing is still the safest petal order; angular routing predicts one more jump, and MST predicts one trim/long-span regression
 - source-generation detail overload: too many small regions, low-contrast tones, or embroidery-like source imagery
 - meaningful small accent colors must be preserved without preserving noisy fragments
@@ -110,6 +111,8 @@ Current useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_cycle2_20260630/source-triage.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_cycle2_classification_20260630/source-visual-fidelity.md`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_route_guard_cycle3_20260630.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_daisy_travel_diag_20260630.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_travel_diag_20260630.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_light_endpoint_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_light_endpoint_full_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_light_endpoint_20260627.html`
