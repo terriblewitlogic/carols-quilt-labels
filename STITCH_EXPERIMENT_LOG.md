@@ -64,6 +64,42 @@ Verdict:
 - Keep. This is the first generated-icon same-hue source/color behavior win after the uploaded material-family guards.
 - Next source/color work should rerun triage and pick a new behavior target; elephant should move to ongoing stitch-style/detail-shape review rather than remaining the top missing-color case.
 
+## Accepted Source/Color Tooling: Color-Accounted Low-Detail Triage
+
+Date: 2026-06-30
+
+Goal:
+
+- Keep the source/color sprint from circling back to `gradient_elephant_simple` after the mid-pink color fix.
+- Treat low visual detail scores as stitch-style/detail-shape review when palette agreement, region recall, source suitability, and tiny/detail accounting prove the source colors are accounted.
+
+Change:
+
+- `source_visual_fidelity_report.py` now carries source repair, semantic tiny, source tiny, and accounted tiny counts into classification.
+- Added a narrow `review-stitch-style` path for low-detail rows with palette agreement `>= 0.95`, region recall `>= 0.95`, silhouette `>= 0.70`, source fit `>= 95`, no source repair opportunities, no semantic tiny components, and no acceptance/source issues.
+
+Result:
+
+- Fresh cycle-2 report moves `gradient_elephant_simple` to `review-stitch-style`: score `72.3`, palette agreement `1`, region recall `0.971`, silhouette `0.754`, detail `0`, source fit `100`, and no source repair opportunities.
+- `sparrow_flat_app_icon` and `low_contrast_bird` remain `review-stitch-style`.
+- The source-art triage queue now points back to `real_strawberry` as the first source-complexity target rather than misclassifying the fixed elephant as a source/color behavior problem.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_cycle2_20260630/source-triage.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_cycle2_classification_20260630/source-visual-fidelity.md`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+Rejected follow-up:
+
+- One-color strawberry seed caps are still not safe. Keeping 20 promoted seeds reduced stitches `7369 -> 7095` and trims `3 -> 2`, but worsened jumps `65 -> 76`. Keeping 26 seeds reduced stitches `7369 -> 7262`, but worsened jumps `65 -> 67` and trimmed relocations `1 -> 2`.
+
+Verdict:
+
+- Keep the triage fix. Do not accept seed-field thinning unless it also protects jump/order behavior.
+- Next source/color behavior work should either find a source-side strawberry simplification that does not increase jumps, or move to another current triage target with a clearer color/detail preservation issue.
+
 ## Accepted Source/Color Tooling: Stitch-Style Triage Class
 
 Date: 2026-06-30

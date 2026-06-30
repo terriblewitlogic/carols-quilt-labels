@@ -157,9 +157,16 @@ Recent shipped work since the original pro-design comparison:
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_overlay_detailscan_20260630.html`
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_overlay_detailscan_20260630.html`
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_overlay_guard_20260630.html`
+- Added color-accounted low-detail fidelity triage:
+  - `source_visual_fidelity_report.py` now avoids routing clean color-accounted low-detail cases back into the source/color behavior queue
+  - `gradient_elephant_simple` is now `review-stitch-style` in the fresh cycle-2 report: palette agreement `1`, region recall `0.971`, source fit `100`, no source repair opportunities, but detail score `0`
+  - validation reports:
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_cycle2_20260630/source-triage.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_cycle2_classification_20260630/source-visual-fidelity.md`
 - Rejected unattended strawberry variants:
   - seed thinning reduced stitch count but worsened jumps from `65` into the `80+` range
   - repeated-detail density `0.75` reduced stitches slightly but worsened trims `3 -> 4` and cross-surface trimmed relocations `1 -> 2`
+  - new one-color seed caps also remain rejected: keeping 20 seeds worsened jumps `65 -> 76`; keeping 26 seeds worsened jumps `65 -> 67` and trimmed relocations `1 -> 2`
   - keep strawberry on the backlog only when detail simplification is paired with route/order protection
 - Added a real source/color fixture lane:
   - `npm run acceptance:source-color` runs `generated_acceptance.py --fixture-dir fixtures/source_color --strict`

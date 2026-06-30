@@ -47,6 +47,7 @@ Recent shipped backend changes:
 - Same-hue thread-palette collisions now have a narrow source-compiler repair path. `no_outline_teddy` previously collapsed dark ears into body brown; the accepted run preserves dark ear `#783c14`, body `#a05a28`, belly `#ffc88c`, dark detail `#50280a`, and black. Quality/source suitability stay `100 / clean`, stitches improve `4548 -> 4009`, and hard risk gates stay clean; the accepted tradeoff is more jumps/trims from the extra semantic material color (`12 -> 20` jumps, `3 -> 10` trims).
 - Source visual-fidelity triage now separates clean source/color cases that need stitch-style review from actual source/color behavior targets. `sparrow_flat_app_icon` has palette agreement `1`, region recall `0.96`, clean source suitability `100`, no acceptance issues, and no route-risk diagnostics, so it moves from `likely-visual-target` to `review-stitch-style`; the visible issue is heavy boundary/fill styling rather than dropped source colors. `low_contrast_bird` also moves to `review-stitch-style`: palette agreement `1`, region recall `0.997`, detail `0.875`, source fit `100`, and its visible issue is broken outline/shape rendering. `gradient_elephant_simple` remains the top source/color behavior target.
 - Generated same-hue material overlays now preserve the `gradient_elephant_simple` mid-pink ear/body tone without reopening broad scan-lane routing. The accepted run restores `#f082a0`, improves source-fidelity score `62.1 -> 72.3`, palette agreement `0.667 -> 1`, and region recall `0.808 -> 0.971`; quality stays `100`, trims stay `4`, same-surface long spans stay `0`, and no high-risk or broad-route-risk surfaces appear. Neutral metric tradeoffs are stitches `5062 -> 6050` and jumps `8 -> 9`.
+- Source visual-fidelity triage now recognizes color-accounted low-detail cases as stitch-style review instead of source/color behavior targets when palette agreement, region recall, source suitability, and tiny/detail accounting are clean. In the fresh cycle-2 report, `gradient_elephant_simple` moves from `likely-visual-target` to `review-stitch-style`; `sparrow_flat_app_icon` and `low_contrast_bird` remain stitch-style review cases.
 
 The remaining quality problems are mostly in generated icon art:
 
@@ -58,6 +59,7 @@ The remaining quality problems are mostly in generated icon art:
 - same-hue thread-collision fixes are useful, but need follow-up route/order work if the added semantic color creates too many trims
 - source-fidelity low scores need triage class review before behavior work; `sparrow_flat_app_icon` and `low_contrast_bird` are now deferred to outline/fill styling because their source colors are accounted
 - `gradient_elephant_simple` is no longer the top source/color loss target after the mid-pink overlay fix; it remains useful as a generated same-hue overlay guard and still has broader stitch-style/detail-shape room to improve
+- `real_strawberry` remains the first source-complexity target, but repeated seed-field thinning is still rejected unless it avoids jump/trim relocation regressions; conservative caps at 20 and 26 retained seeds both worsened jumps
 - some residual preview clutter from jumps that are not actually stitched
 - broad-underpaint/lane routing should only be revisited when reports show actual stitched-span risk
 - strawberry seed-field simplification is not accepted unless it also avoids jump/trim relocation regression; thinning and higher repeated-detail density both failed this gate on 2026-06-29
@@ -103,6 +105,8 @@ Current useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_overlay_detailscan_20260630.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_overlay_detailscan_20260630.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_overlay_guard_20260630.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_cycle2_20260630/source-triage.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_cycle2_classification_20260630/source-visual-fidelity.md`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_light_endpoint_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_light_endpoint_full_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_light_endpoint_20260627.html`
