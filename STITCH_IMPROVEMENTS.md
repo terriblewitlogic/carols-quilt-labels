@@ -22,6 +22,7 @@ Recent shipped work since the original pro-design comparison:
   - `flower_daisy_simple` intentionally unchanged because angular routing worsened the eight-petal case.
 - Added graph-aware route candidate diagnostics for repeated/disconnected same-color fill islands.
 - Added pattern travel attribution diagnostics so emitted jumps/trims can be traced by color/pass/type/role/route mode after the selected route is converted to commands. Current flower evidence shows black outline/accent routing is the dominant trim bucket: daisy `17` outline jumps / `6` trims, sunflower `16` outline jumps / `6` trims.
+- Added gated internal nearest segment ordering for large final accent-outline groups. This improves `flower_sunflower_simple` stitches `1819 -> 1805`, jumps `20 -> 18`, and trims `6 -> 4` while leaving daisy unchanged; broad internal sorting remains rejected because it regressed daisy jumps `26 -> 29`.
 - Added upload-style source/detail policy guardrails:
   - `surface-plan.json` now summarizes tiny-detail decision counts.
   - `uploaded_art_acceptance.py --strict-source-policy` fails if tiny-detail accounting, detail-budget status, or key accent-color preservation regresses.

@@ -50,6 +50,49 @@ Verdict:
 
 - Keep. The next routing work should focus on outline/accent ordering and blocked connector treatment before revisiting petal/fill island ordering.
 
+## Accepted Routing Policy: Gated Large Accent-Outline Internal Sorting
+
+Date: 2026-06-30
+
+Goal:
+
+- Use the new travel attribution to reduce repeated flower outline trims without reopening the daisy regression.
+- Keep fill/petal routing unchanged unless the report shows a real fill-order issue.
+
+Change:
+
+- Final black accent outline groups with at least `12` raw outline components can internally nearest-sort their segment list before command emission.
+- Smaller accent-outline groups keep source/generated order because the daisy probe regressed jumps when the same sort was applied broadly.
+- Tightened strict generated and underpaint guards for `flower_sunflower_simple` to `<= 18` jumps and `<= 4` trims.
+
+Result:
+
+- `flower_sunflower_simple`: stitches `1819 -> 1805`, jumps `20 -> 18`, trims `6 -> 4`.
+- Sunflower black outline bucket improves from `16` jumps / `6` trims / `4` blocked connectors to `14` jumps / `4` trims / `2` blocked connectors.
+- `flower_daisy_simple` stays unchanged at `2444` stitches, `26` jumps, `6` trims, and no same-surface long spans.
+- Full generated and underpaint comparisons show no other metric movement.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_outline_internal_sort_guard_20260630.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_outline_internal_sort_guard_20260630.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_daisy_outline_internal_sort_gated_20260630.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_sunflower_outline_internal_sort_gated_20260630.html`
+- `python3 scripts/generated_acceptance.py --case flower_daisy_simple --out tmp/generated_daisy_outline_internal_sort_guard_20260630 --strict`
+- `python3 scripts/generated_acceptance.py --case flower_sunflower_simple --out tmp/generated_sunflower_outline_internal_sort_guard_20260630 --strict`
+- `python3 scripts/generated_acceptance.py --out tmp/generated_outline_internal_sort_gated_20260630 --strict`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- full underpaint benchmark with regression-gated comparison
+
+Rejected variant:
+
+- Applying internal nearest sorting to every final accent outline improved sunflower but regressed daisy jumps `26 -> 29`; keep the component-count gate.
+
+Verdict:
+
+- Keep. The next routing target is still black outline/accent ordering, but the remaining daisy trims need a different approach than broad internal sorting.
+
 ## Accepted Source/Color Policy: Generated Same-Hue Overlay Underpaint
 
 Date: 2026-06-30
