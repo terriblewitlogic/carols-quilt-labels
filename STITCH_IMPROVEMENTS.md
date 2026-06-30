@@ -163,6 +163,12 @@ Recent shipped work since the original pro-design comparison:
   - validation reports:
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_cycle2_20260630/source-triage.html`
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_cycle2_classification_20260630/source-visual-fidelity.md`
+- Tightened flower repeated-island route guardrails:
+  - `flower_daisy_simple` now has strict generated/underpaint guard limits of `26` jumps, `6` trims, and zero same-surface long spans
+  - `flower_sunflower_simple` now has strict generated/underpaint guard limits of `20` jumps, `6` trims, and zero same-surface long spans
+  - current daisy diagnostics show nearest routing remains safest; angular predicts one more jump, and MST predicts a trim/long-span regression
+  - validation report:
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_route_guard_cycle3_20260630.html`
 - Rejected unattended strawberry variants:
   - seed thinning reduced stitch count but worsened jumps from `65` into the `80+` range
   - repeated-detail density `0.75` reduced stitches slightly but worsened trims `3 -> 4` and cross-surface trimmed relocations `1 -> 2`

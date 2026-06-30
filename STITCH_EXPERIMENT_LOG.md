@@ -102,6 +102,41 @@ Verdict:
 - Keep the triage fix. Do not accept seed-field thinning unless it also protects jump/order behavior.
 - Next source/color behavior work should either find a source-side strawberry simplification that does not increase jumps, or move to another current triage target with a clearer color/detail preservation issue.
 
+## Accepted Route Guardrail: Flower Repeated-Island Baselines
+
+Date: 2026-06-30
+
+Goal:
+
+- Prevent future repeated-island route experiments from drifting backward on the two flower generated fixtures.
+- Capture the current finding that daisy should stay on nearest routing for now, while sunflower keeps the radial/angular win.
+
+Change:
+
+- Tightened strict generated acceptance for `flower_daisy_simple` and `flower_sunflower_simple`.
+- Tightened underpaint benchmark assertions for the same fixtures.
+
+Result:
+
+- `flower_daisy_simple`: quality `100`, stitches `2444`, jumps `26`, trims `6`, same-surface long spans `0`.
+- Daisy route diagnostics selected nearest for the eight pale petals. Angular predicted one more jump, and MST predicted a trim/long-span regression.
+- `flower_sunflower_simple`: quality `100`, stitches `1819`, jumps `20`, trims `6`, same-surface long spans `0`.
+- Sunflower route diagnostics keep the radial/angular repeated-ring path.
+
+Validation:
+
+- `python3 scripts/generated_acceptance.py --case flower_daisy_simple --out tmp/generated_daisy_route_guard_20260630 --strict`
+- `python3 scripts/generated_acceptance.py --case flower_sunflower_simple --out tmp/generated_sunflower_route_guard_20260630 --strict`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- `npm run benchmark:underpaint -- --out tmp/underpaint_route_guard_cycle3_20260630`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_route_guard_cycle3_20260630.html`
+
+Verdict:
+
+- Keep. This is a guardrail/tooling checkpoint, not a route behavior win.
+- Next route behavior work should look for a way to reduce daisy jump count without accepting angular/MST regressions, or add deeper per-pass jump/trim attribution before trying another routing change.
+
 ## Accepted Source/Color Tooling: Stitch-Style Triage Class
 
 Date: 2026-06-30
