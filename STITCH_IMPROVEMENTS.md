@@ -137,11 +137,13 @@ Recent shipped work since the original pro-design comparison:
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_teddy_material_snap_20260629.html`
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_teddy_material_snap_20260629.html`
 - Added source-fidelity stitch-style triage:
-  - `source_visual_fidelity_report.py` now avoids treating clean source/color cases as behavior targets when the remaining mismatch is likely outline/fill styling
+  - `source_visual_fidelity_report.py` now avoids treating clean source/color cases as behavior targets when the remaining mismatch is likely outline/fill styling or shape rendering
   - `sparrow_flat_app_icon` is now `review-stitch-style` instead of `likely-visual-target`: palette agreement `1`, region recall `0.96`, source fit `100`, no acceptance issues, and no stitch-risk diagnostics
+  - `low_contrast_bird` is also `review-stitch-style`: palette agreement `1`, region recall `0.997`, detail `0.875`, source fit `100`, and the visible gap is broken outline/leg rendering rather than source color loss
   - `gradient_elephant_simple` stays the top source/color target because it still has palette/detail loss and the rejected mid-tone preservation experiment reintroduced route risk
+  - rejected follow-up: compact material-component protection preserved elephant `#f082a0` but regressed same-surface long spans `0 -> 2`, jumps `8 -> 14`, trims `4 -> 8`, and `scan_lanes`
   - validation report:
-    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_style_review_20260630/source-visual-fidelity.md`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_style_review_v2_20260630/source-visual-fidelity.md`
 - Rejected unattended strawberry variants:
   - seed thinning reduced stitch count but worsened jumps from `65` into the `80+` range
   - repeated-detail density `0.75` reduced stitches slightly but worsened trims `3 -> 4` and cross-surface trimmed relocations `1 -> 2`

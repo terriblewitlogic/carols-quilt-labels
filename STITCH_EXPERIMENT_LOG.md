@@ -32,11 +32,14 @@ Result:
 - `sparrow_flat_app_icon` moves from `likely-visual-target` to `review-stitch-style`.
 - Current metrics remain unchanged: score `73.7`, palette agreement `1`, region recall `0.96`, silhouette `0.783`, detail `0.688`, source fit `100`, stitches/jumps/trims `5483 / 17 / 2`, and no same-surface stitched/untrimmed long spans, high-risk surfaces, or broad route risks.
 - Visual review showed all intended colors preserved; the visible gap is heavier boundary/fill stitch styling than the smooth source art, so this is deferred outside the current source/color behavior lane.
+- `low_contrast_bird` also moves to `review-stitch-style`: score `76.1`, palette agreement `1`, region recall `0.997`, silhouette `0.561`, detail `0.875`, source fit `100`, stitches/jumps/trims `2502 / 26 / 3`. Visual review showed preserved source colors but broken outline/leg rendering and perceived shape mismatch.
 - `gradient_elephant_simple` remains the top `likely-visual-target`.
+- Rejected elephant follow-up: a compact material-component protection preserved `#f082a0`, but it reintroduced `scan_lanes`, same-surface long spans `0 -> 2`, jumps `8 -> 14`, trims `4 -> 8`, and stitches `5062 -> 6288`, so it was reverted.
 
 Validation:
 
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_style_review_20260630/source-visual-fidelity.md`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_style_review_v2_20260630/source-visual-fidelity.md`
 - `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
 - `npm run typecheck`
 
