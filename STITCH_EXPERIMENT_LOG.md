@@ -13,6 +13,38 @@ This is not a full changelog. It is a decision log for approaches that worked, f
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_acceptance_*`
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/regression_*`
 
+## Accepted Source/Color Tooling: Stitch-Style Triage Class
+
+Date: 2026-06-30
+
+Goal:
+
+- Keep the source/color sprint focused on real source-color losses instead of spending behavior work on visually different but source-accounted stitch styling.
+- Review `sparrow_flat_app_icon`, the second-ranked visual-fidelity lead after the elephant, before changing compiler behavior.
+
+Change:
+
+- Added a `review-stitch-style` class to `source_visual_fidelity_report.py`.
+- The class only applies when the score is low but source evidence is strong: near-perfect palette agreement, high region recall, acceptable silhouette/detail integrity, clean source suitability, no source issues, and no acceptance issues.
+
+Result:
+
+- `sparrow_flat_app_icon` moves from `likely-visual-target` to `review-stitch-style`.
+- Current metrics remain unchanged: score `73.7`, palette agreement `1`, region recall `0.96`, silhouette `0.783`, detail `0.688`, source fit `100`, stitches/jumps/trims `5483 / 17 / 2`, and no same-surface stitched/untrimmed long spans, high-risk surfaces, or broad route risks.
+- Visual review showed all intended colors preserved; the visible gap is heavier boundary/fill stitch styling than the smooth source art, so this is deferred outside the current source/color behavior lane.
+- `gradient_elephant_simple` remains the top `likely-visual-target`.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_style_review_20260630/source-visual-fidelity.md`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+Verdict:
+
+- Keep. This is a triage/tooling win, not a stitch-output change.
+- Next behavior work should return to `gradient_elephant_simple` with a narrower tonal-preservation approach that does not reintroduce same-surface spans or `scan_lanes`.
+
 ## Accepted Source/Color Policy: Same-Hue Thread Collision Disambiguation
 
 Date: 2026-06-29
