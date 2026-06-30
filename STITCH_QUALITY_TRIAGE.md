@@ -44,6 +44,7 @@ Recent shipped backend changes:
 - Saturated dark same-hue material panels now stay eligible for material preservation instead of being treated like neutral dark residue. New strict uploaded stress fixture `same_hue_green_leaf_facets` keeps dark/mid/light green `#144614`, `#3ca03c`, `#96dc82`, and black; the probe baseline dropped dark green, while the accepted run improves stitches `5370 -> 4873`, jumps `10 -> 8`, trims `2 -> 1`, and same-surface trimmed spans `1 -> 0` with quality `100`.
 - Saturated dark red same-hue material panels now use the same material-preservation path before early broad-tone merging. New strict uploaded stress fixture `same_hue_red_shell_facets` keeps dark/mid/light red `#8c000a`, `#c83264`, `#f082a0`, and black; the probe baseline collapsed dark red into mid red, while the accepted run preserves all tones with quality `100`, stitches `4444`, jumps `15`, trims `6`, no same-surface relocations, and no broad-route risk.
 - Source/color guard coverage now explicitly includes a single tiny vivid accent and a gold same-hue material family. New default uploaded fixture `tiny_vivid_accent_badge` preserves `#e63c82` on a blue badge with source tiny `1 -> accounted 1`, quality `100`, `3188` stitches, `13` jumps, and `0` trims. New stress fixture `same_hue_gold_shell_facets` preserves `#b48200`, `#e6be14`, `#fff03c`, and black with quality `100`, `4758` stitches, `27` jumps, `5` trims, no same-surface relocations, and no broad-route risk. Tiny-policy diagnostics now include preserved tiny surfaces in `accountedCount`.
+- Same-hue thread-palette collisions now have a narrow source-compiler repair path. `no_outline_teddy` previously collapsed dark ears into body brown; the accepted run preserves dark ear `#783c14`, body `#a05a28`, belly `#ffc88c`, dark detail `#50280a`, and black. Quality/source suitability stay `100 / clean`, stitches improve `4548 -> 4009`, and hard risk gates stay clean; the accepted tradeoff is more jumps/trims from the extra semantic material color (`12 -> 20` jumps, `3 -> 10` trims).
 
 The remaining quality problems are mostly in generated icon art:
 
@@ -52,6 +53,7 @@ The remaining quality problems are mostly in generated icon art:
 - meaningful small accent colors must be preserved without preserving noisy fragments
 - same-hue material colors must stay preserved when source evidence is broad and ordered, but gradient cleanup must still collapse mild disposable bands
 - saturated dark chromatic material facets should stay preserved without reopening neutral outline/halo residue as semantic color
+- same-hue thread-collision fixes are useful, but need follow-up route/order work if the added semantic color creates too many trims
 - some residual preview clutter from jumps that are not actually stitched
 - broad-underpaint/lane routing should only be revisited when reports show actual stitched-span risk
 - strawberry seed-field simplification is not accepted unless it also avoids jump/trim relocation regression; thinning and higher repeated-detail density both failed this gate on 2026-06-29

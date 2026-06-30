@@ -13,6 +13,49 @@ This is not a full changelog. It is a decision log for approaches that worked, f
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_acceptance_*`
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/regression_*`
 
+## Accepted Source/Color Policy: Same-Hue Thread Collision Disambiguation
+
+Date: 2026-06-29
+
+Goal:
+
+- Preserve broad same-hue material regions when two meaningful source colors both snap to the same Madeira thread.
+- Fix the `no_outline_teddy` failure where dark ears collapsed into the body brown even though the source art had separate ear/body/belly materials.
+- Keep the behavior narrow: source compiler only, no routing/public API/frontend changes.
+
+Change:
+
+- Added a post-snap `_disambiguate_same_hue_material_thread_collisions` pass before duplicate thread labels merge.
+- The pass only acts on substantial adjacent same-hue labels with clear luminance separation, and chooses a nearby darker/lighter thread only when the alternate stays close enough to the raw source color.
+- Added paired same-hue material protection inside low-value partition cleanup so newly separated broad material fields are not immediately absorbed as tonal cuts.
+- Strict uploaded source policy now requires `no_outline_teddy` to preserve dark ear `#783c14`, body `#a05a28`, belly `#ffc88c`, dark detail `#50280a`, and black.
+
+Result:
+
+- `no_outline_teddy` colors improved from `['#a05a28', '#ffc88c', '#50280a', '#000000']` to `['#783c14', '#ffc88c', '#50280a', '#a05a28', '#000000']`.
+- Quality and source suitability stayed `100 / clean`; stitches improved `4548 -> 4009`.
+- Expected tradeoff: jumps `12 -> 20`, trims `3 -> 10`, color stops `3 -> 4`, and same-surface trimmed preview relocations `1 -> 2`.
+- Hard risk gates stayed clean: no same-surface untrimmed jump long spans, no high-risk surfaces, and no broad-route risk.
+- Full uploaded, generated, same-hue stress, and underpaint regression-gated comparisons passed.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_teddy_material_snap_20260629.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_teddy_material_snap_full_20260629.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_teddy_material_snap_20260629.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_teddy_material_snap_20260629.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- full uploaded strict source policy
+- same-hue stress strict source policy
+- full generated acceptance `--strict`
+- full underpaint benchmark
+
+Verdict:
+
+- Keep. This is a visible semantic color win and gives us a guarded mechanism for thread-palette collisions.
+- Next source/color work should look for another real material-loss target, preferably one that improves without the teddy-style trim/jump tradeoff.
+
 ## Accepted Source/Color Guard Coverage: Tiny Vivid Accent And Gold Material
 
 Date: 2026-06-29

@@ -125,6 +125,17 @@ Recent shipped work since the original pro-design comparison:
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_source_color_guards_20260629.html`
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_source_color_guards_20260629.html`
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_source_color_guards_20260629.html`
+- Added same-hue thread-collision disambiguation:
+  - `no_outline_teddy` now preserves separate dark ear/body/belly material colors when the raw source has broad same-hue fields that would otherwise snap to one Madeira brown
+  - `_posterize` now runs a narrow post-snap repair for substantial adjacent same-hue labels with clear luminance separation, and low-value partition cleanup protects those broad material pairs from immediate absorption
+  - strict source policy now requires `#783c14`, `#a05a28`, `#ffc88c`, `#50280a`, and black for the teddy fixture
+  - target metrics: colors improved from `['#a05a28', '#ffc88c', '#50280a', '#000000']` to `['#783c14', '#ffc88c', '#50280a', '#a05a28', '#000000']`, quality/source suitability stayed `100 / clean`, and stitches improved `4548 -> 4009`
+  - accepted tradeoff: jumps `12 -> 20`, trims `3 -> 10`, color stops `3 -> 4`, same-surface trimmed preview relocations `1 -> 2`; hard risk gates stayed clean
+  - validation reports:
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_teddy_material_snap_20260629.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_teddy_material_snap_full_20260629.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_teddy_material_snap_20260629.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_teddy_material_snap_20260629.html`
 - Rejected unattended strawberry variants:
   - seed thinning reduced stitch count but worsened jumps from `65` into the `80+` range
   - repeated-detail density `0.75` reduced stitches slightly but worsened trims `3 -> 4` and cross-surface trimmed relocations `1 -> 2`
