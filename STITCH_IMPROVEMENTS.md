@@ -1,6 +1,6 @@
 # Stitch Algorithm Improvement Plan
 
-## Current status — 2026-06-29
+## Current status — 2026-06-30
 
 This document is the long-range pro-quality plan. The active day-to-day backlog now lives in:
 
@@ -144,6 +144,19 @@ Recent shipped work since the original pro-design comparison:
   - rejected follow-up: compact material-component protection preserved elephant `#f082a0` but regressed same-surface long spans `0 -> 2`, jumps `8 -> 14`, trims `4 -> 8`, and `scan_lanes`
   - validation report:
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_style_review_v2_20260630/source-visual-fidelity.md`
+- Added generated same-hue overlay underpaint:
+  - `gradient_elephant_simple` now preserves the meaningful mid-pink material tone `#f082a0` without reopening the old `scan_lanes`/same-surface-span route regression
+  - the support surface underpaints the same-hue child area and the compact child stitches later as a detail-stable serpentine overlay
+  - source-fidelity score improves `62.1 -> 72.3`, palette agreement `0.667 -> 1`, and region recall `0.808 -> 0.971`
+  - quality stays `100`, trims stay `4`, same-surface long spans stay `0`, high-risk and broad-route-risk surfaces stay `0`; neutral tradeoffs are stitches `5062 -> 6050` and jumps `8 -> 9`
+  - strict generated acceptance and the underpaint benchmark now guard the restored elephant color and reject `scan_lanes` for this case
+  - validation reports:
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_elephant_overlay_detailscan_20260630.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_elephant_overlay_detailscan_20260630/source-visual-fidelity.md`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_overlay_detailscan_20260630.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_overlay_detailscan_20260630.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_overlay_detailscan_20260630.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_overlay_guard_20260630.html`
 - Rejected unattended strawberry variants:
   - seed thinning reduced stitch count but worsened jumps from `65` into the `80+` range
   - repeated-detail density `0.75` reduced stitches slightly but worsened trims `3 -> 4` and cross-surface trimmed relocations `1 -> 2`

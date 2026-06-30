@@ -46,6 +46,7 @@ Recent shipped backend changes:
 - Source/color guard coverage now explicitly includes a single tiny vivid accent and a gold same-hue material family. New default uploaded fixture `tiny_vivid_accent_badge` preserves `#e63c82` on a blue badge with source tiny `1 -> accounted 1`, quality `100`, `3188` stitches, `13` jumps, and `0` trims. New stress fixture `same_hue_gold_shell_facets` preserves `#b48200`, `#e6be14`, `#fff03c`, and black with quality `100`, `4758` stitches, `27` jumps, `5` trims, no same-surface relocations, and no broad-route risk. Tiny-policy diagnostics now include preserved tiny surfaces in `accountedCount`.
 - Same-hue thread-palette collisions now have a narrow source-compiler repair path. `no_outline_teddy` previously collapsed dark ears into body brown; the accepted run preserves dark ear `#783c14`, body `#a05a28`, belly `#ffc88c`, dark detail `#50280a`, and black. Quality/source suitability stay `100 / clean`, stitches improve `4548 -> 4009`, and hard risk gates stay clean; the accepted tradeoff is more jumps/trims from the extra semantic material color (`12 -> 20` jumps, `3 -> 10` trims).
 - Source visual-fidelity triage now separates clean source/color cases that need stitch-style review from actual source/color behavior targets. `sparrow_flat_app_icon` has palette agreement `1`, region recall `0.96`, clean source suitability `100`, no acceptance issues, and no route-risk diagnostics, so it moves from `likely-visual-target` to `review-stitch-style`; the visible issue is heavy boundary/fill styling rather than dropped source colors. `low_contrast_bird` also moves to `review-stitch-style`: palette agreement `1`, region recall `0.997`, detail `0.875`, source fit `100`, and its visible issue is broken outline/shape rendering. `gradient_elephant_simple` remains the top source/color behavior target.
+- Generated same-hue material overlays now preserve the `gradient_elephant_simple` mid-pink ear/body tone without reopening broad scan-lane routing. The accepted run restores `#f082a0`, improves source-fidelity score `62.1 -> 72.3`, palette agreement `0.667 -> 1`, and region recall `0.808 -> 0.971`; quality stays `100`, trims stay `4`, same-surface long spans stay `0`, and no high-risk or broad-route-risk surfaces appear. Neutral metric tradeoffs are stitches `5062 -> 6050` and jumps `8 -> 9`.
 
 The remaining quality problems are mostly in generated icon art:
 
@@ -56,6 +57,7 @@ The remaining quality problems are mostly in generated icon art:
 - saturated dark chromatic material facets should stay preserved without reopening neutral outline/halo residue as semantic color
 - same-hue thread-collision fixes are useful, but need follow-up route/order work if the added semantic color creates too many trims
 - source-fidelity low scores need triage class review before behavior work; `sparrow_flat_app_icon` and `low_contrast_bird` are now deferred to outline/fill styling because their source colors are accounted
+- `gradient_elephant_simple` is no longer the top source/color loss target after the mid-pink overlay fix; it remains useful as a generated same-hue overlay guard and still has broader stitch-style/detail-shape room to improve
 - some residual preview clutter from jumps that are not actually stitched
 - broad-underpaint/lane routing should only be revisited when reports show actual stitched-span risk
 - strawberry seed-field simplification is not accepted unless it also avoids jump/trim relocation regression; thinning and higher repeated-detail density both failed this gate on 2026-06-29
@@ -95,6 +97,12 @@ Current useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_route_fixture_coverage_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_style_review_20260630/source-visual-fidelity.md`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_style_review_v2_20260630/source-visual-fidelity.md`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_elephant_overlay_detailscan_20260630/source-visual-fidelity.md`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_elephant_overlay_detailscan_20260630.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_overlay_detailscan_20260630.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_overlay_detailscan_20260630.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_overlay_detailscan_20260630.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_overlay_guard_20260630.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_light_endpoint_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_light_endpoint_full_20260627.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_light_endpoint_20260627.html`

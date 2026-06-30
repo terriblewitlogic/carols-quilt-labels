@@ -13,6 +13,57 @@ This is not a full changelog. It is a decision log for approaches that worked, f
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_acceptance_*`
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/regression_*`
 
+## Accepted Source/Color Policy: Generated Same-Hue Overlay Underpaint
+
+Date: 2026-06-30
+
+Goal:
+
+- Restore the missing mid-pink material tone in `gradient_elephant_simple`.
+- Keep the earlier tonal-merge routing win intact: no `scan_lanes`, no same-surface long spans, no broad route risk.
+- Make the generated elephant a strict guard so future cleanup cannot silently drop the meaningful same-hue patch again.
+
+Change:
+
+- Added a narrow same-hue material overlay planner for compact darker same-hue child patches over a larger lighter support.
+- The support surface underpaints the union of parent and child geometry, while the compact child is stitched later as a detail-stable serpentine overlay.
+- Added surface-plan diagnostics for `sameHueMaterialOverlay`.
+- Strict generated acceptance now requires `gradient_elephant_simple` to keep `#f082a0`, avoid `scan_lanes`, and keep same-surface long spans at zero.
+- The underpaint benchmark now also guards the elephant `#f082a0` color.
+
+Result:
+
+- Colors improve from `['#c83264', '#fab4c8', '#000000']` to `['#c83264', '#fab4c8', '#f082a0', '#000000']`.
+- Source visual-fidelity score improves `62.1 -> 72.3`, palette agreement `0.667 -> 1`, and region recall `0.808 -> 0.971`.
+- Quality stays `100`; trims stay `4`; same-surface long spans, same-surface stitched long spans, same-surface untrimmed jump long spans, high-risk surfaces, and broad-fill route risk all stay `0`.
+- Neutral tradeoffs: stitches `5062 -> 6050`, jumps `8 -> 9`.
+- Fill strategies include `detail_stable_serpentine: 1` and `same_hue_support_underpaint: 1`, with no `scan_lanes`.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_elephant_overlay_detailscan_20260630.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_elephant_overlay_detailscan_20260630/source-visual-fidelity.md`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_overlay_detailscan_20260630.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_overlay_detailscan_20260630.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_overlay_detailscan_20260630.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_overlay_guard_20260630.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- full uploaded strict source policy
+- full generated acceptance `--strict`
+- full source-color acceptance `--strict`
+- full underpaint benchmark
+
+Rejected variants:
+
+- Broad same-hue preservation and compact material-component protection restored `#f082a0` but reintroduced `scan_lanes`, same-surface long spans `0 -> 2`, jumps `8 -> 14`, trims `4 -> 8`, and stitches `5062 -> 6288`.
+- The first overlay fill used compact-accent fill and preserved the color, but produced quality `64`, one broad-fill route risk, one high-risk surface, and one same-surface long span.
+
+Verdict:
+
+- Keep. This is the first generated-icon same-hue source/color behavior win after the uploaded material-family guards.
+- Next source/color work should rerun triage and pick a new behavior target; elephant should move to ongoing stitch-style/detail-shape review rather than remaining the top missing-color case.
+
 ## Accepted Source/Color Tooling: Stitch-Style Triage Class
 
 Date: 2026-06-30
