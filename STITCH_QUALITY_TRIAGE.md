@@ -2010,3 +2010,37 @@ Validation and reports:
 Next recommended direction:
 
 - Use `npm run acceptance:uploaded:same-hue -- --out tmp/<run>` before accepting future same-hue source/color changes. Continue searching for a real visible fixture failure before changing compiler behavior again.
+
+Visual-fidelity triage checkpoint.
+
+Change accepted:
+
+- Added a repeatable source visual-fidelity ranking report:
+  `npm run report:source-fidelity`.
+- The report scores acceptance artifacts against their source art and ranks likely visual/source-color gaps by fidelity score, color match, region recall, silhouette, detail integrity, part count, and palette agreement.
+- This is target-selection tooling, not a compiler behavior change.
+
+Current ranked leads from the accepted semantic-tiny runs:
+
+- `gradient_elephant_simple`: fidelity `62.1`, detail `0`, palette `0.667`.
+- `leaf_single_smooth`: fidelity `70.9`, silhouette `0.261`, palette `0.6`.
+- `sparrow_flat_app_icon`: fidelity `73.7`, color `0.612`, part count `0.396`.
+- `low_contrast_bird`: fidelity `76.1`, silhouette `0.561`.
+
+Rejected experiment:
+
+- Tried preserving the elephant's broad mid-pink tonal pair by reusing paired same-hue material protection inside tonal-family collapse.
+- It restored `#f082a0` and improved fidelity `62.1 -> 74.7`, but failed regression gates by increasing same-surface long spans `0 -> 2`, reintroducing `scan_lanes`, and moving jumps/trims `8 / 4 -> 14 / 8`.
+- Do not accept elephant tonal preservation unless the route/long-span side effect is solved at the same time.
+
+Validation and reports:
+
+- Fidelity report: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_semantic_tiny_20260630/source-visual-fidelity.md`
+- Rejected elephant comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_gradient_elephant_mid_tone_20260630.html`
+- Rejected elephant fidelity probe: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/visual_fidelity_gradient_elephant_mid_tone_20260630.json`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+Next recommended direction:
+
+- Use the fidelity report before picking each source/color patch. The best next behavior target is still elephant, but only with a route-safe approach; otherwise inspect `leaf_single_smooth` or `sparrow_flat_app_icon` for a narrower visual/source-color fix.

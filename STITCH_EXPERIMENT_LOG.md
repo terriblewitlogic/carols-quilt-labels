@@ -5651,3 +5651,62 @@ Validation:
 NEXT: use this lane as a pre-merge guard for future same-hue source/color
 behavior changes. Continue fixture discovery for visible semantic color loss or
 over-fragmented generated icons before touching compiler behavior again.
+
+================================================================================
+2026-06-30 — SOURCE VISUAL FIDELITY RANKING
+================================================================================
+
+Target: repeatable visual target selection for source/color work.
+
+Finding:
+
+- Stitch metrics and source-suitability diagnostics were not enough to rank the
+  next visual target. `gradient_elephant_simple` looked stable by acceptance
+  metrics but scored poorly against its source art.
+- The existing `visual_fidelity.py` scorer worked locally, so the ad hoc probe
+  was promoted into a reusable report.
+
+Change:
+
+- Added `scripts/source_visual_fidelity_report.py`.
+- Added `npm run report:source-fidelity`.
+- The report accepts one or more acceptance/benchmark run directories and writes
+  `source-visual-fidelity.json` plus `source-visual-fidelity.md`, sorted
+  worst-first.
+
+Current leads:
+
+- `gradient_elephant_simple`: fidelity `62.1`, detail `0`, palette `0.667`
+- `leaf_single_smooth`: fidelity `70.9`, silhouette `0.261`, palette `0.6`
+- `sparrow_flat_app_icon`: fidelity `73.7`, color `0.612`
+- `low_contrast_bird`: fidelity `76.1`
+
+Rejected experiment:
+
+- Reused paired same-hue material protection inside tonal-family collapse to
+  preserve the elephant's broad mid-pink `#f082a0` tone.
+- Positive: the mid-pink tone survived and fidelity improved `62.1 -> 74.7`.
+- Rejected: regression-gated comparison failed because same-surface long spans
+  increased `0 -> 2`; `scan_lanes` returned; jumps/trims moved `8 / 4 -> 14 / 8`.
+- Conclusion: elephant is a real visual target, but preserving the tonal pair
+  must be paired with a route-safe plan or a more surgical source transform.
+
+Validation:
+
+- report command:
+  `npm run report:source-fidelity -- --input tmp/uploaded_art_acceptance_semantic_tiny_20260630 --input tmp/generated_acceptance_semantic_tiny_20260630 --input tmp/source_color_acceptance_semantic_tiny_20260630 --out tmp/source_visual_fidelity_semantic_tiny_20260630 --title "Source/Color Fidelity After Semantic Tiny Accounting"`
+- report:
+  `tmp/source_visual_fidelity_semantic_tiny_20260630/source-visual-fidelity.md`
+- rejected elephant target:
+  `tmp/generated_gradient_elephant_mid_tone_20260630`
+- rejected elephant comparison:
+  `tmp/generated_compare_gradient_elephant_mid_tone_20260630.html`
+- rejected elephant fidelity probe:
+  `tmp/visual_fidelity_gradient_elephant_mid_tone_20260630.json`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+NEXT: use the fidelity report to choose behavior targets. Start with elephant
+only if the next approach can preserve the visible ear/mid-tone without
+reintroducing same-surface route spans; otherwise inspect the leaf or sparrow
+leads for a narrower source/color fix.

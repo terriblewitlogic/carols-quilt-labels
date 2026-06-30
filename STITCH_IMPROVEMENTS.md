@@ -1042,6 +1042,36 @@ against the discovery run, Python checks, and TypeScript typecheck:
 
 ---
 
+## Source Visual Fidelity Ranking
+
+The backend now has a repeatable source/preview visual-fidelity report:
+
+`npm run report:source-fidelity`
+
+Accepted 2026-06-30 result:
+
+- scores one or more acceptance/benchmark run directories against their source art
+- writes `source-visual-fidelity.json` and `source-visual-fidelity.md`
+- ranks visual leads by fidelity score, color match, region recall, silhouette,
+  detail integrity, part count, and palette agreement
+- identified `gradient_elephant_simple`, `leaf_single_smooth`,
+  `sparrow_flat_app_icon`, and `low_contrast_bird` as the current strongest
+  source/color visual leads
+
+Rejected paired-material elephant experiment:
+
+- Preserving the elephant's mid-pink tone improved fidelity `62.1 -> 74.7`.
+- It was rejected because same-surface long spans increased `0 -> 2`, `scan_lanes`
+  returned, and jumps/trims regressed `8 / 4 -> 14 / 8`.
+
+Validation passed with the report command, Python checks, and TypeScript
+typecheck:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_semantic_tiny_20260630/source-visual-fidelity.md`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_gradient_elephant_mid_tone_20260630.html`
+
+---
+
 ## Out of scope for this plan
 
 - **Photo-realistic embroidery** (>10 colors with subtle blends) — the auto-conversion pipeline cannot match a hand-digitized photo realistic design. Stay focused on the 4–8 color stylized designs that match the example library.

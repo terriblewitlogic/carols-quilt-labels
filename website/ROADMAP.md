@@ -634,6 +634,7 @@ Recent backend-only source/color tooling improvement:
 - Muted chromatic thread snap preservation now guards `muted_sage_detail_badge`: the small sage mark snaps to chromatic Madeira `#1ea096` instead of neutral `#808080`, while the narrowed mid-tone gate leaves existing uploaded/generated/source-color/underpaint fixtures unchanged.
 - Semantic tiny source accounting now guards `muted_flower_pin`: preserved compact pastel/vivid details move source suitability `candidate 88 -> clean 100` with `sourceSemanticTinyComponentCount = 4`, while stitches/jumps/trims stay `3666 / 22 / 1`.
 - Added `npm run acceptance:uploaded:same-hue` as a repeatable strict source-policy lane for seven deterministic same-hue material fixtures across warm brown/tan, gold, green, red, and purple families.
+- Added `npm run report:source-fidelity` to rank acceptance artifacts by visual match against source art; current leads are `gradient_elephant_simple`, `leaf_single_smooth`, `sparrow_flat_app_icon`, and `low_contrast_bird`.
 - No public API, frontend, or stitch file-format change.
 
 Validated with full uploaded strict source policy, generated strict acceptance, underpaint benchmark, regression-gated comparisons, Python checks, and TypeScript typecheck.
@@ -663,5 +664,7 @@ Current 2026-06-28 behavior-win reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_semantic_tiny_20260630.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_semantic_tiny_20260630.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_same_hue_stress_script_compare_20260630.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_semantic_tiny_20260630/source-visual-fidelity.md`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_gradient_elephant_mid_tone_20260630.html`
 
-Next stitch work: find the next visible source/color behavior gap, especially same-hue over-fragmentation, semantic accent loss, or generated-icon clutter outside the already guarded muted sage and muted flower lanes. Avoid diagnostics-only teapot/strawberry/leaf/tiny-dot mining unless it removes a misleading triage blocker.
+Next stitch work: use the source-fidelity report to choose behavior targets. Elephant is the strongest visual lead, but the first tonal-preservation experiment was rejected because it reintroduced same-surface route spans; solve that route side effect or move to a narrower leaf/sparrow source-color fix.
