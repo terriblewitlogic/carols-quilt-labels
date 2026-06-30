@@ -980,6 +980,41 @@ semantic color/detail loss, then make a narrow compiler behavior fix.
 
 ---
 
+## Semantic Tiny Source Accounting
+
+Uploaded/generated source diagnostics now distinguish unresolved tiny source
+components from tiny components that were intentionally preserved by existing
+semantic accent evidence.
+
+Accepted 2026-06-30 result:
+
+- `muted_flower_pin` source suitability `candidate 88 -> clean 100`
+- `sourceSuitabilityIssues` clears `some_tiny_regions`
+- `sourceSemanticTinyComponentCount = 4`
+- stitches `3666 -> 3666`, jumps `22 -> 22`, trims `1 -> 1`
+- quality stayed `100`
+- same-surface untrimmed jump long-span and broad-route-risk gates stayed `0`
+
+This is a source-policy/triage accuracy improvement, not a geometry change. It
+keeps compact pastel/vivid preserved details visible in diagnostics so future
+source/color triage can focus on real unresolved color or detail loss.
+
+Validation passed with targeted uploaded strict source policy, full uploaded
+strict source policy, generated strict acceptance, source-color strict
+acceptance, underpaint benchmark, Python checks, TypeScript typecheck, and
+regression-gated comparisons:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_muted_flower_semantic_tiny_20260630.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_semantic_tiny_20260630.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_semantic_tiny_20260630.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_semantic_tiny_20260630.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_semantic_tiny_20260630.html`
+
+Next source/color work should target visible semantic color loss, same-hue
+material collapse, or generated-icon over-fragmentation.
+
+---
+
 ## Out of scope for this plan
 
 - **Photo-realistic embroidery** (>10 colors with subtle blends) — the auto-conversion pipeline cannot match a hand-digitized photo realistic design. Stay focused on the 4–8 color stylized designs that match the example library.

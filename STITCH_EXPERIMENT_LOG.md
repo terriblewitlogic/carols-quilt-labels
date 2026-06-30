@@ -5534,3 +5534,69 @@ Validation:
 NEXT: find a real generated/uploaded source-art case with visible semantic
 color/detail loss or over-fragmentation. Do not mine teapot, leaf, or
 tiny-detail-icon further unless a new visual regression appears.
+
+================================================================================
+2026-06-30 — SEMANTIC TINY SOURCE ACCOUNTING
+================================================================================
+
+Target: `muted_flower_pin`.
+
+Finding:
+
+- The fixture was already stitching correctly and preserving the meaningful tiny
+  accent details, but source-design triage still reported `some_tiny_regions`.
+- The tiny policy had already accounted all five source tiny components; four
+  of them are semantic accent details preserved by compact pastel/vivid evidence.
+- This made the triage report noisier than the actual source/compiler behavior.
+
+Change:
+
+- Source-design diagnostics now count stitched tiny components that pass the
+  existing accent-preservation evidence gate as semantic tiny components.
+- Unaccounted tiny source diagnostics subtract those semantic components.
+- Uploaded and generated acceptance summaries expose
+  `sourceSemanticTinyComponentCount`.
+- Uploaded strict source policy now guards the fixture as clean and requires at
+  least four semantic tiny components to remain accounted.
+
+Accepted result:
+
+- `sourceSuitabilityStatus`: `candidate -> clean`
+- `sourceSuitabilityScore`: `88 -> 100`
+- `sourceSuitabilityIssues`: `['some_tiny_regions'] -> []`
+- `sourceSemanticTinyComponentCount`: absent -> `4`
+- `sourceTinyComponentCount`: `5 -> 5`
+- `stitchCount`: `3666 -> 3666`
+- `jumpCount`: `22 -> 22`
+- `trimCount`: `1 -> 1`
+- quality stayed `100`
+- same-surface untrimmed jump long spans and broad-route-risk surfaces stayed `0`
+
+Validation:
+
+- targeted uploaded strict source policy:
+  `tmp/uploaded_muted_flower_semantic_tiny_20260630`
+- targeted comparison:
+  `tmp/uploaded_compare_muted_flower_semantic_tiny_20260630.html`
+- full uploaded strict source policy:
+  `tmp/uploaded_art_acceptance_semantic_tiny_20260630`
+- uploaded comparison:
+  `tmp/uploaded_compare_semantic_tiny_20260630.html`
+- full generated strict acceptance:
+  `tmp/generated_acceptance_semantic_tiny_20260630`
+- generated comparison:
+  `tmp/generated_compare_semantic_tiny_20260630.html`
+- full source-color strict acceptance:
+  `tmp/source_color_acceptance_semantic_tiny_20260630`
+- source-color comparison:
+  `tmp/source_color_compare_semantic_tiny_20260630.html`
+- full underpaint benchmark:
+  `tmp/underpaint_benchmark_semantic_tiny_20260630`
+- underpaint comparison:
+  `tmp/underpaint_compare_semantic_tiny_20260630.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+NEXT: continue source/color behavior work, but prefer a visible output win over
+another diagnostics-only pass. The strongest next targets are same-hue material
+collapse, meaningful accent loss, or noisy generated-icon fragmentation.

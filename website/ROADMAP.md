@@ -632,6 +632,7 @@ Recent backend-only source/color tooling improvement:
 - Teapot-like satin-width local material panels now use the guarded local serpentine path when safe. `real_teapot_card` clears fill-coherence risk `1 -> 0`, local material-panel serpentine count improves `5 -> 8`, stitches improve `11664 -> 11612`, and jumps/trims stay `86 / 14` with quality `100`.
 - Generated/source-color acceptance now reports tiny/detail policy fields and guards the strawberry seed fixture directly. `real_strawberry` now records the black seed field as `tinyPolicyPromotedCompactCount = 30` / `repeated_compact_detail: 30` while stitches, jumps, trims, quality, and long-span risk stay unchanged.
 - Muted chromatic thread snap preservation now guards `muted_sage_detail_badge`: the small sage mark snaps to chromatic Madeira `#1ea096` instead of neutral `#808080`, while the narrowed mid-tone gate leaves existing uploaded/generated/source-color/underpaint fixtures unchanged.
+- Semantic tiny source accounting now guards `muted_flower_pin`: preserved compact pastel/vivid details move source suitability `candidate 88 -> clean 100` with `sourceSemanticTinyComponentCount = 4`, while stitches/jumps/trims stay `3666 / 22 / 1`.
 - No public API, frontend, or stitch file-format change.
 
 Validated with full uploaded strict source policy, generated strict acceptance, underpaint benchmark, regression-gated comparisons, Python checks, and TypeScript typecheck.
@@ -655,5 +656,10 @@ Current 2026-06-28 behavior-win reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_muted_sage_snap_20260628.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_muted_sage_snap_20260628.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_muted_sage_snap_20260628/source-triage.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_muted_flower_semantic_tiny_20260630.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_semantic_tiny_20260630.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_semantic_tiny_20260630.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_semantic_tiny_20260630.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_semantic_tiny_20260630.html`
 
-Next stitch work: find the next visible source/color behavior gap, especially same-hue over-fragmentation or semantic color loss outside the muted sage lane. Avoid diagnostics-only teapot/strawberry/leaf/tiny-dot mining unless output visibly improves.
+Next stitch work: find the next visible source/color behavior gap, especially same-hue over-fragmentation, semantic accent loss, or generated-icon clutter outside the already guarded muted sage and muted flower lanes. Avoid diagnostics-only teapot/strawberry/leaf/tiny-dot mining unless it removes a misleading triage blocker.

@@ -1939,3 +1939,45 @@ Rejected next targets:
 Next recommended direction:
 
 - Find or add a realistic generated/uploaded source fixture with visible semantic color/detail loss. The next source/color backend change should improve output, not only diagnostics.
+
+Target: `muted_flower_pin`.
+
+Change accepted:
+
+- Source-design diagnostics now account tiny components that are already preserved by strong semantic accent evidence.
+- Uploaded and generated acceptance summaries expose `sourceSemanticTinyComponentCount`.
+- Strict uploaded source policy now guards that the compact flower-pin details remain accounted instead of leaving the source suitability report as a false-positive tiny-region warning.
+- This is a diagnostic/source-policy improvement, not a stitch geometry change.
+
+Before/after:
+
+- `sourceSuitabilityStatus`: `candidate -> clean`
+- `sourceSuitabilityScore`: `88 -> 100`
+- `sourceSuitabilityIssues`: `['some_tiny_regions'] -> []`
+- `sourceSemanticTinyComponentCount`: absent -> `4`
+- `sourceTinyComponentCount`: `5 -> 5`
+- `stitchCount`: `3666 -> 3666`
+- `jumpCount`: `22 -> 22`
+- `trimCount`: `1 -> 1`
+- quality stayed `100`
+- same-surface untrimmed long-span and broad-route-risk gates stayed `0`
+- Full uploaded, generated, source-color, and underpaint comparisons had no regression-gated failures.
+
+Validation and reports:
+
+- Uploaded strict source policy: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_art_acceptance_semantic_tiny_20260630`
+- Focused uploaded comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_muted_flower_semantic_tiny_20260630.html`
+- Uploaded comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_semantic_tiny_20260630.html`
+- Generated strict acceptance: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_acceptance_semantic_tiny_20260630`
+- Generated comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_semantic_tiny_20260630.html`
+- Source-color strict acceptance: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_acceptance_semantic_tiny_20260630`
+- Source-color comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_semantic_tiny_20260630.html`
+- Full underpaint benchmark: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_benchmark_semantic_tiny_20260630`
+- Underpaint comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_semantic_tiny_20260630.html`
+- Triage baseline: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_unattended_baseline_20260630/source-triage.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+Next recommended direction:
+
+- Continue hunting for visible source/color output wins. Good candidates remain same-hue material collapse, meaningful accent loss, or over-fragmented generated icons; avoid more diagnostics-only work unless it removes a misleading triage blocker.
