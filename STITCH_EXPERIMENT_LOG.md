@@ -5710,3 +5710,44 @@ NEXT: use the fidelity report to choose behavior targets. Start with elephant
 only if the next approach can preserve the visible ear/mid-tone without
 reintroducing same-surface route spans; otherwise inspect the leaf or sparrow
 leads for a narrower source/color fix.
+
+================================================================================
+2026-06-30 — SOURCE FIDELITY TRIAGE CLASSES
+================================================================================
+
+Target: reduce false leads in `source_visual_fidelity_report.py`.
+
+Finding:
+
+- `leaf_single_smooth` ranked second by raw source fidelity (`70.9`) because its
+  source image contains fabric/mockup texture. Visual inspection showed the
+  stitched output is coherent, and source normalization reduced `42248` raw
+  foreground components to `6`.
+- The report needed to distinguish "source cleanup succeeded" from "compiler
+  likely lost meaningful source/color content."
+
+Change:
+
+- The report now reads `source-normalization.json`.
+- It records normalization status, changed pixel fraction, foreground component
+  reduction, and foreground tiny-component reduction.
+- It classifies rows as `likely-visual-target`, `review-alignment-or-shape`,
+  `monitor`, or `source-cleanup-success` and sorts by triage priority before raw
+  score.
+
+Accepted result:
+
+- `gradient_elephant_simple`: `likely-visual-target`, fidelity `62.1`
+- `sparrow_flat_app_icon`: `likely-visual-target`, fidelity `73.7`
+- `low_contrast_bird`: `review-alignment-or-shape`, fidelity `76.1`
+- `leaf_single_smooth`: `source-cleanup-success`, fidelity `70.9`, demoted
+
+Validation:
+
+- triaged report:
+  `tmp/source_visual_fidelity_triaged_20260630/source-visual-fidelity.md`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+NEXT: continue with elephant or sparrow as behavior targets. The leaf should not
+drive compiler changes unless a separate visual regression appears.

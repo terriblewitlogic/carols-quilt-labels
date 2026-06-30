@@ -1070,6 +1070,18 @@ typecheck:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_semantic_tiny_20260630/source-visual-fidelity.md`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_gradient_elephant_mid_tone_20260630.html`
 
+Follow-up refinement:
+
+- The report now reads source-normalization diagnostics and adds triage classes.
+- `leaf_single_smooth` is correctly classified as `source-cleanup-success`
+  because normalization reduced `42248` raw foreground components to `6`.
+- Current behavior leads are `gradient_elephant_simple` and
+  `sparrow_flat_app_icon`; `low_contrast_bird` is a visual review case.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_triaged_20260630/source-visual-fidelity.md`
+
 ---
 
 ## Out of scope for this plan

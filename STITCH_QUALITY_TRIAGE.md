@@ -2044,3 +2044,28 @@ Validation and reports:
 Next recommended direction:
 
 - Use the fidelity report before picking each source/color patch. The best next behavior target is still elephant, but only with a route-safe approach; otherwise inspect `leaf_single_smooth` or `sparrow_flat_app_icon` for a narrower visual/source-color fix.
+
+Visual-fidelity triage refinement.
+
+Change accepted:
+
+- The source visual-fidelity report now reads `source-normalization.json` and adds a triage class.
+- Heavy source cleanup successes are separated from likely compiler/visual failures, so raw texture/mockup sources do not crowd the top of the behavior queue.
+- This specifically demotes `leaf_single_smooth`, whose source is a textured embroidery/mockup-like image that normalization reduced from `42248` raw foreground components to `6` normalized foreground components.
+
+Updated ranked leads:
+
+- `gradient_elephant_simple`: `likely-visual-target`, fidelity `62.1`.
+- `sparrow_flat_app_icon`: `likely-visual-target`, fidelity `73.7`.
+- `low_contrast_bird`: `review-alignment-or-shape`, fidelity `76.1`.
+- `leaf_single_smooth`: `source-cleanup-success`, fidelity `70.9`, demoted because cleanup removed raw texture/noise before stitching.
+
+Validation and reports:
+
+- Triaged report: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_triaged_20260630/source-visual-fidelity.md`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+Next recommended direction:
+
+- Treat elephant and sparrow as the next behavior candidates. Avoid spending compiler time on `leaf_single_smooth` unless a real output regression appears; its low raw-source fidelity score is mostly a sign that cleanup succeeded.
