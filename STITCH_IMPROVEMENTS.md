@@ -113,6 +113,18 @@ Recent shipped work since the original pro-design comparison:
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_red_material_20260629.html`
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_red_material_20260629.html`
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_red_material_20260629/source-triage.html`
+- Added source/color guard coverage for tiny vivid accents and gold material facets:
+  - new default uploaded fixture `tiny_vivid_accent_badge` protects a single tiny magenta accent on a blue badge and requires explicit tiny-policy accounting
+  - new stress uploaded fixture `same_hue_gold_shell_facets` protects dark/mid/light gold material panels plus black linework
+  - strict source policy now checks `#8cb9eb`, `#e63c82`, and black for the tiny-accent case, plus `#b48200`, `#e6be14`, `#fff03c`, and black for the gold stress case
+  - `surface-plan.json` tiny-policy `accountedCount` now includes `preservedTinySurfaceCount`
+  - target metrics: `tiny_vivid_accent_badge` quality `100`, `3188` stitches, `13` jumps, `0` trims, source tiny `1`, accounted tiny `1`; `same_hue_gold_shell_facets` quality `100`, `4758` stitches, `27` jumps, `5` trims
+  - full uploaded strict source policy, same-hue stress strict source policy, generated strict acceptance, source-color acceptance, and underpaint benchmark all passed under regression-gated comparisons
+  - validation reports:
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_source_color_guards_20260629.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_source_color_guards_20260629.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_source_color_guards_20260629.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_source_color_guards_20260629.html`
 - Rejected unattended strawberry variants:
   - seed thinning reduced stitch count but worsened jumps from `65` into the `80+` range
   - repeated-detail density `0.75` reduced stitches slightly but worsened trims `3 -> 4` and cross-surface trimmed relocations `1 -> 2`

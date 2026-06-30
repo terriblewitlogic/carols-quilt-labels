@@ -43,6 +43,7 @@ Recent shipped backend changes:
 - Small mid-tone muted chromatic details now use a narrow hue-preserving thread snap before cleanup. New uploaded fixture `muted_sage_detail_badge` keeps the sage mark as chromatic Madeira `#1ea096` instead of neutral `#808080`; quality stays `100`, stitches/jumps/trims are `4147 / 26 / 2`, and existing uploaded/generated/source-color/underpaint fixtures stay unchanged under regression-gated comparisons.
 - Saturated dark same-hue material panels now stay eligible for material preservation instead of being treated like neutral dark residue. New strict uploaded stress fixture `same_hue_green_leaf_facets` keeps dark/mid/light green `#144614`, `#3ca03c`, `#96dc82`, and black; the probe baseline dropped dark green, while the accepted run improves stitches `5370 -> 4873`, jumps `10 -> 8`, trims `2 -> 1`, and same-surface trimmed spans `1 -> 0` with quality `100`.
 - Saturated dark red same-hue material panels now use the same material-preservation path before early broad-tone merging. New strict uploaded stress fixture `same_hue_red_shell_facets` keeps dark/mid/light red `#8c000a`, `#c83264`, `#f082a0`, and black; the probe baseline collapsed dark red into mid red, while the accepted run preserves all tones with quality `100`, stitches `4444`, jumps `15`, trims `6`, no same-surface relocations, and no broad-route risk.
+- Source/color guard coverage now explicitly includes a single tiny vivid accent and a gold same-hue material family. New default uploaded fixture `tiny_vivid_accent_badge` preserves `#e63c82` on a blue badge with source tiny `1 -> accounted 1`, quality `100`, `3188` stitches, `13` jumps, and `0` trims. New stress fixture `same_hue_gold_shell_facets` preserves `#b48200`, `#e6be14`, `#fff03c`, and black with quality `100`, `4758` stitches, `27` jumps, `5` trims, no same-surface relocations, and no broad-route risk. Tiny-policy diagnostics now include preserved tiny surfaces in `accountedCount`.
 
 The remaining quality problems are mostly in generated icon art:
 
@@ -190,6 +191,10 @@ Current useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_green_leaf_dark_material_20260629.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_green_leaf_dark_material_20260629.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_green_leaf_dark_material_20260629/source-triage.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_source_color_guards_20260629.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_source_color_guards_20260629.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_source_color_guards_20260629.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_source_color_guards_20260629.html`
 
 ## Research Coverage Map
 

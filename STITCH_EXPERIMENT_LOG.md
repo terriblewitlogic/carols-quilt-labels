@@ -13,6 +13,49 @@ This is not a full changelog. It is a decision log for approaches that worked, f
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_acceptance_*`
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/regression_*`
 
+## Accepted Source/Color Guard Coverage: Tiny Vivid Accent And Gold Material
+
+Date: 2026-06-29
+
+Goal:
+
+- Add deterministic guards for two source/color promises that were only covered indirectly: single tiny vivid accents and yellow/gold same-hue material facets.
+- Keep this as backend-only coverage and diagnostics; do not broaden routing, geometry, frontend, or public APIs.
+- Fix tiny-policy accounting so preserved tiny surfaces count as accounted if that path is exercised by future fixtures.
+
+Change:
+
+- Added default uploaded fixture `tiny_vivid_accent_badge`, a blue badge with one tiny vivid magenta accent.
+- Added stress uploaded fixture `same_hue_gold_shell_facets`, a compact shell with dark/mid/light gold material panels plus black linework.
+- Strict uploaded source policy now requires the tiny vivid accent fixture to preserve `#e63c82`, keep blue/black, account the source tiny component, and record `preserve_vivid_accent_label:detail_component`.
+- Strict uploaded source policy now requires the gold stress fixture to preserve `#b48200`, `#e6be14`, `#fff03c`, and `#000000`, with separated gold luminance bands and no same-surface relocations.
+- `surface-plan.json` tiny-policy `accountedCount` now includes `preservedTinySurfaceCount`.
+
+Result:
+
+- `tiny_vivid_accent_badge`: quality `100`, colors `['#8cb9eb', '#e63c82', '#000000']`, stitches `3188`, jumps `13`, trims `0`, source tiny `1`, accounted tiny `1`, no same-surface relocations, no broad-route risk.
+- `same_hue_gold_shell_facets`: quality `100`, colors `['#b48200', '#e6be14', '#fff03c', '#000000']`, stitches `4758`, jumps `27`, trims `5`, no same-surface relocations, no broad-route risk.
+- Full uploaded, generated, source-color, and underpaint regression-gated comparisons passed.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_source_color_guards_20260629.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_source_color_guards_20260629.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_source_color_guards_20260629.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_source_color_guards_20260629.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+- full uploaded strict source policy
+- same-hue stress strict source policy
+- full generated acceptance `--strict`
+- full source-color acceptance
+- full underpaint benchmark
+
+Verdict:
+
+- Keep. This is mainly guard coverage rather than a visible output change, but it closes two blind spots before the next source/color behavior pass.
+- Next source/color work should return to behavior wins: likely source-art cleanup that improves `real_teapot_card`/`real_strawberry` visually without jump/trim regressions, or a new real generated/uploaded fixture with a demonstrated semantic color loss.
+
 ## Accepted Source/Color Policy: Dark Red Same-Hue Material Preservation
 
 Date: 2026-06-29
