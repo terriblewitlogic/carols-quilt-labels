@@ -192,6 +192,16 @@ Recent shipped work since the original pro-design comparison:
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_short_travel_lane_20260701.html`
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_short_travel_lane_20260701.html`
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_short_travel_lane_20260701.html`
+- Added compact vivid detail satin-underlay suppression:
+  - compact satin-column detail fills skip underlay only for non-dark vivid details that were explicitly preserved by source-detail policy
+  - `sparrow_flat_app_icon` improves again from `1835` stitches / `21` jumps / `2` trims to `1799` stitches / `14` jumps / `2` trims
+  - the affected orange `#ff8c14` surfaces now record `satinColumnUnderlaySkipped: compact_vivid_detail` in `surface-plan.json`
+  - quality stays `100`, same-surface stitched/untrimmed long spans stay `0`, high-risk surfaces stay `0`, and broad-route risk stays `0`
+  - strict generated acceptance and the underpaint benchmark now guard `sparrow_flat_app_icon` at `<= 14` jumps and `<= 2` trims
+  - validation reports:
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_compact_vivid_detail_underlay_full_20260701.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_compact_vivid_detail_underlay_full_20260701.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_compact_vivid_detail_underlay_full_20260701.html`
 - Added color-accounted low-detail fidelity triage:
   - `source_visual_fidelity_report.py` now avoids routing clean color-accounted low-detail cases back into the source/color behavior queue
   - `gradient_elephant_simple` is now `review-stitch-style` in the fresh cycle-2 report: palette agreement `1`, region recall `0.971`, source fit `100`, no source repair opportunities, but detail score `0`

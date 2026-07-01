@@ -6275,3 +6275,76 @@ Candidate direction: reduce or suppress automatic black boundary reinforcement
 only when source near-black coverage is tiny and source colors/details are
 already accounted, while guarding flower/badge/cartoon cases that intentionally
 benefit from patch-like outlines.
+
+================================================================================
+2026-07-01 — COMPACT VIVID DETAIL SATIN UNDERLAY SUPPRESSION
+================================================================================
+
+Target: reduce the remaining `sparrow_flat_app_icon` orange detail-fill jump
+bucket after short-travel lane routing, without reopening black foundation
+outlines or broad route behavior.
+
+Finding:
+
+- Travel diagnostics showed the remaining sparrow orange `#ff8c14` detail fill
+  was no longer mainly a cross-component ordering problem.
+- The three orange detail surfaces were compact satin-column fills with
+  underlay trails; those internal underlay-to-cover handoffs accounted for most
+  of the residual jump pressure.
+- Dark details and structural stroke satin columns still need their existing
+  underlay behavior, so the change must be limited to vivid, source-preserved
+  compact detail fills.
+
+Change:
+
+- `_process_polygon` now receives optional surface RGB and source-detail
+  decision metadata.
+- Compact satin-column detail fills skip satin underlay only when the surface is
+  a non-dark vivid detail with a preserved vivid/small-vivid source-detail
+  decision.
+- `surface-plan.json` records `satinColumnUnderlaySkipped` diagnostics for the
+  selected surfaces.
+- Tightened `sparrow_flat_app_icon` generated/underpaint guards to `<= 14`
+  jumps and `<= 2` trims.
+
+Accepted metrics:
+
+- `sparrow_flat_app_icon`: stitches `1835 -> 1799`, jumps `21 -> 14`, trims
+  stay `2`.
+- The orange fill bucket improves from `11` jumps / `1` trim before the last
+  two sparrow passes to `4` jumps / `1` trim in the accepted run.
+- `gradient_elephant_simple`, `flower_daisy_simple`, and
+  `flower_sunflower_simple` stay unchanged in targeted generated and underpaint
+  canaries.
+- Full generated, uploaded, and underpaint comparisons show no acceptance,
+  quality, stitched long-span, untrimmed jump long-span, high-risk, or
+  broad-route-risk regression.
+
+Validation:
+
+- generated comparison:
+  `tmp/generated_compare_compact_vivid_detail_underlay_full_20260701.html`
+- underpaint comparison:
+  `tmp/underpaint_compare_compact_vivid_detail_underlay_full_20260701.html`
+- uploaded comparison:
+  `tmp/uploaded_compare_compact_vivid_detail_underlay_full_20260701.html`
+- targeted generated strict:
+  `tmp/generated_compact_vivid_detail_underlay_guard_check_20260701`
+- targeted underpaint:
+  `tmp/underpaint_compact_vivid_detail_underlay_guard_check_20260701`
+- full generated strict:
+  `tmp/generated_compact_vivid_detail_underlay_full_20260701`
+- full underpaint benchmark:
+  `tmp/underpaint_compact_vivid_detail_underlay_full_20260701`
+- full uploaded strict source policy:
+  `tmp/uploaded_compact_vivid_detail_underlay_full_20260701`
+- npm underpaint wrapper:
+  `tmp/underpaint_compact_vivid_detail_underlay_npm_20260701`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+NEXT: sparrow no longer has an obvious safe fill-routing bucket. Return to the
+broader stitch-style queue: low-contrast bird outline/fill shape, generated
+detail-shape quality, and source-to-preview fidelity review. Keep routing
+paused unless travel diagnostics identify a real stitched-span or same-surface
+relocation regression.

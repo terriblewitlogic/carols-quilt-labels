@@ -1,6 +1,6 @@
 # Stitch Quality Triage
 
-Last updated: 2026-06-30
+Last updated: 2026-07-01
 
 ## Current Read
 
@@ -50,6 +50,7 @@ Recent shipped backend changes:
 - Tonal same-hue material overlays now use guarded running outlines for non-dark overlay components. `gradient_elephant_simple` keeps `#f082a0` while improving stitches `6050 -> 4204`, jumps `9 -> 7`, trims `4 -> 2`, and near-black expansion `60.9 -> 17.9`; full generated and underpaint comparisons show no other metric movement. Blanket running outlines remain rejected because they regressed `sparrow_flat_app_icon` quality to `74`.
 - Tiny compact dark accent details no longer trigger broad black foundation outlines. `sparrow_flat_app_icon` improves source-fidelity `73.7 -> 83.5`, near-black expansion `62.9 -> 1.08`, and stitches `5483 -> 1839`; quality stays `100` and hard risk gates stay clean. The accepted tradeoff is jumps `17 -> 33` and trims `2 -> 3`, with diagnostics pointing to benign short/edge-row connectors rather than long stitched-span risk.
 - Short-travel lane routing now accepts no-long-span lane candidates when they reduce total row travel by at least `28%`, improve visual gap score by at least `10%`, and do not add trims, max-gap pressure, or long spans. `sparrow_flat_app_icon` improves jumps `33 -> 21`, trims `3 -> 2`, and stitches `1839 -> 1835`; quality stays `100` and hard risk gates stay clean. `bee_simple` also drops stitches `1730 -> 1711` with no jump/trim/risk movement.
+- Compact vivid detail satin fills now skip underlay only for source-preserved non-dark vivid details. `sparrow_flat_app_icon` improves again from `1835` stitches / `21` jumps / `2` trims to `1799` stitches / `14` jumps / `2` trims, with quality `100` and no same-surface stitched/untrimmed long spans, high-risk surfaces, or broad-route risk. The affected `#ff8c14` surfaces record `satinColumnUnderlaySkipped: compact_vivid_detail`.
 - Source visual-fidelity triage now recognizes color-accounted low-detail cases as stitch-style review instead of source/color behavior targets when palette agreement, region recall, source suitability, and tiny/detail accounting are clean. In the fresh cycle-2 report, `gradient_elephant_simple` moves from `likely-visual-target` to `review-stitch-style`; `sparrow_flat_app_icon` and `low_contrast_bird` remain stitch-style review cases.
 - Flower route guardrails now match current stable repeated-island output: `flower_daisy_simple` must stay at or below `6` trims / `26` jumps, and `flower_sunflower_simple` must stay at or below `4` trims / `18` jumps, with no same-surface long spans.
 - Pattern travel attribution diagnostics now explain emitted jumps/trims by color/pass/type/role/route mode. The first read shows flower trims are dominated by black outline/accent routing, not the petal fill route: daisy black outline has `17` jumps / `6` trims / `5` blocked connectors; sunflower black outline has `16` jumps / `6` trims / `4` blocked connectors.
@@ -64,7 +65,7 @@ The remaining quality problems are mostly in generated icon art:
 - same-hue material colors must stay preserved when source evidence is broad and ordered, but gradient cleanup must still collapse mild disposable bands
 - saturated dark chromatic material facets should stay preserved without reopening neutral outline/halo residue as semantic color
 - same-hue thread-collision fixes are useful, but need follow-up route/order work if the added semantic color creates too many trims
-- source-fidelity low scores need triage class review before behavior work; `sparrow_flat_app_icon` improved with tiny accent outline suppression and short-travel lane routing, and its next target is the remaining orange detail-fill jump bucket without reintroducing black foundation outlines; `low_contrast_bird` is still deferred to outline/fill styling because its source colors are accounted
+- source-fidelity low scores need triage class review before behavior work; `sparrow_flat_app_icon` improved with tiny accent outline suppression, short-travel lane routing, and compact vivid detail underlay suppression, so it no longer has an obvious safe fill-routing bucket; `low_contrast_bird` is still deferred to outline/fill styling because its source colors are accounted
 - `gradient_elephant_simple` is no longer the top source/color loss target after the mid-pink overlay and tonal running-outline fixes; it remains useful as a generated same-hue overlay guard and still has broader detail-shape room to improve
 - `real_strawberry` remains the first source-complexity target, but repeated seed-field thinning is still rejected unless it avoids jump/trim relocation regressions; conservative caps at 20 and 26 retained seeds both worsened jumps
 - some residual preview clutter from jumps that are not actually stitched
@@ -121,6 +122,9 @@ Current useful reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_short_travel_lane_20260701.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_short_travel_lane_20260701.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_short_travel_lane_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_compact_vivid_detail_underlay_full_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_compact_vivid_detail_underlay_full_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_compact_vivid_detail_underlay_full_20260701.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_cycle2_20260630/source-triage.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_cycle2_classification_20260630/source-visual-fidelity.md`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_route_guard_cycle3_20260630.html`
