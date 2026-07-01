@@ -771,3 +771,17 @@ records `coloredStrokeInternalSort: nearest_segment`. Validation reports:
 `tmp/underpaint_compare_broad_body_internal_sort_full_20260701.html`. Next
 lead: entry/exit selection or ear/body sequencing for the remaining preview-only
 relocation, not broad routing.
+
+2026-07-01 update: the teddy body internal sort now tries every starting segment
+and orientation for the same narrowly gated broad `#a05a28` body fill, then
+keeps the best nearest-segment chain. This removes the remaining same-surface
+body warning without changing generated or underpaint behavior: stitches stay
+`2473`, jumps stay `25`, trims stay `5`, same-surface jump long spans improve
+`1 -> 0`, and same-surface trimmed long spans improve `1 -> 0`. The body group
+max gap improves `33.241mm -> 17.063mm`, and total gap improves
+`199.612mm -> 178.185mm`. Validation reports:
+`tmp/uploaded_compare_broad_body_multiseed_sort_full_20260701.html`,
+`tmp/generated_compare_broad_body_multiseed_sort_full_20260701.html`, and
+`tmp/underpaint_compare_broad_body_multiseed_sort_full_20260701.html`. Next
+lead: return to source/color or outline-style quality targets; do not chase the
+remaining trimmed ear relocation unless visual review shows a real artifact.

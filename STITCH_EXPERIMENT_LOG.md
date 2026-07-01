@@ -6668,3 +6668,62 @@ Validation:
 NEXT: remaining teddy pressure is now mostly the preview-only cross-surface ear
 relocation plus one same-surface trimmed body gap. Keep any follow-up focused on
 entry/exit selection or ear/body sequencing, not broad routing.
+
+================================================================================
+2026-07-01 — NO-OUTLINE TEDDY BROAD BODY MULTI-SEED INTERNAL SORT
+================================================================================
+
+Target: the accepted broad body internal sort reduced `no_outline_teddy` trims
+but still left one same-surface body long-span warning. The follow-up tested
+whether the same narrow body-only ordering policy could choose a better entry
+segment without changing public behavior or general routing.
+
+Change:
+
+- For the already-gated single broad colored body fill component, evaluate a
+  greedy nearest-segment chain from every starting segment and orientation.
+- Score candidates by predicted trims first, then max gap, total gap, and jump
+  count; preserve the best chain through component routing.
+- Keep the gate unchanged: fill/detail only, `coloredStrokeBodyFill`, one raw
+  component, at least 20 segments.
+- Update diagnostics to `coloredStrokeInternalSort: multi_seed_nearest_segment`
+  and `internalRouteMode: multi_seed_nearest_segment`.
+
+Accepted metrics:
+
+- `no_outline_teddy`: stitches `2473 -> 2473`, jumps `25 -> 25`,
+  trims `5 -> 5`.
+- Same-surface jump long spans improve `1 -> 0`; same-surface trimmed long spans
+  improve `1 -> 0`; same-surface stitched and untrimmed long spans stay `0`.
+- Body group `#a05a28`: max gap `33.241mm -> 17.063mm`, total gap
+  `199.612mm -> 178.185mm`, travel stitches `6 -> 7`.
+- Quality stays `100`; risk stays `0`; broad route risk stays `0`.
+- Full generated and underpaint suites are unchanged; uploaded changes only
+  `no_outline_teddy`.
+
+Validation:
+
+- targeted uploaded strict:
+  `tmp/uploaded_no_outline_teddy_broad_body_multiseed_sort_final_20260701`
+- focused comparison:
+  `tmp/uploaded_compare_no_outline_teddy_broad_body_multiseed_sort_20260701.html`
+- full uploaded strict source policy:
+  `tmp/uploaded_broad_body_multiseed_sort_full_20260701`
+- full generated strict:
+  `tmp/generated_broad_body_multiseed_sort_full_20260701`
+- full underpaint benchmark:
+  `tmp/underpaint_broad_body_multiseed_sort_full_20260701`
+- uploaded comparison:
+  `tmp/uploaded_compare_broad_body_multiseed_sort_full_20260701.html`
+- generated comparison:
+  `tmp/generated_compare_broad_body_multiseed_sort_full_20260701.html`
+- underpaint comparison:
+  `tmp/underpaint_compare_broad_body_multiseed_sort_full_20260701.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+NEXT: the remaining teddy relocation pressure is the cross-surface ear movement,
+which is trimmed and does not create same-surface stitched/untrimmed risk. Leave
+it alone unless visual comparison shows it is a real artifact; the next broad
+stitch work should return to source/color or outline-style cases rather than
+broadening routing.

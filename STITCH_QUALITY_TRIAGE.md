@@ -2361,3 +2361,37 @@ Next recommended direction:
 - Remaining teddy pressure is mostly preview-only relocation and one body long
   gap. Prefer entry/exit selection or ear/body sequencing experiments over any
   broad route-mode expansion.
+
+No-outline teddy broad body multi-seed internal sort.
+
+Accepted triage update:
+
+- `no_outline_teddy` now evaluates every starting segment and orientation for
+  the already-gated broad `#a05a28` colored body fill, then preserves the best
+  greedy nearest-segment chain.
+- The policy remains limited to the same single-component `coloredStrokeBodyFill`
+  detail fill gate.
+- `surface-plan.json` records
+  `coloredStrokeInternalSort: multi_seed_nearest_segment`.
+- Top-level stitches, jumps, and trims stay flat at `2473`, `25`, and `5`.
+- Same-surface jump long spans improve `1 -> 0`; same-surface trimmed long spans
+  improve `1 -> 0`.
+- The body group max gap improves `33.241mm -> 17.063mm`, and total gap improves
+  `199.612mm -> 178.185mm`.
+- Quality remains `100`, risk remains `0`, same-surface stitched/untrimmed long
+  spans remain `0`, and broad route risk remains `0`.
+- Full generated and underpaint suites are unchanged; uploaded changes only
+  `no_outline_teddy`.
+
+Validation and reports:
+
+- Focused uploaded comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_no_outline_teddy_broad_body_multiseed_sort_20260701.html`
+- Uploaded full comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_broad_body_multiseed_sort_full_20260701.html`
+- Generated full comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_broad_body_multiseed_sort_full_20260701.html`
+- Underpaint full comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_broad_body_multiseed_sort_full_20260701.html`
+
+Next recommended direction:
+
+- Do not chase the remaining trimmed ear relocation unless it becomes visibly
+  problematic. Return to source/color or outline-style fixtures for the next
+  stitch-quality target.

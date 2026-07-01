@@ -1408,6 +1408,39 @@ Validation:
 
 ---
 
+## Broad Detail Body Multi-Seed Internal Sort
+
+Nearest sorting can still choose a poor first segment for a broad detail body.
+For the same narrow single-component `coloredStrokeBodyFill` case, the engine
+now evaluates every possible starting segment and orientation, then keeps the
+best greedy chain by trims, max gap, total gap, and jump count.
+
+Accepted 2026-07-01 result:
+
+- `no_outline_teddy` applies `multi_seed_nearest_segment` internal ordering to
+  the broad `#a05a28` body fill.
+- `surface-plan.json` records
+  `coloredStrokeInternalSort: multi_seed_nearest_segment`.
+- stitches stay `2473 -> 2473`, jumps stay `25 -> 25`, trims stay `5 -> 5`.
+- same-surface jump long spans improve `1 -> 0`; same-surface trimmed long spans
+  improve `1 -> 0`.
+- body group max gap improves `33.241mm -> 17.063mm`, and total gap improves
+  `199.612mm -> 178.185mm`.
+- quality remains `100`; same-surface stitched/untrimmed long spans and broad
+  route risk remain clean.
+- generated and underpaint full suites are unchanged.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_no_outline_teddy_broad_body_multiseed_sort_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_broad_body_multiseed_sort_full_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_broad_body_multiseed_sort_full_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_broad_body_multiseed_sort_full_20260701.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+---
+
 ## Out of scope for this plan
 
 - **Photo-realistic embroidery** (>10 colors with subtle blends) — the auto-conversion pipeline cannot match a hand-digitized photo realistic design. Stay focused on the 4–8 color stylized designs that match the example library.
