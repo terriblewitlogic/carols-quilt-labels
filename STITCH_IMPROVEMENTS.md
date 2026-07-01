@@ -1155,6 +1155,30 @@ same-hue preservation is accepted.
 
 ---
 
+## Source/Color Triage Refresh
+
+After the outline connector work, the source-fidelity report was refreshed
+against the current accepted generated run:
+
+`tmp/source_visual_fidelity_outline_block_energy_20260630/source-visual-fidelity.md`
+
+Accepted 2026-07-01 finding:
+
+- `gradient_elephant_simple` now preserves the source palette, including
+  `#f082a0`, without same-surface long-span regression.
+- Elephant is no longer a source/color preservation target; it is classified as
+  `review-stitch-style` with score `72.3` and palette agreement `1.0`.
+- `sparrow_flat_app_icon` and `low_contrast_bird` are also
+  `review-stitch-style` cases, not source/color loss cases.
+- `leaf_single_smooth` remains a `source-cleanup-success`.
+
+This means the next quality work should move from source/color preservation to
+a bounded stitch-style pass: outline policy/thickness and small detail rendering.
+Sparrow is the clearest visual fixture for that pass, but any outline policy
+change must be guarded against flower, badge, and cartoon fixture regressions.
+
+---
+
 ## Out of scope for this plan
 
 - **Photo-realistic embroidery** (>10 colors with subtle blends) — the auto-conversion pipeline cannot match a hand-digitized photo realistic design. Stay focused on the 4–8 color stylized designs that match the example library.

@@ -2131,3 +2131,37 @@ Next recommended direction:
   remains the top visible target, but tonal preservation must be route-safe.
   Keep the final daisy trim as a lower-priority routing target unless visual
   inspection shows a true sewn-thread issue.
+
+Source-fidelity refresh after outline work.
+
+Accepted triage update:
+
+- The current accepted generated run keeps the elephant's source palette:
+  `#c83264`, `#fab4c8`, `#f082a0`, and `#000000`.
+- `gradient_elephant_simple` moved from `likely-visual-target` to
+  `review-stitch-style`: score `72.3`, palette agreement `1.0`.
+- `sparrow_flat_app_icon` remains `review-stitch-style`: score `73.7`, palette
+  agreement `1.0`.
+- `low_contrast_bird` remains `review-stitch-style`: score `76.1`, palette
+  agreement `1.0`.
+- `leaf_single_smooth` remains `source-cleanup-success`.
+
+Interpretation:
+
+- The immediate source/color queue has no obvious safe behavior patch left.
+- Elephant no longer needs broad same-hue color preservation work; that problem
+  is already solved in the accepted run without same-surface route regression.
+- The next visible quality gap is stitch style: outline policy/thickness,
+  detail-shape rendering, and small accent handling.
+
+Validation and reports:
+
+- Refreshed fidelity report: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_outline_block_energy_20260630/source-visual-fidelity.md`
+- Rendered elephant preview: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/gradient_elephant_simple_preview.png`
+- Rendered sparrow preview: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/sparrow_flat_app_icon_preview.png`
+
+Next recommended direction:
+
+- Plan a dedicated stitch-style pass before changing behavior. Good starting
+  targets are `sparrow_flat_app_icon` and `low_contrast_bird`, with guards that
+  keep flower, badge, and cartoon outline reinforcement stable.

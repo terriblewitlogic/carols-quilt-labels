@@ -6044,3 +6044,44 @@ source-color target, but only accept tonal preservation if it does not
 reintroduce same-surface route spans. A separate low-risk routing target is the
 remaining daisy outline trim, now isolated to the true long cross-component
 relocation.
+
+================================================================================
+2026-07-01 — SOURCE FIDELITY TRIAGE REFRESH AFTER OUTLINE WORK
+================================================================================
+
+Target: refresh the source/color backlog after the latest accepted generated run.
+
+Finding:
+
+- The older triage report was stale. It marked `gradient_elephant_simple` as the
+  top source/color lead because the accepted semantic-tiny run still dropped the
+  mid-pink `#f082a0` material tone.
+- The current accepted generated run now keeps `#c83264`, `#fab4c8`,
+  `#f082a0`, and `#000000` with no same-surface long-span regression.
+- The elephant still scores low on detail/style fidelity, but source colors are
+  accounted. Visual inspection shows this is now a stitch-style/detail-shape
+  review case, not a source/color loss.
+- `sparrow_flat_app_icon` and `low_contrast_bird` are also color-accounted
+  stitch-style/shape review cases. The sparrow's heavy generated outlines are
+  visibly different from the app-icon source, but changing outline policy is a
+  broader behavior pass and needs its own fixtures.
+
+Accepted triage result:
+
+- `gradient_elephant_simple`: `review-stitch-style`, score `72.3`, palette `1.0`.
+- `sparrow_flat_app_icon`: `review-stitch-style`, score `73.7`, palette `1.0`.
+- `low_contrast_bird`: `review-stitch-style`, score `76.1`, palette `1.0`.
+- `leaf_single_smooth`: still `source-cleanup-success`.
+
+Validation:
+
+- refreshed report:
+  `tmp/source_visual_fidelity_outline_block_energy_20260630/source-visual-fidelity.md`
+- source/preview visual inspection:
+  `tmp/gradient_elephant_simple_preview.png`
+  `tmp/sparrow_flat_app_icon_preview.png`
+
+NEXT: switch from source/color preservation to a bounded stitch-style pass:
+outline policy, outline thickness, and small-detail rendering. Start with
+sparrow and low-contrast bird fixtures, but do not weaken outline reinforcement
+for generated flower/badge/cartoon fixtures without regression-gated proof.
