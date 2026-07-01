@@ -2239,3 +2239,34 @@ Next recommended direction:
 
 - Stay on low-contrast bird, but shift from source-color loss to stitch-style
   review: black outline/leg rendering, small detail shape, and preview fidelity.
+
+No-outline teddy compact dark detail suppression.
+
+Accepted triage update:
+
+- `no_outline_teddy` no longer treats its compact black eye/detail pair as a
+  reason to reinforce all foundation fills with black outlines.
+- The visible black head/muzzle/ear outline clutter is removed; same-color brown
+  seam/travel stitches remain a later style target.
+- Metrics: stitches `3349 -> 1812`, trims `4 -> 2`, jumps `14 -> 19`, quality
+  remains `100`, and same-surface stitched/untrimmed long spans remain `0`.
+- True outline canaries stayed stable (`thick_outline_flower` and generated
+  `leaf_single_smooth` unchanged).
+
+Validation and reports:
+
+- Focused uploaded comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_no_outline_teddy_compact_detail_20260701.html`
+- Uploaded full comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_compact_dark_detail_full_20260701.html`
+- Generated full comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_compact_dark_detail_full_20260701.html`
+- Underpaint full comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_compact_dark_detail_full_20260701.html`
+
+Rejected note:
+
+- `gradient_elephant_simple` near-white cream/tusk preservation was tested and
+  rejected for now: it stitched the cream detail but increased trims `2 -> 4`
+  and jumps `7 -> 11`.
+
+Next recommended direction:
+
+- Continue bounded stitch-style work. Best current lead is same-color seam/travel
+  clutter on otherwise no-outline flat icons; keep true outlined patches guarded.

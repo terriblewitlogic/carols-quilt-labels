@@ -712,3 +712,17 @@ keeps same-surface stitched/untrimmed long spans at `0`, and leaves
 `tmp/uploaded_compare_dark_chromatic_stroke_full_20260701.html`,
 `tmp/generated_compare_dark_chromatic_stroke_full_20260701.html`, and
 `tmp/underpaint_compare_dark_chromatic_stroke_full_20260701.html`.
+
+2026-07-01 update: `no_outline_teddy` now treats its compact black facial
+details as detail-only instead of using them to trigger broad black foundation
+outline reinforcement. The preview no longer invents heavy black head/muzzle/ear
+outlines; stitches improve `3349 -> 1812` and trims improve `4 -> 2` while
+quality remains `100` and same-surface stitched/untrimmed long spans remain `0`.
+True-outline canaries (`thick_outline_flower`, generated `leaf_single_smooth`)
+stay stable. Validation reports:
+`tmp/uploaded_compare_compact_dark_detail_full_20260701.html`,
+`tmp/generated_compare_compact_dark_detail_full_20260701.html`, and
+`tmp/underpaint_compare_compact_dark_detail_full_20260701.html`. A near-white
+cream detail experiment for `gradient_elephant_simple` was rejected for now
+because it increased trims and jumps. Next stitch-style lead: same-color
+seam/travel clutter on no-outline flat icons, with true outlined patches guarded.

@@ -6442,3 +6442,62 @@ Validation:
 NEXT: continue the low-contrast bird stitch-style pass from the remaining visual
 gap: black outline/leg styling and small detail rendering. Avoid broad outline
 policy changes unless `Black x` and comparison reports show a guarded win.
+
+================================================================================
+2026-07-01 — NO-OUTLINE TEDDY COMPACT DARK DETAIL SUPPRESSION
+================================================================================
+
+Target: uploaded `no_outline_teddy` was clean flat source art with dark eyes and
+nose, but the stitch preview invented a heavy black outer/head/muzzle outline.
+
+Change:
+
+- Widened the compact dark accent-detail-only cap from `45mm2` to `75mm2`.
+- This keeps two moderate compact black eye/detail components from triggering
+  foundation outline reinforcement.
+- Added uploaded strict source-policy guards so `no_outline_teddy` must stay
+  under `2400` stitches and at or below `2` trims.
+
+Accepted metrics:
+
+- `no_outline_teddy`: stitches `3349 -> 1812`, trims `4 -> 2`,
+  jumps `14 -> 19`.
+- Quality stays `100`; acceptance issues stay `0`; same-surface stitched and
+  untrimmed long spans stay `0`.
+- True outline canaries stay stable: `thick_outline_flower` remains
+  `6113 / 53 / 7`, and generated `leaf_single_smooth` remains
+  `1301 / 3 / 0`.
+
+Validation:
+
+- targeted uploaded strict:
+  `tmp/uploaded_no_outline_teddy_compact_detail_guard_20260701`
+- focused comparison:
+  `tmp/uploaded_compare_no_outline_teddy_compact_detail_20260701.html`
+- full uploaded strict source policy:
+  `tmp/uploaded_compact_dark_detail_full_20260701`
+- full generated strict:
+  `tmp/generated_compact_dark_detail_full_20260701`
+- full underpaint benchmark:
+  `tmp/underpaint_compact_dark_detail_full_20260701`
+- uploaded comparison:
+  `tmp/uploaded_compare_compact_dark_detail_full_20260701.html`
+- generated comparison:
+  `tmp/generated_compare_compact_dark_detail_full_20260701.html`
+- underpaint comparison:
+  `tmp/underpaint_compare_compact_dark_detail_full_20260701.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+Rejected experiment:
+
+- Tried preserving a near-white cream core in `gradient_elephant_simple`
+  (`#f0ead6`) by opening the sparse tint mask and keeping the broad core.
+- It successfully stitched the cream detail, but increased trims `2 -> 4` and
+  jumps `7 -> 11`, failing the current strict elephant envelope. Rejected until
+  there is a separate routing/policy change for the extra surface.
+
+NEXT: continue stitch-style cleanup. The teddy change removes invented black
+foundation outlines, but same-color brown seam/travel stitches are still visible.
+Consider a guarded same-color seam/travel cleanup pass only if comparison reports
+show it improves visual output without increasing long-span risk.

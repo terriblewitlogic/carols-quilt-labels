@@ -1286,6 +1286,40 @@ Validation:
 
 ---
 
+## Compact Dark Details Without Invented Outlines
+
+Clean no-outline uploaded icons can contain moderate dark facial details that
+are larger than the old compact-detail cap but still are not source outlines.
+The compiler now treats compact dark accent detail up to `75mm2` as
+detail-only, preventing those eyes/noses from causing broad black foundation
+outline reinforcement.
+
+Accepted 2026-07-01 result:
+
+- `no_outline_teddy` removes the invented black head/muzzle/ear outline.
+- stitches `3349 -> 1812`, trims `4 -> 2`, jumps `14 -> 19`.
+- quality remains `100`; same-surface stitched/untrimmed long spans remain `0`.
+- uploaded strict source policy now guards stitch count `<= 2400` and trim count
+  `<= 2` for this fixture.
+- `thick_outline_flower` and generated `leaf_single_smooth` stay stable, so true
+  patch outlines are not suppressed by the wider compact-detail gate.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_no_outline_teddy_compact_detail_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_compact_dark_detail_full_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_compact_dark_detail_full_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_compact_dark_detail_full_20260701.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+Rejected follow-up:
+
+- A near-white cream/tusk preservation experiment for `gradient_elephant_simple`
+  was rejected because it increased trims `2 -> 4` and jumps `7 -> 11`.
+
+---
+
 ## Out of scope for this plan
 
 - **Photo-realistic embroidery** (>10 colors with subtle blends) — the auto-conversion pipeline cannot match a hand-digitized photo realistic design. Stay focused on the 4–8 color stylized designs that match the example library.
