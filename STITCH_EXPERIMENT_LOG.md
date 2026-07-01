@@ -6085,3 +6085,48 @@ NEXT: switch from source/color preservation to a bounded stitch-style pass:
 outline policy, outline thickness, and small-detail rendering. Start with
 sparrow and low-contrast bird fixtures, but do not weaken outline reinforcement
 for generated flower/badge/cartoon fixtures without regression-gated proof.
+
+================================================================================
+2026-07-01 — NEAR-BLACK EXPANSION FIDELITY DIAGNOSTIC
+================================================================================
+
+Target: make outline-heavy stitch-style cases measurable before changing
+outline behavior.
+
+Change:
+
+- `visual_fidelity.py` now reports:
+  - `sourceNearBlackFraction`
+  - `previewNearBlackFraction`
+  - `nearBlackExpansion`
+- `source_visual_fidelity_report.py` adds a `Black x` column and updates
+  `review-stitch-style` notes when near-black preview coverage indicates
+  outline-heavy stitching.
+
+Accepted diagnostic result:
+
+- `gradient_elephant_simple`: `Black x 60.9`, now explicitly marked
+  outline-heavy.
+- `sparrow_flat_app_icon`: `Black x 62.9`, matching the visual inspection that
+  automatic outline reinforcement dominates a source with only tiny black
+  accents.
+- `low_contrast_bird`: `Black x 3.16`, also marked for outline/fill style
+  review.
+- Flower, badge, cartoon, and most uploaded fixtures remain monitor cases even
+  when they have moderate black expansion, which keeps the report from turning
+  every outlined patch into an urgent target.
+
+Validation:
+
+- report:
+  `tmp/source_visual_fidelity_black_expansion_v2_20260630/source-visual-fidelity.md`
+- direct sparrow score:
+  `python3 scripts/visual_fidelity.py --source tmp/generated_outline_block_energy_final_20260630/sparrow_flat_app_icon/source.png --preview tmp/generated_outline_block_energy_final_20260630/sparrow_flat_app_icon/preview.svg`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+NEXT: use `Black x` as the lead metric for a guarded outline-style experiment.
+Candidate direction: reduce or suppress automatic black boundary reinforcement
+only when source near-black coverage is tiny and source colors/details are
+already accounted, while guarding flower/badge/cartoon cases that intentionally
+benefit from patch-like outlines.

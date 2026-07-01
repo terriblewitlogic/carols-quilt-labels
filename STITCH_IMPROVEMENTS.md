@@ -1179,6 +1179,37 @@ change must be guarded against flower, badge, and cartoon fixture regressions.
 
 ---
 
+## Near-Black Expansion Diagnostic
+
+The source-fidelity tooling now measures outline-heavy stitch previews:
+
+- `sourceNearBlackFraction`
+- `previewNearBlackFraction`
+- `nearBlackExpansion`
+
+The markdown report includes a `Black x` column and uses it in
+`review-stitch-style` triage notes when source colors/details are accounted but
+preview near-black coverage expands heavily.
+
+Accepted 2026-07-01 result:
+
+- `gradient_elephant_simple`: `Black x 60.9`
+- `sparrow_flat_app_icon`: `Black x 62.9`
+- `low_contrast_bird`: `Black x 3.16`
+
+This is diagnostic tooling only; no stitch behavior changed. It gives the next
+outline-style pass a measurable target and helps separate intentional
+patch-style outlines from generated/app-icon cases where automatic black
+boundary reinforcement is visually too heavy.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_black_expansion_v2_20260630/source-visual-fidelity.md`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+---
+
 ## Out of scope for this plan
 
 - **Photo-realistic embroidery** (>10 colors with subtle blends) — the auto-conversion pipeline cannot match a hand-digitized photo realistic design. Stay focused on the 4–8 color stylized designs that match the example library.

@@ -2165,3 +2165,33 @@ Next recommended direction:
 - Plan a dedicated stitch-style pass before changing behavior. Good starting
   targets are `sparrow_flat_app_icon` and `low_contrast_bird`, with guards that
   keep flower, badge, and cartoon outline reinforcement stable.
+
+Near-black expansion diagnostic.
+
+Change accepted:
+
+- Source visual fidelity now reports near-black coverage expansion:
+  `sourceNearBlackFraction`, `previewNearBlackFraction`, and
+  `nearBlackExpansion`.
+- The markdown report includes a `Black x` column.
+- `review-stitch-style` rows call out outline-heavy stitching when preview
+  near-black coverage expands substantially beyond the source.
+
+Current top outline-style leads:
+
+- `gradient_elephant_simple`: `Black x 60.9`.
+- `sparrow_flat_app_icon`: `Black x 62.9`.
+- `low_contrast_bird`: `Black x 3.16`.
+
+Validation and reports:
+
+- Black-expansion fidelity report: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_black_expansion_v2_20260630/source-visual-fidelity.md`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+Next recommended direction:
+
+- Start a guarded outline-style experiment using `Black x` as the primary visual
+  diagnostic. Any behavior change should lower black expansion for sparrow or
+  elephant without increasing acceptance issues, long-span risks, or degrading
+  flower/badge/cartoon fixtures that intentionally need patch-like outlines.
