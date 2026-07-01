@@ -13,6 +13,49 @@ This is not a full changelog. It is a decision log for approaches that worked, f
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_acceptance_*`
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/regression_*`
 
+## Accepted Source/Color Policy: Subject-Attached Ivory Detail Preservation
+
+Date: 2026-07-01
+
+Goal:
+
+- Restore the ivory tusk in `gradient_elephant_simple` after the outline-suppression win removed the black body outline but still absorbed the near-white foreground detail as background tint.
+- Keep the accepted elephant invariants: no `scan_lanes`, no same-surface stitched/untrimmed long spans, no high-risk surfaces, and no broad-route risk.
+
+Change:
+
+- `_absorb_background_tint_fragments` now preserves thick cores inside subject-attached pale/ivory components while still absorbing surrounding sparse antialias halo scraps.
+- Compact pale foreground surfaces suppress lane routing so restored ivory details use ordinary scan rows instead of reopening the old generated-elephant `scan_lanes` failure mode.
+- `surface-plan.json` exposes `suppressLaneRoute`.
+- Strict generated acceptance now guards `gradient_elephant_simple` for stitched near-white foreground accounting.
+
+Result:
+
+- `gradient_elephant_simple` restores `#f0ead6`; `sourceStitchedNearWhiteForegroundColorCount` improves `0 -> 1`.
+- Stitches move `3853 -> 3937`, jumps `5 -> 6`, trims stay `1`.
+- Quality stays `100`; acceptance issues stay `0`; same-surface long spans, same-surface stitched long spans, same-surface untrimmed jump long spans, high-risk surfaces, and broad-route risk all stay `0`.
+- Fill strategies stay free of `scan_lanes`.
+- Visual fidelity is effectively flat (`82.1 -> 82.0`) because the restored tusk is small, but visual inspection confirms the tusk is back.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_gradient_elephant_ivory_tusk_final_focus_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_gradient_elephant_ivory_tusk_20260701/source-visual-fidelity.md`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_ivory_tusk_full_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_ivory_tusk_full_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_ivory_tusk_full_20260701.html`
+- `python3 scripts/generated_acceptance.py --case gradient_elephant_simple --out tmp/generated_gradient_elephant_ivory_tusk_final_focus_20260701 --strict`
+- `python3 scripts/generated_acceptance.py --out tmp/generated_ivory_tusk_full_20260701 --strict`
+- `python3 scripts/uploaded_art_acceptance.py --out tmp/uploaded_ivory_tusk_full_20260701 --strict-no-500 --strict-source-policy`
+- `npm run benchmark:underpaint -- --out tmp/underpaint_ivory_tusk_full_20260701`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+Verdict:
+
+- Keep. This closes the remaining generated-elephant source/color loss after the outline-suppression pass.
+- Next elephant work should be stitch-style/detail-shape quality, not missing-color repair.
+
 ## Accepted Stitch-Style Policy: Compact Dark Detail Parallel Dots
 
 Date: 2026-07-01

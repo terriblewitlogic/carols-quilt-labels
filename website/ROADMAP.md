@@ -107,7 +107,7 @@ src/pages/GeneratorPage.jsx   ← wire each step of the flow
 
 **Credit deduction:** Call `useCredits().spend(creditsNeeded)` before triggering the export. If `spend()` returns false (insufficient balance), show the credit purchase prompt instead.
 
-**Backend quality checkpoint — 2026-07-01 addendum:** compact vivid detail satin-underlay suppression further improves `sparrow_flat_app_icon` from `1835` stitches / `21` jumps / `2` trims to `1799` stitches / `14` jumps / `2` trims by skipping underlay only on source-preserved non-dark vivid detail fills. Compact dark detail dots now use parallel-dot satin up to `24mm2`, so `low_contrast_bird` renders its black eye as a filled dot instead of a hollow/ring-like compact satin column; quality remains `100`, jumps/trims stay `24 / 3`, and hard risk gates stay clean. Generated/uploaded/underpaint regression-gated comparisons show no acceptance, stitched-span, high-risk, or broad-route-risk regression.
+**Backend quality checkpoint — 2026-07-01 addendum:** compact vivid detail satin-underlay suppression further improves `sparrow_flat_app_icon` from `1835` stitches / `21` jumps / `2` trims to `1799` stitches / `14` jumps / `2` trims by skipping underlay only on source-preserved non-dark vivid detail fills. Compact dark detail dots now use parallel-dot satin up to `24mm2`, so `low_contrast_bird` renders its black eye as a filled dot instead of a hollow/ring-like compact satin column; quality remains `100`, jumps/trims stay `24 / 3`, and hard risk gates stay clean. Generated/uploaded/underpaint regression-gated comparisons show no acceptance, stitched-span, high-risk, or broad-route-risk regression. The generated elephant now also preserves its ivory tusk as stitched near-white foreground (`sourceStitchedNearWhiteForegroundColorCount` `0 -> 1`) while keeping `scan_lanes` out of the fixture, quality at `100`, trims at `1`, and same-surface stitched/untrimmed long-span risk at `0`.
 
 Current validation artifacts:
 
@@ -132,6 +132,11 @@ Current validation artifacts:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_compact_dark_dot_guard_full_20260701.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_compact_dark_dot_full_20260701.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_compact_dark_dot_full_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_gradient_elephant_ivory_tusk_final_focus_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_gradient_elephant_ivory_tusk_20260701/source-visual-fidelity.md`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_ivory_tusk_full_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_ivory_tusk_full_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_ivory_tusk_full_20260701.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_cycle2_20260630/source-triage.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_cycle2_classification_20260630/source-visual-fidelity.md`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_outline_internal_sort_guard_20260630.html`

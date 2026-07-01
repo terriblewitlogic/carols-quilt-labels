@@ -2451,3 +2451,32 @@ Next recommended direction:
 
 - Move from outline suppression to tonal/detail rendering. The elephant's
   remaining visual issue is low detail integrity, not black expansion.
+
+Subject-attached ivory detail preservation.
+
+Accepted triage update:
+
+- `gradient_elephant_simple` now preserves the ivory tusk as stitched near-white
+  foreground instead of absorbing it as background tint residue.
+- The source cleanup keeps only thick subject-attached pale cores and still
+  absorbs sparse halo scraps; compact pale foreground surfaces also suppress lane
+  routing so the tusk does not reopen the old `scan_lanes` failure.
+- Metrics: stitched near-white foreground `0 -> 1`, stitches `3853 -> 3937`,
+  jumps `5 -> 6`, trims stay `1`, and quality stays `100`.
+- Same-surface long spans, same-surface stitched/untrimmed long spans,
+  high-risk surfaces, and broad-route risk all stay `0`; full
+  generated/uploaded/underpaint regression comparisons passed.
+
+Validation and reports:
+
+- Focused generated comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_gradient_elephant_ivory_tusk_final_focus_20260701.html`
+- Visual fidelity report: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_gradient_elephant_ivory_tusk_20260701/source-visual-fidelity.md`
+- Generated full comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_ivory_tusk_full_20260701.html`
+- Uploaded full comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_ivory_tusk_full_20260701.html`
+- Underpaint full comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_ivory_tusk_full_20260701.html`
+
+Next recommended direction:
+
+- Treat `gradient_elephant_simple` as a stitch-style/detail-shape review case.
+  The remaining work is smoother trunk/tusk/detail rendering, not missing source
+  color.

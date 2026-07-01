@@ -1498,6 +1498,37 @@ Validation:
 
 ---
 
+## Subject-Attached Ivory Detail Preservation
+
+Near-white foreground details should survive when they are attached to the
+subject and have a sewable thick core, even when the same label also contains
+background antialias halo scraps.
+
+Accepted 2026-07-01 result:
+
+- `gradient_elephant_simple` restores the ivory tusk as stitched `#f0ead6`.
+- `sourceStitchedNearWhiteForegroundColorCount` improves `0 -> 1`.
+- `absorb_background_tint_fragments` now keeps thick subject-attached pale cores
+  while absorbing the surrounding sparse halo.
+- Compact pale foreground surfaces suppress lane routing, so the restored tusk
+  does not reintroduce the old generated-elephant `scan_lanes` regression.
+- stitches `3853 -> 3937`, jumps `5 -> 6`, trims stay `1`.
+- quality remains `100`; acceptance issues remain `0`; same-surface
+  stitched/untrimmed long spans, high-risk surfaces, and broad route risk remain
+  clean.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_gradient_elephant_ivory_tusk_final_focus_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_gradient_elephant_ivory_tusk_20260701/source-visual-fidelity.md`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_ivory_tusk_full_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_ivory_tusk_full_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_ivory_tusk_full_20260701.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+---
+
 ## Out of scope for this plan
 
 - **Photo-realistic embroidery** (>10 colors with subtle blends) — the auto-conversion pipeline cannot match a hand-digitized photo realistic design. Stay focused on the 4–8 color stylized designs that match the example library.
