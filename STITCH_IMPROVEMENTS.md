@@ -159,6 +159,16 @@ Recent shipped work since the original pro-design comparison:
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_overlay_detailscan_20260630.html`
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_color_compare_overlay_detailscan_20260630.html`
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_overlay_guard_20260630.html`
+- Added guarded tonal material running outlines:
+  - same-hue material overlays can request running outlines for non-dark components, avoiding a heavy satin-outline artifact without changing ordinary generated icon outline policy
+  - `gradient_elephant_simple` improves stitches `6050 -> 4204`, jumps `9 -> 7`, trims `4 -> 2`, source-fidelity score `72.3 -> 80.4`, and near-black expansion `60.9 -> 17.9`
+  - quality stays `100`, same-surface stitched/untrimmed long spans stay `0`, high-risk surfaces stay `0`, and broad-route risk stays `0`
+  - `sparrow_flat_app_icon` remains unchanged; broad running outlines stay rejected because the probe regressed sparrow quality `100 -> 74`
+  - strict generated acceptance and the underpaint benchmark now guard `gradient_elephant_simple` at `<= 7` jumps and `<= 2` trims
+  - validation reports:
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_tonal_running_outline_guard_full_20260701.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_tonal_running_outline_guard_full_20260701.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_tonal_running_outline_20260701/source-visual-fidelity.md`
 - Added color-accounted low-detail fidelity triage:
   - `source_visual_fidelity_report.py` now avoids routing clean color-accounted low-detail cases back into the source/color behavior queue
   - `gradient_elephant_simple` is now `review-stitch-style` in the fresh cycle-2 report: palette agreement `1`, region recall `0.971`, source fit `100`, no source repair opportunities, but detail score `0`

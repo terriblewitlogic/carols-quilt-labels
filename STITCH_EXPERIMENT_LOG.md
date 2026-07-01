@@ -144,6 +144,50 @@ Verdict:
 - Keep. This is the first generated-icon same-hue source/color behavior win after the uploaded material-family guards.
 - Next source/color work should rerun triage and pick a new behavior target; elephant should move to ongoing stitch-style/detail-shape review rather than remaining the top missing-color case.
 
+## Accepted Stitch-Style Policy: Tonal Material Running Outlines
+
+Date: 2026-07-01
+
+Goal:
+
+- Reduce the heavy dark outline expansion introduced by the generated same-hue overlay fix for `gradient_elephant_simple`.
+- Keep the color-preservation win for `#f082a0` and avoid the blanket running-outline regression that dropped `sparrow_flat_app_icon` quality to `74`.
+
+Change:
+
+- Same-hue material overlays can mark non-dark planned components with a narrow `prefer_running_outline` hint.
+- `_process_polygon` honors that hint only by demoting selected satin outlines to running outlines; ordinary outline mode selection remains unchanged.
+- Strict generated acceptance and the underpaint benchmark now guard `gradient_elephant_simple` at `<= 2` trims and `<= 7` jumps.
+
+Result:
+
+- `gradient_elephant_simple` improves stitches `6050 -> 4204`, jumps `9 -> 7`, and trims `4 -> 2`.
+- Source visual-fidelity improves `72.3 -> 80.4`, and near-black expansion drops `60.9 -> 17.9`.
+- Quality stays `100`; same-surface long spans, same-surface stitched long spans, same-surface untrimmed jump long spans, high-risk surfaces, and broad-route risk all stay `0`.
+- Full generated and underpaint comparisons show no other metric movement.
+- `sparrow_flat_app_icon` stays unchanged at quality `100`, `5483` stitches, `17` jumps, and `2` trims.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_tonal_running_outline_guard_full_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_tonal_running_outline_guard_full_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_tonal_running_outline_20260701/source-visual-fidelity.md`
+- `python3 scripts/generated_acceptance.py --case gradient_elephant_simple --case sparrow_flat_app_icon --out tmp/generated_tonal_running_outline_guard_check_20260701 --strict`
+- `python3 scripts/underpaint_benchmark.py --case gradient_elephant_simple --out tmp/underpaint_tonal_running_outline_guard_check_20260701`
+- `python3 scripts/generated_acceptance.py --out tmp/generated_tonal_running_outline_guard_full_20260701 --strict`
+- `npm run benchmark:underpaint -- --out tmp/underpaint_tonal_running_outline_guard_full_20260701`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+Rejected variant:
+
+- Blanket `--outline running` gave the elephant the same improvement but regressed `sparrow_flat_app_icon` quality from `100` to `74`; keep the same-hue material overlay gate.
+
+Verdict:
+
+- Keep. This converts the elephant overlay from a color-preservation win with a heavy-outline artifact into a cleaner generated-icon result.
+- Next stitch-style work should target `sparrow_flat_app_icon` separately; its near-black expansion remains high, but it needs a different strategy than broad running-outline demotion.
+
 ## Accepted Source/Color Tooling: Color-Accounted Low-Detail Triage
 
 Date: 2026-06-30
