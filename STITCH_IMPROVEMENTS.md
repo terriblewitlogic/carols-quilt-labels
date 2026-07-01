@@ -1441,6 +1441,31 @@ Validation:
 
 ---
 
+## Visual Fidelity Outline-Expansion Classification
+
+The current source/color suites are mostly clean after the teddy work, but
+`gradient_elephant_simple` still has a stitch-style mismatch: a tiny black eye
+source expands into a visible black structural outline. The first direct
+algorithm attempt to suppress that outline was rejected because it exposed
+light-pink travel and regressed generated strict jumps.
+
+Accepted 2026-07-01 tooling result:
+
+- `source_visual_fidelity_report.py` now recognizes tiny near-black source
+  detail expanding into outline-heavy preview coverage.
+- `gradient_elephant_simple` is classified as `review-stitch-style` instead of
+  generic low fidelity.
+- Rejected algorithm experiment: black expansion `17.93x -> 1.4x`, stitches
+  `4204 -> 3823`, but jumps `7 -> 9` and visual fidelity `80.4 -> 80.3`.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_outline_expansion_classification_20260701/source-visual-fidelity.md`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+---
+
 ## Out of scope for this plan
 
 - **Photo-realistic embroidery** (>10 colors with subtle blends) — the auto-conversion pipeline cannot match a hand-digitized photo realistic design. Stay focused on the 4–8 color stylized designs that match the example library.

@@ -6727,3 +6727,48 @@ which is trimmed and does not create same-surface stitched/untrimmed risk. Leave
 it alone unless visual comparison shows it is a real artifact; the next broad
 stitch work should return to source/color or outline-style cases rather than
 broadening routing.
+
+================================================================================
+2026-07-01 — VISUAL FIDELITY OUTLINE-EXPANSION TRIAGE
+================================================================================
+
+Target: after the teddy route work, fresh source/color triage had no Grade B/C
+source blockers. The top current visual lead is `gradient_elephant_simple`: the
+source has only a tiny black eye, but the stitched preview adds a dark structural
+outline around much of the pink body. The old visual-fidelity report called this
+generic low detail instead of identifying the outline-expansion failure mode.
+
+Rejected experiment:
+
+- Tried keeping `accentDetailOnlyOutlineSuppression` active even when
+  `sameHueMaterialOverlay` is accepted.
+- Visual black expansion improved from `17.93x -> 1.4x`, and stitches dropped
+  `4204 -> 3823`.
+- Rejected because strict generated acceptance failed: `jumpCount` regressed
+  `7 -> 9` on `gradient_elephant_simple`, while overall visual fidelity stayed
+  flat (`80.4 -> 80.3`). Removing the black outline exposed light-pink body
+  travel that the outline had previously covered.
+
+Accepted tooling change:
+
+- `source_visual_fidelity_report.py` now detects the specific pattern
+  `sourceNearBlackFraction <= 1.2%`, `previewNearBlackFraction >= 3.5%`, and
+  `nearBlackExpansion >= 6x`.
+- The fresh report moves `gradient_elephant_simple` from generic
+  `likely-visual-target` to `review-stitch-style` with:
+  "source colors are accounted; tiny near-black source detail expanded into
+  outline-heavy stitching".
+
+Validation:
+
+- report:
+  `tmp/source_visual_fidelity_outline_expansion_classification_20260701/source-visual-fidelity.md`
+- rejected experiment artifact:
+  `tmp/generated_gradient_elephant_accent_detail_outline_suppression_20260701`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+NEXT: the next algorithm attempt should not simply remove the elephant's black
+structural outline. It needs a paired plan for same-color pink body travel, such
+as same-color covered travel, body internal path smoothing, or a non-black tonal
+edge treatment that preserves the jump cap.

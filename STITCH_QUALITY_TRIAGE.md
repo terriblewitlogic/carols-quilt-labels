@@ -2395,3 +2395,29 @@ Next recommended direction:
 - Do not chase the remaining trimmed ear relocation unless it becomes visibly
   problematic. Return to source/color or outline-style fixtures for the next
   stitch-quality target.
+
+Visual fidelity outline-expansion classification.
+
+Accepted triage update:
+
+- Fresh triage after the teddy work has no Grade B/C source blockers; the next
+  actionable lead is stitch-style, not source-color loss.
+- `gradient_elephant_simple` shows a specific outline-style mismatch: source
+  near-black is only `0.22%`, preview near-black is `5.38%`, and near-black
+  expansion is `17.93x`.
+- A direct algorithm experiment that preserved accent-detail-only outline
+  suppression through same-hue overlay was rejected: black expansion improved to
+  `1.4x`, but generated strict failed because jumps regressed `7 -> 9` and
+  visual fidelity stayed flat (`80.4 -> 80.3`).
+- The accepted change is diagnostic: visual-fidelity reports now classify this
+  as `review-stitch-style` with a tiny-near-black-to-outline-expansion note.
+
+Validation and reports:
+
+- Visual fidelity report: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_outline_expansion_classification_20260701/source-visual-fidelity.md`
+- Rejected experiment artifact: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_gradient_elephant_accent_detail_outline_suppression_20260701`
+
+Next recommended direction:
+
+- For `gradient_elephant_simple`, pair any black-outline suppression with a
+  strategy for same-color pink body travel. Plain outline removal is not safe.

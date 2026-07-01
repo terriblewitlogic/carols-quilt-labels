@@ -785,3 +785,13 @@ max gap improves `33.241mm -> 17.063mm`, and total gap improves
 `tmp/underpaint_compare_broad_body_multiseed_sort_full_20260701.html`. Next
 lead: return to source/color or outline-style quality targets; do not chase the
 remaining trimmed ear relocation unless visual review shows a real artifact.
+
+2026-07-01 update: refreshed source/color triage is clean enough that the next
+lead is stitch-style diagnosis. `source_visual_fidelity_report.py` now detects
+tiny near-black source detail expanding into outline-heavy preview coverage,
+which correctly classifies `gradient_elephant_simple` as `review-stitch-style`
+instead of generic low fidelity. A direct outline-suppression experiment was
+rejected for now: black expansion improved `17.93x -> 1.4x`, but generated
+strict failed because jumps regressed `7 -> 9` and overall visual fidelity stayed
+flat. Next lead: solve elephant outline suppression only together with same-color
+pink body travel handling.
