@@ -6772,3 +6772,61 @@ NEXT: the next algorithm attempt should not simply remove the elephant's black
 structural outline. It needs a paired plan for same-color pink body travel, such
 as same-color covered travel, body internal path smoothing, or a non-black tonal
 edge treatment that preserves the jump cap.
+
+================================================================================
+2026-07-01 — GRADIENT ELEPHANT OUTLINE SUPPRESSION WITH LIGHT TRAVEL
+================================================================================
+
+Target: `gradient_elephant_simple` had a tiny black eye in the source but a
+heavy black structural outline in the preview. A prior direct suppression
+experiment fixed the black expansion but regressed jumps because the black
+outline had been serving as a later coverage corridor for light-pink carries.
+
+Change:
+
+- Keep `accentDetailOnlyOutlineSuppression` active even when same-hue material
+  overlay is accepted, so compact dark details do not force a black structural
+  outline around tonal bodies.
+- Add a narrow same-surface light-fill travel exception:
+  `accentDetailOnlyOutlineSuppression`, foundation fill, color luminance >= 170,
+  same surface id, and gap <= 14mm.
+- Record `sameSurfaceLightTravel` in `surface-plan.json`.
+
+Accepted metrics:
+
+- `gradient_elephant_simple`: stitches `4204 -> 3853`, jumps `7 -> 5`,
+  trims `2 -> 1`.
+- Visual fidelity improves `80.4 -> 82.1`; near-black expansion improves
+  `17.93x -> 1.4x`; preview near-black fraction improves `5.38% -> 0.42%`.
+- Quality remains `100`; acceptance issues remain `0`; same-surface stitched
+  and untrimmed long spans remain `0`; broad route risk remains `0`.
+- Secondary generated effect: `sparrow_flat_app_icon` jumps `14 -> 13`, stitches
+  `1814 -> 1830`, with visual score effectively unchanged.
+- Secondary uploaded effect: `no_outline_teddy` jumps `25 -> 13`, stitches
+  `2473 -> 2540`, with visual score unchanged at `93.3`.
+
+Validation:
+
+- targeted generated strict:
+  `tmp/generated_gradient_elephant_outline_suppressed_light_travel_final_20260701`
+- full generated strict:
+  `tmp/generated_outline_suppressed_light_travel_full_20260701`
+- full uploaded strict source policy:
+  `tmp/uploaded_outline_suppressed_light_travel_full_20260701`
+- full underpaint benchmark:
+  `tmp/underpaint_outline_suppressed_light_travel_full_20260701`
+- generated comparison:
+  `tmp/generated_compare_outline_suppressed_light_travel_full_20260701.html`
+- uploaded comparison:
+  `tmp/uploaded_compare_outline_suppressed_light_travel_full_20260701.html`
+- underpaint comparison:
+  `tmp/underpaint_compare_outline_suppressed_light_travel_full_20260701.html`
+- visual fidelity report:
+  `tmp/source_visual_fidelity_outline_suppressed_light_travel_20260701/source-visual-fidelity.md`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+NEXT: `gradient_elephant_simple` no longer has the black-outline expansion
+failure. It remains a generic visual lead because detail integrity is low, so
+future work should focus on tonal shape/detail rendering, not black-outline
+suppression.

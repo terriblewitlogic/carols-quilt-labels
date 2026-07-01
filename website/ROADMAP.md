@@ -795,3 +795,13 @@ rejected for now: black expansion improved `17.93x -> 1.4x`, but generated
 strict failed because jumps regressed `7 -> 9` and overall visual fidelity stayed
 flat. Next lead: solve elephant outline suppression only together with same-color
 pink body travel handling.
+
+2026-07-01 update: `gradient_elephant_simple` now suppresses the unwanted black
+body outline while preserving the black eye by pairing accent-detail-only
+outline suppression with a narrow same-surface light-fill travel gate. Metrics
+improve stitches `4204 -> 3853`, jumps `7 -> 5`, trims `2 -> 1`; visual fidelity
+improves `80.4 -> 82.1`; near-black expansion improves `17.93x -> 1.4x`.
+Generated, uploaded, and underpaint regression-gated comparisons passed.
+Secondary wins: `sparrow_flat_app_icon` jumps `14 -> 13`, and `no_outline_teddy`
+jumps `25 -> 13`. Next lead: tonal/detail rendering for the elephant; the black
+outline expansion issue is handled.

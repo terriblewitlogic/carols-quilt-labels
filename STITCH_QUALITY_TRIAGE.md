@@ -2421,3 +2421,33 @@ Next recommended direction:
 
 - For `gradient_elephant_simple`, pair any black-outline suppression with a
   strategy for same-color pink body travel. Plain outline removal is not safe.
+
+Gradient elephant outline suppression with light travel.
+
+Accepted triage update:
+
+- `gradient_elephant_simple` now keeps compact black eye detail from forcing a
+  black structural outline around the pink body, even with same-hue material
+  overlay active.
+- The safe companion change is a narrow light-fill same-surface travel gate:
+  compact-dark-detail-only source, foundation fill, luminance >= 170, same
+  surface id, and gap <= 14mm.
+- `surface-plan.json` records `sameSurfaceLightTravel`.
+- Metrics improve: stitches `4204 -> 3853`, jumps `7 -> 5`, trims `2 -> 1`.
+- Visual fidelity improves `80.4 -> 82.1`; near-black expansion improves
+  `17.93x -> 1.4x`.
+- `sparrow_flat_app_icon` also improves jumps `14 -> 13`; `no_outline_teddy`
+  improves jumps `25 -> 13`; both remain visually stable.
+- Full uploaded/generated/underpaint regression-gated comparisons passed.
+
+Validation and reports:
+
+- Generated comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_outline_suppressed_light_travel_full_20260701.html`
+- Uploaded comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_outline_suppressed_light_travel_full_20260701.html`
+- Underpaint comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_outline_suppressed_light_travel_full_20260701.html`
+- Visual fidelity report: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_outline_suppressed_light_travel_20260701/source-visual-fidelity.md`
+
+Next recommended direction:
+
+- Move from outline suppression to tonal/detail rendering. The elephant's
+  remaining visual issue is low detail integrity, not black expansion.

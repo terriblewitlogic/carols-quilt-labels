@@ -1466,6 +1466,38 @@ Validation:
 
 ---
 
+## Compact Dark Detail Outline Suppression
+
+Tiny black source details should not automatically create a black structural
+outline around a soft tonal body. The elephant fix keeps accent-detail-only
+outline suppression active through same-hue material overlay, then compensates
+for the removed black coverage corridor with a narrow same-surface light-fill
+travel allowance.
+
+Accepted 2026-07-01 result:
+
+- `gradient_elephant_simple` drops the unwanted black body outline while keeping
+  the black eye.
+- `surface-plan.json` records `sameSurfaceLightTravel` for the light pink body
+  fill.
+- stitches `4204 -> 3853`, jumps `7 -> 5`, trims `2 -> 1`.
+- visual fidelity `80.4 -> 82.1`; near-black expansion `17.93x -> 1.4x`.
+- `sparrow_flat_app_icon` improves jumps `14 -> 13`; `no_outline_teddy`
+  improves jumps `25 -> 13`.
+- quality remains `100`; acceptance issues remain `0`; same-surface
+  stitched/untrimmed long spans and broad route risk remain clean.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_outline_suppressed_light_travel_full_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_outline_suppressed_light_travel_full_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_outline_suppressed_light_travel_full_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_outline_suppressed_light_travel_20260701/source-visual-fidelity.md`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+---
+
 ## Out of scope for this plan
 
 - **Photo-realistic embroidery** (>10 colors with subtle blends) — the auto-conversion pipeline cannot match a hand-digitized photo realistic design. Stay focused on the 4–8 color stylized designs that match the example library.
