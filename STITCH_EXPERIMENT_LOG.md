@@ -188,6 +188,51 @@ Verdict:
 - Keep. This converts the elephant overlay from a color-preservation win with a heavy-outline artifact into a cleaner generated-icon result.
 - Next stitch-style work should target `sparrow_flat_app_icon` separately; its near-black expansion remains high, but it needs a different strategy than broad running-outline demotion.
 
+## Accepted Stitch-Style Policy: Tiny Accent Detail Outline Suppression
+
+Date: 2026-07-01
+
+Goal:
+
+- Fix `sparrow_flat_app_icon`, where a tiny black eye was being treated as permission to draw black outlines around every foundation/detail surface.
+- Keep thick-outline/cartoon fixtures unchanged, and keep the accepted same-hue elephant overlay outline behavior intact.
+
+Change:
+
+- Added a narrow classifier for dark accent labels that are tiny, compact detail-only geometry.
+- When that gate is true, the engine still stitches the accent detail itself, but does not emit black foundation outlines for all non-accent colors.
+- Same-hue material overlay cases are excluded from this suppression, because `gradient_elephant_simple` still needs its guarded running outlines to preserve the accepted `7` jumps / `2` trims result.
+- Strict generated acceptance and the underpaint benchmark now guard `sparrow_flat_app_icon` at `<= 2500` stitches, `<= 33` jumps, `<= 3` trims, and zero same-surface long spans.
+
+Result:
+
+- `sparrow_flat_app_icon` improves source-fidelity score `73.7 -> 83.5` and near-black expansion `62.9 -> 1.08`.
+- Stitches drop `5483 -> 1839`, removing the heavy black outline artifact.
+- Quality stays `100`; same-surface long spans, same-surface stitched long spans, same-surface untrimmed jump long spans, high-risk surfaces, and broad-route risk all stay `0`.
+- Tradeoff: jumps increase `17 -> 33` and trims increase `2 -> 3`; diagnostics classify the jump increase as benign short/edge-row connectors.
+- Full generated and underpaint comparisons show no other metric movement.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_tiny_accent_outline_suppression_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_tiny_accent_outline_suppression_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_tiny_accent_outline_suppression_narrow_probe_20260701/source-visual-fidelity.md`
+- `python3 scripts/generated_acceptance.py --case sparrow_flat_app_icon --case gradient_elephant_simple --out tmp/generated_tiny_accent_outline_suppression_guard_check_20260701 --strict`
+- `python3 scripts/underpaint_benchmark.py --case sparrow_flat_app_icon --case gradient_elephant_simple --out tmp/underpaint_tiny_accent_outline_suppression_guard_check_20260701`
+- `python3 scripts/generated_acceptance.py --out tmp/generated_tiny_accent_outline_suppression_20260701 --strict`
+- `npm run benchmark:underpaint -- --out tmp/underpaint_tiny_accent_outline_suppression_20260701`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+Rejected variant:
+
+- Suppressing tiny accent outlines inside the elephant same-hue overlay path reduced near-black expansion further, but regressed `gradient_elephant_simple` jumps `7 -> 9`, violating the accepted guard.
+
+Verdict:
+
+- Keep. This is the first generated icon where source-color was already accounted but stitch style visibly improved.
+- Next work should reduce the exposed sparrow fill jump count without bringing back black foundation outlines.
+
 ## Accepted Source/Color Tooling: Color-Accounted Low-Detail Triage
 
 Date: 2026-06-30

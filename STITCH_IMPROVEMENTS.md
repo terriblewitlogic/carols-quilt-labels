@@ -169,6 +169,18 @@ Recent shipped work since the original pro-design comparison:
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_tonal_running_outline_guard_full_20260701.html`
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_tonal_running_outline_guard_full_20260701.html`
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_tonal_running_outline_20260701/source-visual-fidelity.md`
+- Added tiny compact dark accent outline suppression:
+  - generated icons with a tiny compact dark accent detail no longer use that accent as permission to emit black foundation outlines around every other color
+  - the accent detail is still stitched; only the broad automatic foundation outlines are suppressed
+  - same-hue material overlays are excluded so `gradient_elephant_simple` keeps its guarded tonal running-outline result
+  - `sparrow_flat_app_icon` improves source-fidelity `73.7 -> 83.5`, near-black expansion `62.9 -> 1.08`, and stitches `5483 -> 1839`
+  - quality stays `100`, same-surface stitched/untrimmed long spans stay `0`, high-risk surfaces stay `0`, and broad-route risk stays `0`
+  - accepted tradeoff: jumps `17 -> 33` and trims `2 -> 3`, with diagnostics showing short/edge-row connectors instead of long stitched-span risk
+  - strict generated acceptance and the underpaint benchmark now guard `sparrow_flat_app_icon` at `<= 2500` stitches, `<= 33` jumps, `<= 3` trims, and zero same-surface long spans
+  - validation reports:
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_tiny_accent_outline_suppression_20260701.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_tiny_accent_outline_suppression_20260701.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_tiny_accent_outline_suppression_narrow_probe_20260701/source-visual-fidelity.md`
 - Added color-accounted low-detail fidelity triage:
   - `source_visual_fidelity_report.py` now avoids routing clean color-accounted low-detail cases back into the source/color behavior queue
   - `gradient_elephant_simple` is now `review-stitch-style` in the fresh cycle-2 report: palette agreement `1`, region recall `0.971`, source fit `100`, no source repair opportunities, but detail score `0`
