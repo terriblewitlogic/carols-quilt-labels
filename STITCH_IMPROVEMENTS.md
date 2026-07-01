@@ -23,6 +23,12 @@ Recent shipped work since the original pro-design comparison:
 - Added graph-aware route candidate diagnostics for repeated/disconnected same-color fill islands.
 - Added pattern travel attribution diagnostics so emitted jumps/trims can be traced by color/pass/type/role/route mode after the selected route is converted to commands. Current flower evidence shows black outline/accent routing is the dominant trim bucket: daisy `17` outline jumps / `6` trims, sunflower `16` outline jumps / `6` trims.
 - Added gated internal nearest segment ordering for large final accent-outline groups. This improves `flower_sunflower_simple` stitches `1819 -> 1805`, jumps `20 -> 18`, and trims `6 -> 4` while leaving daisy unchanged; broad internal sorting remains rejected because it regressed daisy jumps `26 -> 29`.
+- Added compact dark detail parallel-dot rendering:
+  - `low_contrast_bird` now stitches its black eye as a filled parallel-dot satin detail instead of a hollow/ring-like compact satin column.
+  - The compact-dot satin threshold is now `24mm2`; `surface-plan.json` exposes `satinDotParallel`.
+  - Uploaded strict source policy guards the bird's compact dark detail count, requires parallel-dot satin, and rejects satin-column underlay for that detail.
+  - Target metrics stay quality `100`, jumps `24`, trims `3`, no same-surface stitched/untrimmed long spans, no high-risk surfaces, and no broad-route risk; neutral stitch movement is `2475 -> 2489`.
+  - Regression-gated uploaded/generated/underpaint comparisons passed.
 - Added upload-style source/detail policy guardrails:
   - `surface-plan.json` now summarizes tiny-detail decision counts.
   - `uploaded_art_acceptance.py --strict-source-policy` fails if tiny-detail accounting, detail-budget status, or key accent-color preservation regresses.

@@ -13,6 +13,49 @@ This is not a full changelog. It is a decision log for approaches that worked, f
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_acceptance_*`
   - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/regression_*`
 
+## Accepted Stitch-Style Policy: Compact Dark Detail Parallel Dots
+
+Date: 2026-07-01
+
+Goal:
+
+- Fix the `low_contrast_bird` eye rendering as a filled dot instead of a hollow/ring-like satin-column detail.
+- Keep the broader black outline/leg styling unchanged until a safer line-art treatment exists.
+
+Change:
+
+- Raised the compact-dot satin threshold from `12mm2` to `24mm2` for compact satin-column candidates.
+- Surface diagnostics now expose `satinDotParallel`.
+- Uploaded strict source policy now guards compact dark detail accounting on `low_contrast_bird`: at least one compact dark detail must use parallel-dot satin and none may use satin-column underlay.
+
+Result:
+
+- `low_contrast_bird` eye now renders as a filled black dot.
+- Metrics stay clean: quality `100`, jumps `24`, trims `3`, no same-surface stitched/untrimmed long spans, no high-risk surfaces, and no broad-route risk.
+- Neutral tradeoff: stitches `2475 -> 2489`.
+- Source visual-fidelity score nudges `75.8 -> 76.1`; palette agreement stays `1.0`.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_low_contrast_bird_compact_dark_dot_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_compact_dark_dot_guard_full_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_compact_dark_dot_full_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_compact_dark_dot_full_20260701.html`
+- `python3 scripts/uploaded_art_acceptance.py --case low_contrast_bird --out tmp/uploaded_low_contrast_bird_compact_dark_dot_guard_20260701 --strict-no-500 --strict-source-policy`
+- `python3 scripts/uploaded_art_acceptance.py --out tmp/uploaded_compact_dark_dot_guard_full_20260701 --strict-no-500 --strict-source-policy`
+- `python3 scripts/generated_acceptance.py --out tmp/generated_compact_dark_dot_full_20260701 --strict`
+- `npm run benchmark:underpaint -- --out tmp/underpaint_compact_dark_dot_full_20260701`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+Rejected variant:
+
+- Skipping duplicate dark-band-owned region outlines reduced metrics but erased too much of the bird outline, so it was rejected visually.
+
+Verdict:
+
+- Keep. Next `low_contrast_bird` work should target source line-art centerline/outline styling without dropping the region boundaries that preserve the silhouette.
+
 ## Accepted Tooling: Pattern Travel Attribution Diagnostics
 
 Date: 2026-06-30

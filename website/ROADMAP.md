@@ -107,7 +107,7 @@ src/pages/GeneratorPage.jsx   ← wire each step of the flow
 
 **Credit deduction:** Call `useCredits().spend(creditsNeeded)` before triggering the export. If `spend()` returns false (insufficient balance), show the credit purchase prompt instead.
 
-**Backend quality checkpoint — 2026-07-01 addendum:** compact vivid detail satin-underlay suppression further improves `sparrow_flat_app_icon` from `1835` stitches / `21` jumps / `2` trims to `1799` stitches / `14` jumps / `2` trims by skipping underlay only on source-preserved non-dark vivid detail fills. Quality remains `100`, and generated/uploaded/underpaint regression-gated comparisons show no acceptance, stitched-span, high-risk, or broad-route-risk regression.
+**Backend quality checkpoint — 2026-07-01 addendum:** compact vivid detail satin-underlay suppression further improves `sparrow_flat_app_icon` from `1835` stitches / `21` jumps / `2` trims to `1799` stitches / `14` jumps / `2` trims by skipping underlay only on source-preserved non-dark vivid detail fills. Compact dark detail dots now use parallel-dot satin up to `24mm2`, so `low_contrast_bird` renders its black eye as a filled dot instead of a hollow/ring-like compact satin column; quality remains `100`, jumps/trims stay `24 / 3`, and hard risk gates stay clean. Generated/uploaded/underpaint regression-gated comparisons show no acceptance, stitched-span, high-risk, or broad-route-risk regression.
 
 Current validation artifacts:
 
@@ -129,6 +129,9 @@ Current validation artifacts:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_compact_vivid_detail_underlay_full_20260701.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_compact_vivid_detail_underlay_full_20260701.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_compact_vivid_detail_underlay_full_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_compact_dark_dot_guard_full_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_compact_dark_dot_full_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_compact_dark_dot_full_20260701.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_art_triage_cycle2_20260630/source-triage.html`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_cycle2_classification_20260630/source-visual-fidelity.md`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_outline_internal_sort_guard_20260630.html`
