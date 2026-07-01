@@ -2216,3 +2216,26 @@ Next recommended direction:
   diagnostic. Any behavior change should lower black expansion for sparrow or
   elephant without increasing acceptance issues, long-span risks, or degrading
   flower/badge/cartoon fixtures that intentionally need patch-like outlines.
+
+Dark chromatic source-stroke preservation.
+
+Accepted triage update:
+
+- `low_contrast_bird` no longer drops its dark brown leg/stem source color.
+- The accepted run stitches `#50280a` as two intentional
+  `preserve_dark_chromatic_stroke` tiny detail surfaces.
+- Metrics: stitches `2489 -> 2328`, jumps `24 -> 25`, trims `3 -> 2`, quality
+  remains `100`, and same-surface stitched/untrimmed long spans remain `0`.
+- `antialiased_jpeg_badge` still drops `#783c14` as edge residue, so the new
+  preservation rule is not broad enough to keep JPEG crumbs.
+
+Validation and reports:
+
+- Uploaded comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_dark_chromatic_stroke_full_20260701.html`
+- Generated comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_dark_chromatic_stroke_full_20260701.html`
+- Underpaint comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_dark_chromatic_stroke_full_20260701.html`
+
+Next recommended direction:
+
+- Stay on low-contrast bird, but shift from source-color loss to stitch-style
+  review: black outline/leg rendering, small detail shape, and preview fidelity.

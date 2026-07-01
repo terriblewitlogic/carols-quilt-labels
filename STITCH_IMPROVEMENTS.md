@@ -1259,6 +1259,33 @@ Validation:
 
 ---
 
+## Dark Chromatic Source Strokes
+
+Low-contrast uploaded artwork can encode semantic appendages as dark brown
+strokes rather than neutral black. The stitch compiler now preserves a narrow
+class of sparse, stroke-shaped dark chromatic source labels and routes them
+through colored-stroke fills instead of collapsing them into black cleanup or
+same-hue alias pruning.
+
+Accepted 2026-07-01 result:
+
+- `low_contrast_bird` now stitches `#50280a` leg/stem strokes.
+- stitches `2489 -> 2328`, jumps `24 -> 25`, trims `3 -> 2`.
+- quality remains `100`; risk and long-span gates remain clean.
+- uploaded strict source policy now guards both `#50280a` and
+  `preserve_dark_chromatic_stroke`.
+- `antialiased_jpeg_badge` continues to drop `#783c14` edge residue.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_dark_chromatic_stroke_full_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_dark_chromatic_stroke_full_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_dark_chromatic_stroke_full_20260701.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+---
+
 ## Out of scope for this plan
 
 - **Photo-realistic embroidery** (>10 colors with subtle blends) — the auto-conversion pipeline cannot match a hand-digitized photo realistic design. Stay focused on the 4–8 color stylized designs that match the example library.

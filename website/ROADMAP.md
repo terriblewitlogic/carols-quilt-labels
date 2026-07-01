@@ -703,3 +703,12 @@ Current 2026-06-28 behavior-win reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_black_expansion_v2_20260630/source-visual-fidelity.md`
 
 Next stitch work: source/color preservation is no longer the main blocker in the refreshed accepted run. `gradient_elephant_simple` now keeps the mid-pink `#f082a0` tone without same-surface long-span regression and is classified as `review-stitch-style`, not source/color loss. The source-fidelity report now includes `Black x` near-black expansion; current outline-style leads are `sparrow_flat_app_icon` (`62.9`), `gradient_elephant_simple` (`60.9`), and `low_contrast_bird` (`3.16`). Move next into a bounded stitch-style pass for outline policy/thickness and small-detail rendering while keeping flower, badge, and cartoon outline reinforcement stable. `leaf_single_smooth` is treated as a source-cleanup success, not a compiler failure.
+
+2026-07-01 update: `low_contrast_bird` now preserves its dark brown
+`#50280a` leg/stem source strokes as stitched detail color. The narrow
+dark-chromatic stroke gate keeps quality at `100`, improves trims `3 -> 2`,
+keeps same-surface stitched/untrimmed long spans at `0`, and leaves
+`antialiased_jpeg_badge` brown JPEG residue dropped. Validation reports:
+`tmp/uploaded_compare_dark_chromatic_stroke_full_20260701.html`,
+`tmp/generated_compare_dark_chromatic_stroke_full_20260701.html`, and
+`tmp/underpaint_compare_dark_chromatic_stroke_full_20260701.html`.

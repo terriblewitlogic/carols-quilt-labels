@@ -6391,3 +6391,54 @@ broader stitch-style queue: low-contrast bird outline/fill shape, generated
 detail-shape quality, and source-to-preview fidelity review. Keep routing
 paused unless travel diagnostics identify a real stitched-span or same-surface
 relocation regression.
+
+================================================================================
+2026-07-01 — DARK CHROMATIC SOURCE STROKE PRESERVATION
+================================================================================
+
+Target: preserve the low-contrast bird's dark brown leg/stem strokes as real
+stitches without reviving anti-aliased JPEG edge crumbs.
+
+Change:
+
+- Added a narrow dark-chromatic source-stroke classifier for sparse, low-luminance,
+  stroke-shaped color labels.
+- Kept those labels out of neutral dark-line cleanup and alias pruning when the
+  label-level geometry is semantic but individual fragments are small.
+- Routed preserved dark chromatic strokes through the colored-stroke fill path,
+  including thin stroke polygons.
+- Added `forceColoredStrokeFill` diagnostics to `surface-plan.json`.
+- Tightened the uploaded strict source-policy guard for `low_contrast_bird` so
+  `#50280a` and the `preserve_dark_chromatic_stroke` decision must remain.
+
+Accepted metrics:
+
+- `low_contrast_bird`: colors now include `#50280a`; dropped colors stay empty.
+- stitches `2489 -> 2328`, jumps `24 -> 25`, trims `3 -> 2`.
+- quality stays `100`; same-surface stitched/untrimmed long spans stay `0`;
+  broad-route-risk surfaces stay `0`.
+- `antialiased_jpeg_badge` still drops `#783c14` edge residue, confirming the
+  gate did not promote JPEG crumbs.
+
+Validation:
+
+- targeted uploaded strict:
+  `tmp/uploaded_low_contrast_bird_dark_chromatic_stroke_guard_20260701`
+- full uploaded strict source policy:
+  `tmp/uploaded_dark_chromatic_stroke_full_20260701`
+- full generated strict:
+  `tmp/generated_dark_chromatic_stroke_full_20260701`
+- full underpaint benchmark:
+  `tmp/underpaint_dark_chromatic_stroke_full_20260701`
+- uploaded comparison:
+  `tmp/uploaded_compare_dark_chromatic_stroke_full_20260701.html`
+- generated comparison:
+  `tmp/generated_compare_dark_chromatic_stroke_full_20260701.html`
+- underpaint comparison:
+  `tmp/underpaint_compare_dark_chromatic_stroke_full_20260701.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+NEXT: continue the low-contrast bird stitch-style pass from the remaining visual
+gap: black outline/leg styling and small detail rendering. Avoid broad outline
+policy changes unless `Black x` and comparison reports show a guarded win.
