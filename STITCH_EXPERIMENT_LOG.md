@@ -6501,3 +6501,60 @@ NEXT: continue stitch-style cleanup. The teddy change removes invented black
 foundation outlines, but same-color brown seam/travel stitches are still visible.
 Consider a guarded same-color seam/travel cleanup pass only if comparison reports
 show it improves visual output without increasing long-span risk.
+
+================================================================================
+2026-07-01 — NO-OUTLINE TEDDY BROAD COLORED BODY FILL
+================================================================================
+
+Target: uploaded `no_outline_teddy` no longer had invented black outlines, but
+the main brown head/body material was still classified as a colored stroke and
+collapsed to a centerline network. The result looked like a wireframe teddy
+instead of filled flat source art.
+
+Change:
+
+- Kept saturated brown material on the colored-stroke/detail path, but prevented
+  the centerline shortcut when the colored region is broad (`>=120mm2`) and has
+  a wide mean body (`>=3.6mm`).
+- Added `coloredStrokeBodyFill` diagnostics to `surface-plan.json` so broad
+  colored material decisions are visible in reports/debugging.
+- Updated uploaded strict source-policy guards for `no_outline_teddy` to reject
+  `#a05a28` `colored_stroke_centerline` regressions directly.
+
+Accepted metrics:
+
+- `no_outline_teddy`: stitches `1812 -> 2497`, trims `2 -> 11`,
+  jumps `19 -> 34`.
+- Quality stays `100`; acceptance issues stay `0`; same-surface stitched and
+  untrimmed long spans stay `0`; broad route risk stays `0`.
+- This is an intentional stitch-work tradeoff: the previous low trim count came
+  from an incorrect centerline body, while the accepted result restores a filled
+  brown teddy body.
+- Canaries stay stable: `low_contrast_bird` remains `2328 / 25 / 2`,
+  generated `leaf_single_smooth` remains `1301 / 3 / 0`, and generated
+  `sparrow_flat_app_icon` remains `1814 / 14 / 2`.
+
+Validation:
+
+- targeted uploaded strict:
+  `tmp/uploaded_no_outline_teddy_broad_colored_body_fill_final_20260701`
+- focused comparison:
+  `tmp/uploaded_compare_no_outline_teddy_broad_colored_body_fill_final_20260701.html`
+- full uploaded strict source policy:
+  `tmp/uploaded_broad_colored_body_fill_full_20260701`
+- full generated strict:
+  `tmp/generated_broad_colored_body_fill_full_20260701`
+- full underpaint benchmark:
+  `tmp/underpaint_broad_colored_body_fill_full_20260701`
+- uploaded comparison:
+  `tmp/uploaded_compare_broad_colored_body_fill_full_20260701.html`
+- generated comparison:
+  `tmp/generated_compare_broad_colored_body_fill_full_20260701.html`
+- underpaint comparison:
+  `tmp/underpaint_compare_broad_colored_body_fill_full_20260701.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+NEXT: continue bounded stitch-style work on no-outline flat icons, but shift
+from source/color preservation to fill smoothness and travel/trim pressure for
+broad detail bodies. Do not re-enable centerline shortcuts for broad material.

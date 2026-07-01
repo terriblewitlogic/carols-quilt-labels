@@ -726,3 +726,18 @@ stay stable. Validation reports:
 cream detail experiment for `gradient_elephant_simple` was rejected for now
 because it increased trims and jumps. Next stitch-style lead: same-color
 seam/travel clutter on no-outline flat icons, with true outlined patches guarded.
+
+2026-07-01 update: `no_outline_teddy` also now treats its broad `#a05a28`
+brown head/body as filled material instead of collapsing it to a
+`colored_stroke_centerline` wireframe. The accepted result intentionally trades
+extra machine work for correct source interpretation: stitches `1812 -> 2497`,
+trims `2 -> 11`, and jumps `19 -> 34`, while quality stays `100`, acceptance
+issues stay `0`, same-surface stitched/untrimmed long spans stay `0`, and broad
+route risk stays `0`. The surface plan now records `coloredStrokeBodyFill`
+diagnostics, and uploaded strict source policy rejects a return to centerline
+body rendering. Validation reports:
+`tmp/uploaded_compare_broad_colored_body_fill_full_20260701.html`,
+`tmp/generated_compare_broad_colored_body_fill_full_20260701.html`, and
+`tmp/underpaint_compare_broad_colored_body_fill_full_20260701.html`. Next
+stitch-style lead: reduce same-color trim/travel pressure on broad detail
+bodies without reintroducing centerline body rendering.

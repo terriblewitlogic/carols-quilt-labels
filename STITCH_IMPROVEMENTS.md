@@ -1320,6 +1320,36 @@ Rejected follow-up:
 
 ---
 
+## Broad Colored Material Body Fill
+
+Some no-outline uploaded icons contain saturated same-hue material that is
+outline-like by compactness but is actually a broad fill region. The teddy
+fixture exposed this: the `#a05a28` head/body region was being converted into a
+centerline network, preserving low trim counts but making the preview look like
+wireframe source art.
+
+Accepted 2026-07-01 result:
+
+- `no_outline_teddy` now stitches the broad brown body as filled material.
+- `surface-plan.json` records `coloredStrokeBodyFill` with
+  `reason: broad_colored_material`.
+- stitches `1812 -> 2497`, jumps `19 -> 34`, trims `2 -> 11`.
+- quality remains `100`; acceptance issues remain `0`; same-surface
+  stitched/untrimmed long spans and broad route risk remain clean.
+- uploaded strict source policy rejects a return to `#a05a28`
+  `colored_stroke_centerline`.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_no_outline_teddy_broad_colored_body_fill_final_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_broad_colored_body_fill_full_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_broad_colored_body_fill_full_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_broad_colored_body_fill_full_20260701.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+---
+
 ## Out of scope for this plan
 
 - **Photo-realistic embroidery** (>10 colors with subtle blends) — the auto-conversion pipeline cannot match a hand-digitized photo realistic design. Stay focused on the 4–8 color stylized designs that match the example library.

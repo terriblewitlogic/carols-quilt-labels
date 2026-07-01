@@ -2270,3 +2270,32 @@ Next recommended direction:
 
 - Continue bounded stitch-style work. Best current lead is same-color seam/travel
   clutter on otherwise no-outline flat icons; keep true outlined patches guarded.
+
+No-outline teddy broad colored body fill.
+
+Accepted triage update:
+
+- `no_outline_teddy` no longer collapses its broad `#a05a28` brown head/body
+  material into a `colored_stroke_centerline` wireframe.
+- Broad colored material now records `coloredStrokeBodyFill` in
+  `surface-plan.json`; the teddy body uses `stroke_scan` with
+  `reason: broad_colored_material`.
+- Metrics tradeoff: stitches `1812 -> 2497`, trims `2 -> 11`, jumps `19 -> 34`.
+  This is accepted because the previous low-work result was visibly wrong
+  source interpretation; quality remains `100`, acceptance issues remain `0`,
+  and stitched/untrimmed long-span risk remains clean.
+- Uploaded strict source policy now guards the actual failure mode by rejecting
+  `#a05a28` `colored_stroke_centerline` on this fixture.
+
+Validation and reports:
+
+- Focused uploaded comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_no_outline_teddy_broad_colored_body_fill_final_20260701.html`
+- Uploaded full comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_broad_colored_body_fill_full_20260701.html`
+- Generated full comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_broad_colored_body_fill_full_20260701.html`
+- Underpaint full comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_broad_colored_body_fill_full_20260701.html`
+
+Next recommended direction:
+
+- Keep working on fill smoothness/travel pressure for broad detail bodies. The
+  next useful win would lower the teddy body's `9` same-color trim jumps without
+  returning to centerline body rendering or increasing long-span risk.
