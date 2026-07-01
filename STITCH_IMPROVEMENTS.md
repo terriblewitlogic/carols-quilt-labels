@@ -1378,6 +1378,36 @@ Validation:
 
 ---
 
+## Broad Detail Body Internal Sort
+
+Once a broad colored detail body is known to be a filled material field, its
+internal scan segments can be ordered by nearest segment when there is exactly
+one raw body component. This reduces row-to-row relocations without changing
+global color routing or generated/underpaint behavior.
+
+Accepted 2026-07-01 result:
+
+- `no_outline_teddy` applies `nearest_segment` internal ordering to the broad
+  `#a05a28` body fill.
+- `surface-plan.json` records `coloredStrokeInternalSort: nearest_segment`.
+- stitches `2485 -> 2473`, jumps `29 -> 25`, trims `8 -> 5`.
+- body group jumps `11 -> 7`, trims `6 -> 3`, total gap
+  `244.643mm -> 199.612mm`.
+- quality remains `100`; acceptance issues remain `0`; same-surface
+  stitched/untrimmed long spans and broad route risk remain clean.
+- generated and underpaint full suites are unchanged.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_no_outline_teddy_broad_body_internal_sort_final2_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_broad_body_internal_sort_full_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_broad_body_internal_sort_full_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_broad_body_internal_sort_full_20260701.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+---
+
 ## Out of scope for this plan
 
 - **Photo-realistic embroidery** (>10 colors with subtle blends) — the auto-conversion pipeline cannot match a hand-digitized photo realistic design. Stay focused on the 4–8 color stylized designs that match the example library.

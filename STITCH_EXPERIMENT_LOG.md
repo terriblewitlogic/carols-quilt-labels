@@ -6614,3 +6614,57 @@ NEXT: remaining teddy pressure is the long same-surface trimmed gap on the body
 and a cross-surface ear relocation. Look next at row-order/entry-point choices
 for broad detail bodies, but keep the connector-role gate narrow and do not
 change general routing unless a comparison report identifies a real risk.
+
+================================================================================
+2026-07-01 — NO-OUTLINE TEDDY BROAD BODY INTERNAL SORT
+================================================================================
+
+Target: after the connector-role win, the teddy body still had same-component
+trim pressure inside the broad `#a05a28` `stroke_scan` body. Offline scoring
+showed nearest-segment ordering could reduce trim pressure for this one broad
+colored detail-body component.
+
+Change:
+
+- For a single broad colored body fill component already marked
+  `coloredStrokeBodyFill`, allow internal nearest-segment ordering instead of
+  preserving raw scan segment order.
+- Keep the gate narrow: fill/detail only, `coloredStrokeBodyFill`, one raw
+  component, at least 20 segments.
+- Add `coloredStrokeInternalSort: nearest_segment` to `surface-plan.json`.
+
+Accepted metrics:
+
+- `no_outline_teddy`: stitches `2485 -> 2473`, jumps `29 -> 25`,
+  trims `8 -> 5`.
+- Body group `#a05a28`: jumps `11 -> 7`, trims `6 -> 3`,
+  travel stitches `5 -> 6`, total gap `244.643mm -> 199.612mm`.
+- Quality stays `100`; risk stays `0`; acceptance issues stay `0`; same-surface
+  stitched and untrimmed long spans stay `0`; broad route risk stays `0`.
+- Full generated and underpaint suites are unchanged; uploaded changes only
+  `no_outline_teddy`.
+
+Validation:
+
+- targeted uploaded strict:
+  `tmp/uploaded_no_outline_teddy_broad_body_internal_sort_final2_20260701`
+- focused comparison:
+  `tmp/uploaded_compare_no_outline_teddy_broad_body_internal_sort_final2_20260701.html`
+- full uploaded strict source policy:
+  `tmp/uploaded_broad_body_internal_sort_full_20260701`
+- full generated strict:
+  `tmp/generated_broad_body_internal_sort_full_20260701`
+- full underpaint benchmark:
+  `tmp/underpaint_broad_body_internal_sort_full_20260701`
+- uploaded comparison:
+  `tmp/uploaded_compare_broad_body_internal_sort_full_20260701.html`
+- generated comparison:
+  `tmp/generated_compare_broad_body_internal_sort_full_20260701.html`
+- underpaint comparison:
+  `tmp/underpaint_compare_broad_body_internal_sort_full_20260701.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+NEXT: remaining teddy pressure is now mostly the preview-only cross-surface ear
+relocation plus one same-surface trimmed body gap. Keep any follow-up focused on
+entry/exit selection or ear/body sequencing, not broad routing.

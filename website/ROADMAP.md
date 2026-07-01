@@ -756,3 +756,18 @@ and underpaint comparisons are unchanged. The surface plan records
 `tmp/underpaint_compare_broad_body_connector_role_full_20260701.html`. Next
 lead: reduce the remaining long same-surface trimmed body gap or ear relocation
 without broadening routing behavior.
+
+2026-07-01 update: `no_outline_teddy` now nearest-sorts the internal segments
+of the single broad `#a05a28` colored body fill component. This keeps the
+source-correct filled body and connector-role policy, while reducing row-to-row
+relocation pressure: stitches `2485 -> 2473`, jumps `29 -> 25`, trims
+`8 -> 5`; the body group improves jumps `11 -> 7`, trims `6 -> 3`, and total
+gap `244.643mm -> 199.612mm`. Quality remains `100`, risk remains `0`,
+acceptance issues remain `0`, same-surface stitched/untrimmed long spans remain
+`0`, and full generated/underpaint comparisons are unchanged. The surface plan
+records `coloredStrokeInternalSort: nearest_segment`. Validation reports:
+`tmp/uploaded_compare_broad_body_internal_sort_full_20260701.html`,
+`tmp/generated_compare_broad_body_internal_sort_full_20260701.html`, and
+`tmp/underpaint_compare_broad_body_internal_sort_full_20260701.html`. Next
+lead: entry/exit selection or ear/body sequencing for the remaining preview-only
+relocation, not broad routing.

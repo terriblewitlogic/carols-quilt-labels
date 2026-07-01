@@ -2330,3 +2330,34 @@ Next recommended direction:
 - Continue bounded broad-detail body cleanup. The next lead is reducing the
   remaining long same-surface trimmed body gap or the ear relocation without
   broadening route behavior across generated/underpaint fixtures.
+
+No-outline teddy broad body internal sort.
+
+Accepted triage update:
+
+- `no_outline_teddy` now internally nearest-sorts the single broad `#a05a28`
+  colored body fill component instead of preserving raw scan row order.
+- The policy is gated to `coloredStrokeBodyFill` detail fills with exactly one
+  raw component and at least 20 segments.
+- `surface-plan.json` records `coloredStrokeInternalSort: nearest_segment`.
+- Metrics improve from the connector-role baseline: stitches `2485 -> 2473`,
+  jumps `29 -> 25`, trims `8 -> 5`.
+- The body group improves jumps `11 -> 7`, trims `6 -> 3`, and total gap
+  `244.643mm -> 199.612mm`.
+- Quality remains `100`, risk remains `0`, acceptance issues remain `0`, and
+  same-surface stitched/untrimmed long spans remain `0`.
+- Full generated and underpaint suites are unchanged; uploaded changes only
+  `no_outline_teddy`.
+
+Validation and reports:
+
+- Focused uploaded comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_no_outline_teddy_broad_body_internal_sort_final2_20260701.html`
+- Uploaded full comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_broad_body_internal_sort_full_20260701.html`
+- Generated full comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_broad_body_internal_sort_full_20260701.html`
+- Underpaint full comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_broad_body_internal_sort_full_20260701.html`
+
+Next recommended direction:
+
+- Remaining teddy pressure is mostly preview-only relocation and one body long
+  gap. Prefer entry/exit selection or ear/body sequencing experiments over any
+  broad route-mode expansion.
