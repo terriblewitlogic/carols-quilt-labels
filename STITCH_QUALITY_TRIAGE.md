@@ -2094,3 +2094,40 @@ Validation and reports:
 Next recommended direction:
 
 - Treat elephant and sparrow as the next behavior candidates. Avoid spending compiler time on `leaf_single_smooth` unless a real output regression appears; its low raw-source fidelity score is mostly a sign that cleanup succeeded.
+
+Outline connector threshold checkpoint.
+
+Change accepted:
+
+- Tuned the outline connector block-energy threshold to `0.8 mm^2`.
+- This keeps the existing visible-stray-thread protection, but stops forcing
+  trims for tight busy-junction carries that stay close to same-color outline
+  geometry.
+- Tightened the generated and underpaint fixture guards for daisy and sunflower
+  to lock in the improvement.
+
+Accepted metric movement:
+
+- `flower_daisy_simple`: stitch count `2444 -> 2440`, trim count `6 -> 5`, jump count stayed `26`.
+- `flower_sunflower_simple`: stitch count `1805 -> 1801`, trim count `4 -> 3`, jump count stayed `18`.
+- `leaf_two_tone`: stitch count `4472 -> 4468`, trim count `1 -> 0`.
+- No generated or underpaint acceptance issue, quality-score, same-surface
+  stitched long-span, same-surface untrimmed jump long-span, high-risk surface,
+  or broad-route-risk regression.
+
+Validation and reports:
+
+- Targeted generated strict: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_outline_block_energy_final_targeted_20260630`
+- Full generated strict: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_outline_block_energy_final_20260630`
+- Full underpaint benchmark: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_outline_block_energy_final_20260630`
+- Generated comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_outline_block_energy_final_20260630.html`
+- Underpaint comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_outline_block_energy_final_20260630.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+Next recommended direction:
+
+- Resume source/color behavior work from the triaged fidelity report. Elephant
+  remains the top visible target, but tonal preservation must be route-safe.
+  Keep the final daisy trim as a lower-priority routing target unless visual
+  inspection shows a true sewn-thread issue.

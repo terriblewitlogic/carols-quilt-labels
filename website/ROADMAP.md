@@ -645,6 +645,7 @@ Recent backend-only source/color tooling improvement:
 - Semantic tiny source accounting now guards `muted_flower_pin`: preserved compact pastel/vivid details move source suitability `candidate 88 -> clean 100` with `sourceSemanticTinyComponentCount = 4`, while stitches/jumps/trims stay `3666 / 22 / 1`.
 - Added `npm run acceptance:uploaded:same-hue` as a repeatable strict source-policy lane for seven deterministic same-hue material fixtures across warm brown/tan, gold, green, red, and purple families.
 - Added `npm run report:source-fidelity` to rank acceptance artifacts by visual match against source art. It now uses source-normalization diagnostics to classify cleanup successes and source-accounted stitch-style/rendering review cases separately from source/color behavior leads; current behavior lead is `gradient_elephant_simple`, while `sparrow_flat_app_icon` and `low_contrast_bird` are deferred as `review-stitch-style`.
+- Tuned outline connector blocking to `OUTLINE_CONNECTOR_BLOCK_ENERGY_MM2 = 0.8`, reducing unnecessary trims through tight repeated-outline junctions. `flower_daisy_simple` improves trims `6 -> 5`, `flower_sunflower_simple` improves trims `4 -> 3`, and `leaf_two_tone` improves trims `1 -> 0` with no generated/underpaint risk regression.
 - No public API, frontend, or stitch file-format change.
 
 Validated with full uploaded strict source policy, generated strict acceptance, underpaint benchmark, regression-gated comparisons, Python checks, and TypeScript typecheck.
@@ -679,5 +680,7 @@ Current 2026-06-28 behavior-win reports:
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_triaged_20260630/source-visual-fidelity.md`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_style_review_20260630/source-visual-fidelity.md`
 - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_style_review_v2_20260630/source-visual-fidelity.md`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_outline_block_energy_final_20260630.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_outline_block_energy_final_20260630.html`
 
 Next stitch work: use the triaged source-fidelity report to choose behavior targets. Elephant is the strongest source/color visual lead, but tonal-preservation experiments were rejected because they reintroduced same-surface route spans; solve that route side effect with cross-color underpaint/layer ownership before preserving the mid-pink ear/body tone. `sparrow_flat_app_icon` and `low_contrast_bird` are source/color-accounted and should wait for an outline/fill styling pass. `leaf_single_smooth` is treated as a source-cleanup success, not a compiler failure.

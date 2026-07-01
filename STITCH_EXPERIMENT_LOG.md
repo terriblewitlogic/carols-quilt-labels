@@ -5990,3 +5990,57 @@ Validation:
 
 NEXT: continue with elephant or sparrow as behavior targets. The leaf should not
 drive compiler changes unless a separate visual regression appears.
+
+================================================================================
+2026-07-01 — OUTLINE CONNECTOR BLOCK ENERGY TUNING
+================================================================================
+
+Target: reduce avoidable trims in repeated icon outlines without reopening
+same-surface stitched or untrimmed long-span risk.
+
+Finding:
+
+- Travel diagnostics showed the daisy black outline still had five short
+  blocked connector trims through tight petal/ring junctions.
+- The existing bare-span rule was intentionally energy-based, but the threshold
+  was still low enough to classify harmless busy-junction carries as blocked.
+- A threshold probe from `0.45` to `0.8 mm^2` removed one blocked trim each from
+  daisy and sunflower, and also removed the lone trim in `leaf_two_tone`.
+
+Change:
+
+- Added `OUTLINE_CONNECTOR_BLOCK_ENERGY_MM2 = 0.8`.
+- Kept the same outline-only connector classifier and only changed the block
+  threshold.
+- Tightened generated and underpaint guards:
+  - `flower_daisy_simple` trim cap `<= 6 -> <= 5`
+  - `flower_sunflower_simple` trim cap `<= 4 -> <= 3`
+
+Accepted metrics:
+
+- `flower_daisy_simple`: stitches `2444 -> 2440`, trims `6 -> 5`, jumps stay `26`.
+- `flower_sunflower_simple`: stitches `1805 -> 1801`, trims `4 -> 3`, jumps stay `18`.
+- `leaf_two_tone`: stitches `4472 -> 4468`, trims `1 -> 0`.
+- Generated and underpaint comparisons had no acceptance, quality, stitched
+  long-span, untrimmed jump long-span, high-risk, or broad-route-risk regression.
+
+Validation:
+
+- targeted generated strict:
+  `tmp/generated_outline_block_energy_final_targeted_20260630`
+- full generated strict:
+  `tmp/generated_outline_block_energy_final_20260630`
+- full underpaint benchmark:
+  `tmp/underpaint_outline_block_energy_final_20260630`
+- generated comparison:
+  `tmp/generated_compare_outline_block_energy_final_20260630.html`
+- underpaint comparison:
+  `tmp/underpaint_compare_outline_block_energy_final_20260630.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+NEXT: return to the source/color queue. Elephant remains the best visible
+source-color target, but only accept tonal preservation if it does not
+reintroduce same-surface route spans. A separate low-risk routing target is the
+remaining daisy outline trim, now isolated to the true long cross-component
+relocation.

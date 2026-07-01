@@ -1120,6 +1120,41 @@ Validation:
 
 ---
 
+## Outline Connector Block-Energy Tuning
+
+The backend now uses a named outline connector block-energy threshold:
+
+`OUTLINE_CONNECTOR_BLOCK_ENERGY_MM2 = 0.8`
+
+Accepted 2026-07-01 result:
+
+- repeated flower outlines trim less aggressively through tight same-color
+  junctions
+- `flower_daisy_simple` improves trims `6 -> 5`
+- `flower_sunflower_simple` improves trims `4 -> 3`
+- `leaf_two_tone` improves trims `1 -> 0`
+- daisy and sunflower stitch counts each drop by `4`
+- jumps, quality, same-surface stitched long spans, same-surface untrimmed jump
+  long spans, high-risk surfaces, and broad-route-risk surfaces do not regress
+- generated and underpaint fixture guards now lock the lower daisy/sunflower
+  trim ceilings
+
+Validation passed with targeted generated strict acceptance, full generated
+strict acceptance, full underpaint benchmark, regression-gated generated and
+underpaint comparisons, Python checks, and TypeScript typecheck:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_outline_block_energy_final_targeted_20260630`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_outline_block_energy_final_20260630`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_outline_block_energy_final_20260630`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_outline_block_energy_final_20260630.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_outline_block_energy_final_20260630.html`
+
+Next source/color work should continue from the visual-fidelity queue. The
+remaining elephant tonal target needs route-safe layer ownership before broad
+same-hue preservation is accepted.
+
+---
+
 ## Out of scope for this plan
 
 - **Photo-realistic embroidery** (>10 colors with subtle blends) — the auto-conversion pipeline cannot match a hand-digitized photo realistic design. Stay focused on the 4–8 color stylized designs that match the example library.
