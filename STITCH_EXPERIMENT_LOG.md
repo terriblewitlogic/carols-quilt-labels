@@ -233,6 +233,62 @@ Verdict:
 - Keep. This is the first generated icon where source-color was already accounted but stitch style visibly improved.
 - Next work should reduce the exposed sparrow fill jump count without bringing back black foundation outlines.
 
+## Accepted Fill Routing: Short-Travel Lane Gate
+
+Date: 2026-07-01
+
+Goal:
+
+- Reduce the exposed fill jump count left behind after `sparrow_flat_app_icon`
+  outline suppression.
+- Keep the new outline policy untouched and avoid broad route changes that
+  could reintroduce long stitched spans.
+
+Change:
+
+- `_fill_polygon_segments_adaptive` now accepts a lane-routed fill even when
+  there are no long spans to remove, but only if the candidate:
+  - introduces no long spans,
+  - does not increase trim count,
+  - does not increase max gap beyond a tiny tolerance,
+  - reduces total internal travel to at most `72%` of the original,
+  - improves visual gap score by at least `10%`.
+- Tightened `sparrow_flat_app_icon` generated/underpaint guards to `<= 21`
+  jumps and `<= 2` trims.
+
+Result:
+
+- `sparrow_flat_app_icon` improves jumps `33 -> 21`, trims `3 -> 2`, and
+  stitches `1839 -> 1835`.
+- The pale body fill changes from rejected short-travel lane candidate to
+  accepted `scan_lanes`: its travel bucket drops from `14` jumps / `1` trim to
+  `2` jumps / `0` trims.
+- Quality stays `100`; same-surface stitched/untrimmed long spans,
+  same-surface long spans, high-risk surfaces, and broad-route risk stay `0`.
+- `bee_simple` also gets a harmless stitch-count reduction `1730 -> 1711`
+  from one safe `solid_scan_lanes` fill, with no jump/trim/risk movement.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_short_travel_lane_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_short_travel_lane_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_short_travel_lane_20260701.html`
+- `python3 scripts/generated_acceptance.py --case sparrow_flat_app_icon --case gradient_elephant_simple --case flower_daisy_simple --case flower_sunflower_simple --out tmp/generated_short_travel_lane_guard_check_20260701 --strict`
+- `python3 scripts/underpaint_benchmark.py --case sparrow_flat_app_icon --case gradient_elephant_simple --case flower_daisy_simple --case flower_sunflower_simple --out tmp/underpaint_short_travel_lane_guard_check_20260701`
+- `python3 scripts/generated_acceptance.py --out tmp/generated_short_travel_lane_full_20260701 --strict`
+- `python3 scripts/underpaint_benchmark.py --out tmp/underpaint_short_travel_lane_full_20260701`
+- `python3 scripts/uploaded_art_acceptance.py --out tmp/uploaded_short_travel_lane_full_20260701 --strict-no-500 --strict-source-policy`
+- `npm run benchmark:underpaint -- --out tmp/underpaint_short_travel_lane_npm_20260701`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+Verdict:
+
+- Keep. This is a narrow routing gate based on measured row-travel reduction,
+  not a broad lane-routing expansion.
+- Next sparrow work should target the remaining orange detail-fill jump bucket
+  (`#ff8c14`, still `11` jumps / `1` trim).
+
 ## Accepted Source/Color Tooling: Color-Accounted Low-Detail Triage
 
 Date: 2026-06-30

@@ -181,6 +181,17 @@ Recent shipped work since the original pro-design comparison:
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_tiny_accent_outline_suppression_20260701.html`
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_tiny_accent_outline_suppression_20260701.html`
     - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/source_visual_fidelity_tiny_accent_outline_suppression_narrow_probe_20260701/source-visual-fidelity.md`
+- Added short-travel lane routing:
+  - `_fill_polygon_segments_adaptive` can now accept lane routing for no-long-span fills when the candidate reduces total internal row travel to at most `72%` of baseline, improves visual gap score by at least `10%`, and does not add trims, max-gap pressure, or long spans
+  - `sparrow_flat_app_icon` improves jumps `33 -> 21`, trims `3 -> 2`, and stitches `1839 -> 1835`
+  - the sparrow pale body fill's travel bucket improves from `14` jumps / `1` trim to `2` jumps / `0` trims
+  - quality stays `100`, same-surface stitched/untrimmed long spans stay `0`, high-risk surfaces stay `0`, and broad-route risk stays `0`
+  - `bee_simple` also improves stitches `1730 -> 1711` from one safe `solid_scan_lanes` fill, with no jump/trim/risk movement
+  - strict generated acceptance and the underpaint benchmark now guard `sparrow_flat_app_icon` at `<= 21` jumps and `<= 2` trims
+  - validation reports:
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_short_travel_lane_20260701.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_short_travel_lane_20260701.html`
+    - `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_short_travel_lane_20260701.html`
 - Added color-accounted low-detail fidelity triage:
   - `source_visual_fidelity_report.py` now avoids routing clean color-accounted low-detail cases back into the source/color behavior queue
   - `gradient_elephant_simple` is now `review-stitch-style` in the fresh cycle-2 report: palette agreement `1`, region recall `0.971`, source fit `100`, no source repair opportunities, but detail score `0`
