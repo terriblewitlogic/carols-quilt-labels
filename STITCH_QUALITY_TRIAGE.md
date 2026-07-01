@@ -2299,3 +2299,34 @@ Next recommended direction:
 - Keep working on fill smoothness/travel pressure for broad detail bodies. The
   next useful win would lower the teddy body's `9` same-color trim jumps without
   returning to centerline body rendering or increasing long-span risk.
+
+No-outline teddy broad body connector role.
+
+Accepted triage update:
+
+- `no_outline_teddy` now uses filled-field connector thresholds for the broad
+  `#a05a28` brown body while keeping the surface in the detail pass for layer
+  order.
+- `surface-plan.json` records `coloredStrokeConnectorRole: foundation` next to
+  the existing `coloredStrokeBodyFill` diagnostic.
+- Metrics improve from the accepted filled-body baseline: stitches
+  `2497 -> 2485`, jumps `34 -> 29`, trims `11 -> 8`.
+- The body group improves jumps `16 -> 11` and trims `9 -> 6`, adding only
+  five travel stitches.
+- Quality remains `100`, risk remains `0`, acceptance issues remain `0`, and
+  same-surface stitched/untrimmed long spans remain `0`.
+- Full generated and underpaint suites are unchanged; uploaded changes only
+  `no_outline_teddy`.
+
+Validation and reports:
+
+- Focused uploaded comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_no_outline_teddy_broad_body_connector_role_final_20260701.html`
+- Uploaded full comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_broad_body_connector_role_full_20260701.html`
+- Generated full comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_broad_body_connector_role_full_20260701.html`
+- Underpaint full comparison: `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_broad_body_connector_role_full_20260701.html`
+
+Next recommended direction:
+
+- Continue bounded broad-detail body cleanup. The next lead is reducing the
+  remaining long same-surface trimmed body gap or the ear relocation without
+  broadening route behavior across generated/underpaint fixtures.

@@ -741,3 +741,18 @@ body rendering. Validation reports:
 `tmp/underpaint_compare_broad_colored_body_fill_full_20260701.html`. Next
 stitch-style lead: reduce same-color trim/travel pressure on broad detail
 bodies without reintroducing centerline body rendering.
+
+2026-07-01 update: the broad teddy body now uses foundation-like connector
+thresholds while staying in the detail pass for layer order. This trims the
+filled-body follow-up cost without changing generated or underpaint behavior:
+`no_outline_teddy` improves stitches `2497 -> 2485`, jumps `34 -> 29`, and
+trims `11 -> 8`; the `#a05a28` body group improves jumps `16 -> 11` and trims
+`9 -> 6`. Quality remains `100`, risk remains `0`, acceptance issues remain
+`0`, same-surface stitched/untrimmed long spans remain `0`, and full generated
+and underpaint comparisons are unchanged. The surface plan records
+`coloredStrokeConnectorRole: foundation`. Validation reports:
+`tmp/uploaded_compare_broad_body_connector_role_full_20260701.html`,
+`tmp/generated_compare_broad_body_connector_role_full_20260701.html`, and
+`tmp/underpaint_compare_broad_body_connector_role_full_20260701.html`. Next
+lead: reduce the remaining long same-surface trimmed body gap or ear relocation
+without broadening routing behavior.

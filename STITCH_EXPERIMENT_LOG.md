@@ -6558,3 +6558,59 @@ Validation:
 NEXT: continue bounded stitch-style work on no-outline flat icons, but shift
 from source/color preservation to fill smoothness and travel/trim pressure for
 broad detail bodies. Do not re-enable centerline shortcuts for broad material.
+
+================================================================================
+2026-07-01 — NO-OUTLINE TEDDY BROAD BODY CONNECTOR ROLE
+================================================================================
+
+Target: after the broad brown teddy body was restored as filled material, the
+`#a05a28` body still used tiny-detail connector thresholds. That preserved the
+correct filled body but created avoidable same-color trims inside one broad
+material field.
+
+Change:
+
+- Keep the broad colored body in the detail pass for layer order.
+- Override only its emitted segment role to `foundation`, so converter connector
+  thresholds treat it like a broad filled field instead of a tiny floating
+  detail.
+- Add `coloredStrokeConnectorRole: foundation` to `surface-plan.json` for the
+  affected surface. The surface role remains `detail`, and the body still uses
+  `stroke_scan`.
+
+Accepted metrics:
+
+- `no_outline_teddy`: stitches `2497 -> 2485`, jumps `34 -> 29`,
+  trims `11 -> 8`.
+- Body group `#a05a28`: jumps `16 -> 11`, trims `9 -> 6`,
+  travel stitches `0 -> 5`.
+- Quality stays `100`; risk stays `0`; acceptance issues stay `0`; same-surface
+  stitched and untrimmed long spans stay `0`; broad route risk stays `0`.
+- Full generated and underpaint suites are unchanged; uploaded changes only
+  `no_outline_teddy`.
+
+Validation:
+
+- targeted uploaded strict:
+  `tmp/uploaded_no_outline_teddy_broad_body_connector_role_final2_20260701`
+- focused comparison:
+  `tmp/uploaded_compare_no_outline_teddy_broad_body_connector_role_final_20260701.html`
+- full uploaded strict source policy:
+  `tmp/uploaded_broad_body_connector_role_full_20260701`
+- full generated strict:
+  `tmp/generated_broad_body_connector_role_full_20260701`
+- full underpaint benchmark:
+  `tmp/underpaint_broad_body_connector_role_full_20260701`
+- uploaded comparison:
+  `tmp/uploaded_compare_broad_body_connector_role_full_20260701.html`
+- generated comparison:
+  `tmp/generated_compare_broad_body_connector_role_full_20260701.html`
+- underpaint comparison:
+  `tmp/underpaint_compare_broad_body_connector_role_full_20260701.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+NEXT: remaining teddy pressure is the long same-surface trimmed gap on the body
+and a cross-surface ear relocation. Look next at row-order/entry-point choices
+for broad detail bodies, but keep the connector-role gate narrow and do not
+change general routing unless a comparison report identifies a real risk.

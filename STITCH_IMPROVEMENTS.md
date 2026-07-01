@@ -1350,6 +1350,34 @@ Validation:
 
 ---
 
+## Broad Detail Body Connector Thresholds
+
+Broad colored material can still be classified as detail for layer order, but
+its internal connector policy should behave like a filled field. The teddy body
+now keeps the filled `stroke_scan` material result while using foundation-like
+segment roles for converter connector thresholds.
+
+Accepted 2026-07-01 result:
+
+- `no_outline_teddy` broad `#a05a28` body remains a filled surface.
+- `surface-plan.json` records `coloredStrokeConnectorRole: foundation`.
+- stitches `2497 -> 2485`, jumps `34 -> 29`, trims `11 -> 8`.
+- body group jumps `16 -> 11`, trims `9 -> 6`, travel stitches `0 -> 5`.
+- quality remains `100`; acceptance issues remain `0`; same-surface
+  stitched/untrimmed long spans and broad route risk remain clean.
+- generated and underpaint full suites are unchanged.
+
+Validation:
+
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_no_outline_teddy_broad_body_connector_role_final_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/uploaded_compare_broad_body_connector_role_full_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/generated_compare_broad_body_connector_role_full_20260701.html`
+- `/Users/partido/jeflabelmaker/website/embroidery-stitch-backend/tmp/underpaint_compare_broad_body_connector_role_full_20260701.html`
+- `PYTHONPYCACHEPREFIX=tmp/pycache npm run check:python`
+- `npm run typecheck`
+
+---
+
 ## Out of scope for this plan
 
 - **Photo-realistic embroidery** (>10 colors with subtle blends) — the auto-conversion pipeline cannot match a hand-digitized photo realistic design. Stay focused on the 4–8 color stylized designs that match the example library.
